@@ -1,11 +1,5 @@
 import AdvisorCard from "./AdvisorCard";
-import everGreenImg from "@/assets/advisor-ever-green.jpg";
-import prismaImg from "@/assets/advisor-prisma.jpg";
-import phoenixImg from "@/assets/advisor-phoenix.jpg";
-import toxicImg from "@/assets/advisor-toxic.jpg";
-import techPriestImg from "@/assets/advisor-tech-priest.jpg";
-import virgilImg from "@/assets/advisor-virgil.jpg";
-import zenImg from "@/assets/advisor-zen.jpg";
+import placeholderImg from "@/assets/advisor-placeholder.png";
 
 const advisors = [
   {
@@ -14,7 +8,7 @@ const advisors = [
     tagline: "Built 3 unicorns. Will call out your BS.",
     status: "Online (always is)",
     stat: "Live roast: Your TAM slide is fiction",
-    image: everGreenImg,
+    image: placeholderImg,
     color: "blue" as const,
   },
   {
@@ -23,7 +17,7 @@ const advisors = [
     tagline: "Ship faster. Overthink less.",
     status: "Reviewing PRDs",
     stat: "12 features killed today",
-    image: prismaImg,
+    image: placeholderImg,
     color: "blue" as const,
   },
   {
@@ -32,7 +26,7 @@ const advisors = [
     tagline: "Your marketing sucks. Let me fix it.",
     status: "Plotting growth hacks",
     stat: "47 campaigns optimized today",
-    image: phoenixImg,
+    image: placeholderImg,
     color: "red" as const,
   },
   {
@@ -41,7 +35,7 @@ const advisors = [
     tagline: "I'll hack you before they do",
     status: "Finding vulnerabilities",
     stat: "Saved users €2.4M from breaches",
-    image: toxicImg,
+    image: placeholderImg,
     color: "red" as const,
   },
   {
@@ -50,7 +44,7 @@ const advisors = [
     tagline: "Your architecture is showing",
     status: "Refactoring reality",
     stat: "99.9% uptime maintained",
-    image: techPriestImg,
+    image: placeholderImg,
     color: "blue" as const,
   },
   {
@@ -59,7 +53,7 @@ const advisors = [
     tagline: "Make it beautiful or don't ship",
     status: "Perfecting pixels",
     stat: "374 brands elevated",
-    image: virgilImg,
+    image: placeholderImg,
     color: "purple" as const,
   },
   {
@@ -68,7 +62,7 @@ const advisors = [
     tagline: "Burn bright, not out",
     status: "Morning yoga session",
     stat: "89 founders from burnout saved",
-    image: zenImg,
+    image: placeholderImg,
     color: "green" as const,
   },
 ];
