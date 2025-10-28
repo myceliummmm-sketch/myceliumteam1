@@ -22,7 +22,9 @@ const Hero = () => {
         </div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-mono font-extrabold mb-6 leading-tight tracking-tight">
-          <span className="text-muted-foreground">advisors are dead.</span>
+          <span className="bg-gradient-to-r from-muted-foreground via-primary/60 to-muted-foreground bg-clip-text text-transparent">
+            advisors are dead.
+          </span>
           <br />
           <span className="text-foreground">get </span>
           <span className="relative inline-block">
@@ -32,12 +34,16 @@ const Hero = () => {
           <span className="text-foreground"> for $29</span>
         </h1>
 
-        <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto font-medium">
-          Real advice. Real time. Real results.
+        <p className="text-xl md:text-2xl mb-4 max-w-2xl mx-auto font-medium">
+          <span className="bg-gradient-to-r from-electric-blue via-neon-green to-electric-blue bg-clip-text text-transparent animate-pulse">
+            Real advice. Real time. Real results.
+          </span>
         </p>
         
-        <p className="text-sm md:text-base text-muted-foreground/70 mb-12 font-mono">
-          your competition doesn't know this exists yet
+        <p className="text-sm md:text-base mb-12 font-mono">
+          <span className="bg-gradient-to-r from-neon-red/70 via-primary/70 to-neon-red/70 bg-clip-text text-transparent">
+            your competition doesn't know this exists yet
+          </span>
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
