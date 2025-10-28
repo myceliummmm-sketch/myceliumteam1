@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 
 interface AdvisorCardProps {
@@ -14,6 +14,7 @@ interface AdvisorCardProps {
 
 const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }: AdvisorCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const colorClasses = {
     blue: "from-primary/20 to-transparent border-primary/30 shadow-[0_0_30px_hsl(var(--primary)/0.2)]",
@@ -25,34 +26,49 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
   return (
     <div
       className={`relative group cursor-pointer transition-all duration-500 ${isHovered ? "scale-105" : ""}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        if (videoRef.current) {
+          videoRef.current.play();
+        }
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        if (videoRef.current) {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+        }
+      }}
     >
       {/* Card Container */}
       <div className={`relative aspect-square rounded-2xl bg-gradient-to-br ${colorClasses[color]} backdrop-blur-sm border-2 overflow-hidden transition-all duration-500 ${isHovered ? "border-opacity-70" : ""}`}>
-        {/* Video Background - Only shows on hover for Ever Green */}
+        {/* Video - Replaces portrait when available, static by default, plays and expands on hover */}
         {video && (
           <video
-            autoPlay
+            ref={videoRef}
             loop
             muted
             playsInline
             preload="metadata"
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-              isHovered ? 'opacity-100 z-0' : 'opacity-0 z-0'
-            }`}
+            className={`absolute ${
+              isHovered 
+                ? 'inset-0 w-full h-full' 
+                : 'right-0 top-0 bottom-0 w-1/2'
+            } object-cover transition-all duration-500 ease-in-out z-0`}
             src={video}
           />
         )}
         
-        {/* Portrait Image - Right Side */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2">
-          <img 
-            src={image} 
-            alt={name} 
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
+        {/* Portrait Image - Only when no video */}
+        {!video && (
+          <div className="absolute right-0 top-0 bottom-0 w-1/2">
+            <img 
+              src={image} 
+              alt={name} 
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
+        )}
 
         {/* Content - Left Side */}
         <div className="relative z-10 h-full flex flex-col justify-between p-6 w-1/2">
