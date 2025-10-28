@@ -6,11 +6,11 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Video Background */}
       <div className="absolute inset-0 w-full h-full">
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background z-10" />
         <img 
           src="/hero-video.gif" 
           alt="Mycelium ecosystem visualization"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-90 blur-[2px]"
         />
       </div>
 
@@ -21,34 +21,39 @@ const Hero = () => {
           <span className="text-sm font-mono text-muted-foreground">building the digital state for the ai generation</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-mono font-bold mb-6 leading-tight">
-          Your world-class team <br />
-          <span className="text-primary">costs less than your </span>
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-mono font-extrabold mb-6 leading-tight tracking-tight">
+          <span className="text-muted-foreground">advisors are dead.</span>
+          <br />
+          <span className="text-foreground">get </span>
           <span className="relative inline-block">
-            <span className="relative z-10">Netflix subscription</span>
-            <span className="absolute inset-0 blur-xl bg-primary/30 animate-pulse" />
+            <span className="relative z-10 text-primary">7 founders</span>
+            <span className="absolute inset-0 blur-2xl bg-primary/40 animate-pulse" />
           </span>
+          <span className="text-foreground"> for $29</span>
         </h1>
 
-        <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto">
-          Real founders backing AI advisors. Real advice when you're stuck at 3am. 
-          <span className="text-foreground font-semibold"> Real money in your Stripe account.</span>
+        <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto font-medium">
+          Real advice. Real time. Real results.
+        </p>
+        
+        <p className="text-sm md:text-base text-muted-foreground/70 mb-12 font-mono">
+          your competition doesn't know this exists yet
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Button 
             size="lg" 
-            className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)] transition-all duration-300"
+            className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono font-bold shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)] transition-all duration-300"
           >
-            Apply for Early Access
+            Get In Now
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
           <Button 
             size="lg" 
-            variant="outline"
-            className="text-lg px-8 py-6 border-primary/30 hover:bg-primary/10 hover:border-primary/50 font-mono transition-all duration-300"
+            variant="ghost"
+            className="text-lg px-8 py-6 border border-primary/30 hover:bg-primary/10 hover:border-primary/50 font-mono transition-all duration-300"
           >
-            See Them Roast a Startup →
+            Watch Them Cook
           </Button>
         </div>
 
