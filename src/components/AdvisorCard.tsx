@@ -29,19 +29,17 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color }: Adviso
     >
       {/* Card Container */}
       <div className={`relative h-[500px] rounded-2xl bg-gradient-to-br ${colorClasses[color]} backdrop-blur-sm border-2 overflow-hidden transition-all duration-500 ${isHovered ? "border-opacity-70" : ""}`}>
-        {/* Portrait Background */}
-        <div className="absolute inset-0">
+        {/* Portrait Image - Right Side */}
+        <div className="absolute right-0 top-0 bottom-0 w-2/5">
           <img 
             src={image} 
             alt={name} 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
-          <div className={`absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent`} />
-          <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses[color]} opacity-20 group-hover:opacity-30 transition-opacity duration-500`} />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-between p-6">
+        {/* Content - Left Side */}
+        <div className="relative z-10 h-full flex flex-col justify-between p-6 w-3/5">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -74,9 +72,6 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color }: Adviso
             </Button>
           </div>
         </div>
-
-        {/* Corner Decoration */}
-        <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${colorClasses[color]} blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500`} />
       </div>
     </div>
   );
