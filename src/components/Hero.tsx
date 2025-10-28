@@ -4,18 +4,14 @@ import { ArrowRight, Sparkles } from "lucide-react";
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Video Background */}
+      {/* Hero Video Background */}
       <div className="absolute inset-0 w-full h-full">
-        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/30 to-background z-10" />
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover opacity-40"
-        >
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-futuristic-structures-46043-large.mp4" type="video/mp4" />
-        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background z-10" />
+        <img 
+          src="/hero-video.gif" 
+          alt="Mycelium ecosystem visualization"
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Content */}
