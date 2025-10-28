@@ -9,9 +9,10 @@ interface AdvisorCardProps {
   stat: string;
   image: string;
   color: "blue" | "red" | "green" | "purple";
+  video?: string;
 }
 
-const AdvisorCard = ({ name, role, tagline, status, stat, image, color }: AdvisorCardProps) => {
+const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }: AdvisorCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const colorClasses = {
@@ -28,9 +29,24 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color }: Adviso
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Card Container */}
-      <div className={`relative h-[500px] rounded-2xl bg-gradient-to-br ${colorClasses[color]} backdrop-blur-sm border-2 overflow-hidden transition-all duration-500 ${isHovered ? "border-opacity-70" : ""}`}>
+      <div className={`relative aspect-square rounded-2xl bg-gradient-to-br ${colorClasses[color]} backdrop-blur-sm border-2 overflow-hidden transition-all duration-500 ${isHovered ? "border-opacity-70" : ""}`}>
+        {/* Video Background - Only shows on hover for Ever Green */}
+        {video && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+              isHovered ? 'opacity-100 z-0' : 'opacity-0 z-0'
+            }`}
+            src={video}
+          />
+        )}
+        
         {/* Portrait Image - Right Side */}
-        <div className="absolute right-0 top-0 bottom-0 w-2/5">
+        <div className="absolute right-0 top-0 bottom-0 w-1/2">
           <img 
             src={image} 
             alt={name} 
@@ -39,7 +55,7 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color }: Adviso
         </div>
 
         {/* Content - Left Side */}
-        <div className="relative z-10 h-full flex flex-col justify-between p-6 w-3/5">
+        <div className="relative z-10 h-full flex flex-col justify-between p-6 w-1/2">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2 mb-2">

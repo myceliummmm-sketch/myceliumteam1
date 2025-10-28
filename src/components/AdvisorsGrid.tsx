@@ -10,6 +10,7 @@ const advisors = [
     stat: "Live roast: Your TAM slide is fiction",
     image: placeholderImg,
     color: "blue" as const,
+    video: "/ever-green-hover.mp4",
   },
   {
     name: "Prisma",
