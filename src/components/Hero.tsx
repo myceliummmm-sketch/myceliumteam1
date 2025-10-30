@@ -1,9 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import everGreenImg from "@/assets/advisor-ever-green.jpg";
+import phoenixImg from "@/assets/advisor-phoenix.jpg";
+import prismaImg from "@/assets/advisor-prisma.jpg";
+import techPriestImg from "@/assets/advisor-tech-priest.jpg";
+import toxicImg from "@/assets/advisor-toxic.jpg";
+import virgilImg from "@/assets/advisor-virgil.jpg";
+import zenImg from "@/assets/advisor-zen.jpg";
 
 const Hero = () => {
   const navigate = useNavigate();
+  
+  const advisorAvatars = [
+    { name: 'Ever Green', image: everGreenImg },
+    { name: 'Prisma', image: prismaImg },
+    { name: 'Phoenix', image: phoenixImg },
+    { name: 'Toxic', image: toxicImg },
+    { name: 'Tech Priest', image: techPriestImg },
+    { name: 'Virgil', image: virgilImg },
+    { name: 'Zen', image: zenImg },
+  ];
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Video Background */}
@@ -70,16 +88,18 @@ const Hero = () => {
         {/* Advisor Preview Grid */}
         <div className="flex items-center justify-center gap-4 flex-wrap max-w-2xl mx-auto">
           <p className="text-sm text-muted-foreground font-mono w-full mb-4">meet your team:</p>
-          {['Ever Green', 'Prisma', 'Phoenix', 'Toxic', 'Tech Priest', 'Virgil', 'Zen'].map((name, i) => (
+          {advisorAvatars.map((advisor, i) => (
             <div
-              key={name}
+              key={advisor.name}
               className="group relative w-16 h-16 rounded-full border-2 border-primary/50 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-110 hover:border-primary hover:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
               style={{ animationDelay: `${i * 100}ms` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent group-hover:from-primary/40 transition-all duration-300" />
-              <div className="w-full h-full bg-secondary flex items-center justify-center text-xs font-mono">
-                {name.split(' ').map(w => w[0]).join('')}
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent group-hover:from-primary/40 transition-all duration-300 z-10" />
+              <img 
+                src={advisor.image} 
+                alt={advisor.name}
+                className="w-full h-full object-cover"
+              />
             </div>
           ))}
         </div>
