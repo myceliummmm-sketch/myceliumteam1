@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Video Background */}
@@ -48,6 +50,7 @@ const Hero = () => {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Button 
+            onClick={() => navigate('/register')}
             size="lg" 
             className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono font-bold shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)] transition-all duration-300"
           >
@@ -55,6 +58,7 @@ const Hero = () => {
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
           <Button 
+            onClick={() => navigate('/register')}
             size="lg" 
             variant="ghost"
             className="text-lg px-8 py-6 border border-primary/30 hover:bg-primary/10 hover:border-primary/50 font-mono transition-all duration-300"

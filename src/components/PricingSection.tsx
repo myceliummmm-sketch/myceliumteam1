@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const PricingSection = () => {
+  const navigate = useNavigate();
   const [count, setCount] = useState(437);
 
   useEffect(() => {
@@ -51,7 +53,7 @@ const PricingSection = () => {
               </li>
             </ul>
 
-            <Button variant="outline" className="w-full border-primary/30 hover:bg-primary/10 font-mono">
+            <Button onClick={() => navigate('/register')} variant="outline" className="w-full border-primary/30 hover:bg-primary/10 font-mono">
               Start Free Trial
             </Button>
           </div>
@@ -94,7 +96,7 @@ const PricingSection = () => {
               </li>
             </ul>
 
-            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
+            <Button onClick={() => navigate('/register')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
               Get Started →
             </Button>
 
@@ -132,7 +134,7 @@ const PricingSection = () => {
               </li>
             </ul>
 
-            <Button variant="outline" className="w-full border-neon-green/30 hover:bg-neon-green/10 font-mono">
+            <Button onClick={() => navigate('/register')} variant="outline" className="w-full border-neon-green/30 hover:bg-neon-green/10 font-mono">
               Contact Sales
             </Button>
           </div>
@@ -150,7 +152,7 @@ const PricingSection = () => {
         </div>
 
         <div className="text-center">
-          <Button size="lg" className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_40px_hsl(var(--primary)/0.3)]">
+          <Button onClick={() => navigate('/register')} size="lg" className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_40px_hsl(var(--primary)/0.3)]">
             Apply for Early Access
           </Button>
         </div>
