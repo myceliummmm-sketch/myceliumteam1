@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
@@ -29,6 +30,28 @@ const moodEmojis = {
 export function TeamPanel() {
   const teamMood = useGameStore((state) => state.teamMood);
   const activeSpeaker = useGameStore((state) => state.activeSpeaker);
+  const messages = useGameStore((state) => state.messages);
+  const setActiveSpeaker = useGameStore((state) => state.setActiveSpeaker);
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === 'assistant' && lastMessage.segments) {
+      const lastSpeech = lastMessage.segments
+        .filter(s => s.type === 'speech' && s.speaker)
+        .pop();
+      
+      if (lastSpeech?.speaker) {
+        setActiveSpeaker(lastSpeech.speaker);
+        
+        // Clear active speaker after 3 seconds
+        const timeout = setTimeout(() => {
+          setActiveSpeaker(null);
+        }, 3000);
+        
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [messages, setActiveSpeaker]);
 
   return (
     <Card className="p-4">

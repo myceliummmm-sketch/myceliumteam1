@@ -14,6 +14,9 @@ export function useGameSession() {
 
     const initSession = async () => {
       try {
+        // Clear any existing messages from initial state
+        useGameStore.getState().clearMessages();
+        
         // Check for active session
         const { data: existingSession } = await supabase
           .from('game_sessions')
@@ -140,8 +143,19 @@ export function useGameSession() {
   }, [user]);
 
   const sendMessage = async (message: string) => {
-    const sessionId = useGameStore.getState().sessionId;
+    const store = useGameStore.getState();
+    const sessionId = store.sessionId;
     if (!sessionId) return;
+
+    // Add user message immediately
+    addMessage({
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: message,
+      segments: [{ type: 'speech', content: message }],
+      gameEvents: [],
+      createdAt: new Date()
+    });
 
     setGameLoading(true);
 
@@ -164,11 +178,21 @@ export function useGameSession() {
 
       // Update game state
       updateStats(data.updatedState);
+      
+      // Process game events for toasts
+      const processGameEvents = useGameStore.getState().processGameEvents;
+      processGameEvents(data.gameEvents);
 
       // Show level up toast
-      const levelUpEvent = data.gameEvents.find((e: any) => e.type === 'LEVEL_UP');
+      const levelUpEvent = data.gameEvents?.find((e: any) => e.type === 'LEVEL_UP');
       if (levelUpEvent) {
         toast.success(`🎉 Level Up! You're now level ${levelUpEvent.data.newLevel}!`);
+      }
+
+      // Show XP gain
+      const xpGainEvent = data.gameEvents?.find((e: any) => e.type === 'XP_GAIN');
+      if (xpGainEvent) {
+        toast.success(`+${xpGainEvent.data.amount} XP: ${xpGainEvent.data.reason}`);
       }
 
     } catch (error) {

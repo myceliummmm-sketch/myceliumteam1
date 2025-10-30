@@ -9,6 +9,7 @@ interface GameActions {
   setLoading: (isLoading: boolean) => void;
   setSessionId: (sessionId: string) => void;
   resetGame: () => void;
+  clearMessages: () => void;
 }
 
 const initialState: GameState = {
@@ -42,15 +43,81 @@ const initialState: GameState = {
 export const useGameStore = create<GameState & GameActions>((set) => ({
   ...initialState,
   
-  addMessage: (message) => set((state) => ({
-    messages: [...state.messages, message]
-  })),
+  addMessage: (message) => set((state) => {
+    // Prevent duplicates by checking if message ID already exists
+    const exists = state.messages.some(m => m.id === message.id);
+    if (exists) return state;
+    
+    return {
+      messages: [...state.messages, message]
+    };
+  }),
   
   updateStats: (stats) => set(stats),
   
   processGameEvents: (events) => {
-    // Will be implemented in game event processor
-    console.log('Processing events:', events);
+    set((state) => {
+      let newState = { ...state };
+      
+      events.forEach(event => {
+        switch (event.type) {
+          case 'XP_GAIN':
+            const newXp = newState.xp + event.data.amount;
+            const xpForLevel = newState.level * 100;
+            if (newXp >= xpForLevel) {
+              newState.level += 1;
+              newState.xp = newXp - xpForLevel;
+            } else {
+              newState.xp = newXp;
+            }
+            break;
+          
+          case 'ENERGY_UPDATE':
+            newState.energy = Math.max(0, Math.min(10, newState.energy + event.data.delta));
+            break;
+          
+          case 'CODE_HEALTH_UPDATE':
+            newState.codeHealth = Math.max(0, Math.min(100, newState.codeHealth + event.data.delta));
+            break;
+          
+          case 'PHASE_CHANGE':
+            newState.currentPhase = event.data.newPhase;
+            break;
+          
+          case 'TASK_COMPLETE':
+            const taskIndex = newState.currentTasks.findIndex(t => t.id === event.data.taskId);
+            if (taskIndex >= 0) {
+              const task = newState.currentTasks[taskIndex];
+              newState.completedTasks = [...newState.completedTasks, { ...task, completed: true }];
+              newState.currentTasks = newState.currentTasks.filter((_, i) => i !== taskIndex);
+            }
+            break;
+          
+          case 'BLOCKER_ADDED':
+            const blocker = {
+              id: crypto.randomUUID(),
+              description: event.data.description,
+              severity: event.data.severity,
+              createdAt: new Date()
+            };
+            newState.blockers = [...newState.blockers, blocker];
+            break;
+          
+          case 'MILESTONE_UNLOCKED':
+            const milestone = {
+              id: crypto.randomUUID(),
+              name: event.data.name,
+              description: event.data.description,
+              phase: newState.currentPhase,
+              unlockedAt: new Date()
+            };
+            newState.milestones = [...newState.milestones, milestone];
+            break;
+        }
+      });
+      
+      return newState;
+    });
   },
   
   setActiveSpeaker: (speaker) => set({ activeSpeaker: speaker }),
@@ -60,4 +127,6 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   setSessionId: (sessionId) => set({ sessionId }),
   
   resetGame: () => set(initialState),
+  
+  clearMessages: () => set({ messages: [] }),
 }));
