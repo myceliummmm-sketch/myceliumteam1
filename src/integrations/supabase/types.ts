@@ -84,6 +84,27 @@ export type Database = {
           },
         ]
       }
+      daily_logins: {
+        Row: {
+          created_at: string | null
+          id: string
+          login_date: string
+          player_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          login_date: string
+          player_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          login_date?: string
+          player_id?: string
+        }
+        Relationships: []
+      }
       game_sessions: {
         Row: {
           completed_at: string | null
@@ -93,6 +114,7 @@ export type Database = {
           final_xp: number | null
           id: string
           is_active: boolean | null
+          last_login: string | null
           player_id: string
           started_at: string | null
         }
@@ -104,6 +126,7 @@ export type Database = {
           final_xp?: number | null
           id?: string
           is_active?: boolean | null
+          last_login?: string | null
           player_id: string
           started_at?: string | null
         }
@@ -115,6 +138,7 @@ export type Database = {
           final_xp?: number | null
           id?: string
           is_active?: boolean | null
+          last_login?: string | null
           player_id?: string
           started_at?: string | null
         }
@@ -138,6 +162,7 @@ export type Database = {
           current_tasks: Json | null
           energy: number | null
           id: string
+          last_energy_update: string | null
           level: number | null
           milestones: Json | null
           session_id: string
@@ -155,6 +180,7 @@ export type Database = {
           current_tasks?: Json | null
           energy?: number | null
           id?: string
+          last_energy_update?: string | null
           level?: number | null
           milestones?: Json | null
           session_id: string
@@ -172,6 +198,7 @@ export type Database = {
           current_tasks?: Json | null
           energy?: number | null
           id?: string
+          last_energy_update?: string | null
           level?: number | null
           milestones?: Json | null
           session_id?: string
@@ -189,6 +216,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      player_progress: {
+        Row: {
+          created_at: string | null
+          has_completed_tutorial: boolean | null
+          player_id: string
+          tutorial_step: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          has_completed_tutorial?: boolean | null
+          player_id: string
+          tutorial_step?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          has_completed_tutorial?: boolean | null
+          player_id?: string
+          tutorial_step?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       players: {
         Row: {

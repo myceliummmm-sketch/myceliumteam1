@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { floatingTextAnimation, floatingTextTransition } from '@/lib/animations';
-import { AlertTriangle, Zap } from 'lucide-react';
+import { AlertTriangle, Zap, Clock } from 'lucide-react';
+import { getTimeUntilNextEnergy, getMaxEnergy } from '@/lib/energySystem';
 
 export function StatsPanel() {
   const xp = useGameStore((state) => state.xp);
@@ -14,14 +15,16 @@ export function StatsPanel() {
   const energy = useGameStore((state) => state.energy);
   const streak = useGameStore((state) => state.streak);
   const codeHealth = useGameStore((state) => state.codeHealth);
+  const lastEnergyUpdate = useGameStore((state) => state.lastEnergyUpdate);
 
   const [prevXp, setPrevXp] = useState(xp);
   const [showXpGain, setShowXpGain] = useState(false);
   const [xpGainAmount, setXpGainAmount] = useState(0);
+  const [timeUntilNext, setTimeUntilNext] = useState({ hours: 0, minutes: 0 });
 
   const xpToNextLevel = level * 100;
   const xpProgress = (xp / xpToNextLevel) * 100;
-  const maxEnergy = 10;
+  const maxEnergy = getMaxEnergy();
   const energyProgress = (energy / maxEnergy) * 100;
 
   useEffect(() => {
@@ -33,6 +36,21 @@ export function StatsPanel() {
     }
     setPrevXp(xp);
   }, [xp, prevXp]);
+
+  // Update energy timer every minute
+  useEffect(() => {
+    if (!lastEnergyUpdate || energy >= maxEnergy) return;
+
+    const updateTimer = () => {
+      const time = getTimeUntilNextEnergy(lastEnergyUpdate);
+      setTimeUntilNext(time);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [lastEnergyUpdate, energy, maxEnergy]);
 
   return (
     <Card className="p-4">
@@ -138,6 +156,17 @@ export function StatsPanel() {
               style={{ background: 'hsl(var(--chart-1) / 0.2)' }}
             />
           </motion.div>
+          {/* Energy Timer */}
+          {energy < maxEnergy && lastEnergyUpdate && (
+            <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>
+                {energy === maxEnergy - 1 
+                  ? 'Full Energy!' 
+                  : `Next energy in: ${timeUntilNext.hours}h ${timeUntilNext.minutes}m`}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Streak */}

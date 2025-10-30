@@ -76,6 +76,14 @@ export interface GameState {
   isLoading: boolean;
   lastSaved: Date | null;
   
+  // Energy system
+  lastEnergyUpdate: Date | null;
+  
+  // Tutorial system
+  showTutorial: boolean;
+  tutorialStep: number | null;
+  hasCompletedTutorial: boolean;
+  
   // UI State
   showLevelUpModal: boolean;
   levelUpRewards: {

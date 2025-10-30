@@ -8,6 +8,8 @@ import { InputBar } from '@/components/shipit/InputBar';
 import { StatsPanel } from '@/components/shipit/StatsPanel';
 import { QuestLog } from '@/components/shipit/QuestLog';
 import { LevelUpModal } from '@/components/shipit/LevelUpModal';
+import { StreakCalendar } from '@/components/shipit/StreakCalendar';
+import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
 import { LogOut, Loader2 } from 'lucide-react';
 
 export default function ShipIt() {
@@ -38,27 +40,34 @@ export default function ShipIt() {
       
       <div className="h-[calc(100vh-6rem)] grid grid-cols-12 gap-4">
         {/* Left: Team Panel (2 cols) */}
-        <div className="col-span-2 overflow-y-auto">
+        <div className="col-span-2 overflow-y-auto" data-tutorial-target="team-panel">
           <TeamPanel />
         </div>
         
         {/* Center: Chat & Terminal (7 cols) */}
         <div className="col-span-7 flex flex-col gap-4 min-h-0">
           <PhaseProgress />
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0" data-tutorial-target="chat-terminal">
             <ChatTerminal />
           </div>
-          <div className="sticky bottom-0 bg-background">
+          <div className="sticky bottom-0 bg-background" data-tutorial-target="input-bar">
             <InputBar />
           </div>
         </div>
         
         {/* Right: Stats & Quest Log (3 cols) */}
         <div className="col-span-3 flex flex-col gap-4 overflow-y-auto">
-          <StatsPanel />
-          <QuestLog />
+          <div data-tutorial-target="stats-panel">
+            <StatsPanel />
+          </div>
+          <StreakCalendar />
+          <div data-tutorial-target="quest-log">
+            <QuestLog />
+          </div>
         </div>
       </div>
+      
+      <TutorialOverlay />
     </div>
   );
 }

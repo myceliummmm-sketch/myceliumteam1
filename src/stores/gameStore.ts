@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { GameState, ChatMessage, GameEvent, TeamMember } from '@/types/game';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GameActions {
   addMessage: (message: ChatMessage) => void;
@@ -12,6 +13,10 @@ interface GameActions {
   clearMessages: () => void;
   setShowLevelUpModal: (show: boolean) => void;
   setLevelUpRewards: (rewards: { spores: number; milestone?: string }) => void;
+  regenerateEnergy: () => void;
+  nextTutorialStep: () => void;
+  skipTutorial: () => void;
+  setShowTutorial: (show: boolean) => void;
 }
 
 const initialState: GameState = {
@@ -40,6 +45,10 @@ const initialState: GameState = {
   sessionId: null,
   isLoading: false,
   lastSaved: null,
+  lastEnergyUpdate: null,
+  showTutorial: false,
+  tutorialStep: null,
+  hasCompletedTutorial: false,
   showLevelUpModal: false,
   levelUpRewards: { spores: 0 },
 };
@@ -150,4 +159,77 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   setShowLevelUpModal: (show) => set({ showLevelUpModal: show }),
   
   setLevelUpRewards: (rewards) => set({ levelUpRewards: rewards }),
+  
+  regenerateEnergy: () => set((state) => {
+    if (!state.lastEnergyUpdate || state.energy >= 10) return state;
+    
+    const { calculateEnergyRegeneration } = require('@/lib/energySystem');
+    const { newEnergy, energyGained } = calculateEnergyRegeneration(
+      state.lastEnergyUpdate,
+      state.energy
+    );
+    
+    if (energyGained > 0) {
+      return {
+        energy: newEnergy,
+        lastEnergyUpdate: new Date()
+      };
+    }
+    
+    return state;
+  }),
+  
+  nextTutorialStep: () => set((state) => {
+    const nextStep = (state.tutorialStep || 0) + 1;
+    
+    if (nextStep >= 5) {
+      // Tutorial complete - update database
+      const updateProgress = async () => {
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
+          await supabase
+            .from('player_progress')
+            .update({ 
+              has_completed_tutorial: true,
+              tutorial_step: 5 
+            })
+            .eq('player_id', data.user.id);
+        }
+      };
+      updateProgress();
+      
+      return {
+        showTutorial: false,
+        tutorialStep: null,
+        hasCompletedTutorial: true
+      };
+    }
+    
+    return { tutorialStep: nextStep };
+  }),
+  
+  skipTutorial: () => {
+    // Update database when skipping
+    const updateProgress = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        await supabase
+          .from('player_progress')
+          .update({ 
+            has_completed_tutorial: true,
+            tutorial_step: 5 
+          })
+          .eq('player_id', data.user.id);
+      }
+    };
+    updateProgress();
+    
+    return set({
+      showTutorial: false,
+      tutorialStep: null,
+      hasCompletedTutorial: true
+    });
+  },
+  
+  setShowTutorial: (show) => set({ showTutorial: show }),
 }));

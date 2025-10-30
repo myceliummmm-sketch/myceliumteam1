@@ -3,11 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useGameStore } from '@/stores/gameStore';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
+import { calculateEnergyRegeneration } from '@/lib/energySystem';
+import { calculateStreak, getStreakMilestone } from '@/lib/streakSystem';
+import { format } from 'date-fns';
 
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading } = useGameStore();
+  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial } = useGameStore();
 
   useEffect(() => {
     if (!user) return;
@@ -95,11 +98,24 @@ export function useGameSession() {
           .single();
 
         if (latestState) {
+          // Check for energy regeneration
+          let currentEnergy = latestState.energy;
+          let energyGained = 0;
+          
+          if (latestState.last_energy_update) {
+            const { newEnergy, energyGained: gained } = calculateEnergyRegeneration(
+              new Date(latestState.last_energy_update),
+              latestState.energy
+            );
+            currentEnergy = newEnergy;
+            energyGained = gained;
+          }
+
           updateStats({
             xp: latestState.xp,
             level: latestState.level,
             spores: latestState.spores,
-            energy: latestState.energy,
+            energy: currentEnergy,
             streak: latestState.streak,
             codeHealth: latestState.code_health,
             currentPhase: latestState.current_phase as any,
@@ -107,7 +123,106 @@ export function useGameSession() {
             currentTasks: latestState.current_tasks as any,
             blockers: latestState.blockers as any,
             milestones: latestState.milestones as any,
-            teamMood: latestState.team_mood as any
+            teamMood: latestState.team_mood as any,
+            lastEnergyUpdate: latestState.last_energy_update ? new Date(latestState.last_energy_update) : new Date()
+          });
+
+          // Show welcome back message if energy regenerated
+          if (energyGained > 0) {
+            toast.success(`Welcome back! +${energyGained} energy restored`, {
+              description: 'Your team is recharged and ready!',
+              duration: 4000
+            });
+          }
+
+          // Update energy in database if it changed
+          if (energyGained > 0) {
+            await supabase
+              .from('game_states')
+              .insert({
+                session_id: sessionId,
+                ...latestState,
+                energy: currentEnergy,
+                last_energy_update: new Date().toISOString()
+              });
+          }
+        }
+
+        // Handle daily login for streaks
+        const today = format(new Date(), 'yyyy-MM-dd');
+        const { data: todayLogin } = await supabase
+          .from('daily_logins')
+          .select('*')
+          .eq('player_id', user.id)
+          .eq('login_date', today)
+          .maybeSingle();
+
+        if (!todayLogin) {
+          // Record today's login
+          await supabase.from('daily_logins').insert({
+            player_id: user.id,
+            login_date: today
+          });
+
+          // Fetch recent logins to calculate streak
+          const { data: recentLogins } = await supabase
+            .from('daily_logins')
+            .select('login_date')
+            .eq('player_id', user.id)
+            .order('login_date', { ascending: false })
+            .limit(100);
+
+          if (recentLogins) {
+            const loginDates = recentLogins.map(l => l.login_date);
+            const currentStreak = calculateStreak(loginDates);
+            
+            updateStats({ streak: currentStreak });
+
+            // Check for milestone
+            const milestone = getStreakMilestone(currentStreak);
+            if (milestone) {
+              toast.success(`${milestone.emoji} ${milestone.title}!`, {
+                description: `+${milestone.reward} Spores earned!`,
+                duration: 5000
+              });
+              
+              // Update spores
+              const currentSpores = useGameStore.getState().spores;
+              updateStats({ spores: currentSpores + milestone.reward });
+            }
+          }
+        }
+
+        // Check tutorial status
+        const { data: playerProgress } = await supabase
+          .from('player_progress')
+          .select('*')
+          .eq('player_id', user.id)
+          .maybeSingle();
+
+        if (!playerProgress) {
+          // First time player - create progress and show tutorial
+          await supabase.from('player_progress').insert({
+            player_id: user.id,
+            has_completed_tutorial: false,
+            tutorial_step: 0
+          });
+
+          updateStats({
+            showTutorial: true,
+            tutorialStep: 0,
+            hasCompletedTutorial: false
+          });
+        } else if (!playerProgress.has_completed_tutorial) {
+          // Resume tutorial
+          updateStats({
+            showTutorial: true,
+            tutorialStep: playerProgress.tutorial_step,
+            hasCompletedTutorial: false
+          });
+        } else {
+          updateStats({
+            hasCompletedTutorial: true
           });
         }
 
