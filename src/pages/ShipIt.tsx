@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
+import { useGameSession } from '@/hooks/useGameSession';
 import { Button } from '@/components/ui/button';
 import { TeamPanel } from '@/components/shipit/TeamPanel';
 import { PhaseProgress } from '@/components/shipit/PhaseProgress';
@@ -6,10 +7,22 @@ import { ChatTerminal } from '@/components/shipit/ChatTerminal';
 import { InputBar } from '@/components/shipit/InputBar';
 import { StatsPanel } from '@/components/shipit/StatsPanel';
 import { QuestLog } from '@/components/shipit/QuestLog';
-import { LogOut } from 'lucide-react';
+import { LogOut, Loader2 } from 'lucide-react';
 
 export default function ShipIt() {
   const { signOut } = useAuth();
+  const { loading } = useGameSession();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your game session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4">

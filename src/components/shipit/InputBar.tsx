@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGameStore } from '@/stores/gameStore';
+import { useGameSession } from '@/hooks/useGameSession';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,23 +8,16 @@ import { Send } from 'lucide-react';
 
 export function InputBar() {
   const [input, setInput] = useState('');
-  const addMessage = useGameStore((state) => state.addMessage);
+  const { sendMessage } = useGameSession();
   const isLoading = useGameStore((state) => state.isLoading);
   const energy = useGameStore((state) => state.energy);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() || isLoading || energy < 1) return;
 
-    addMessage({
-      id: Date.now().toString(),
-      role: 'user',
-      content: input.trim(),
-      segments: [{ type: 'speech', content: input.trim() }],
-      gameEvents: [],
-      createdAt: new Date(),
-    });
-
+    const message = input.trim();
     setInput('');
+    await sendMessage(message);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
