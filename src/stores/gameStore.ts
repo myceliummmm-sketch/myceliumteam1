@@ -10,6 +10,8 @@ interface GameActions {
   setSessionId: (sessionId: string) => void;
   resetGame: () => void;
   clearMessages: () => void;
+  setShowLevelUpModal: (show: boolean) => void;
+  setLevelUpRewards: (rewards: { spores: number; milestone?: string }) => void;
 }
 
 const initialState: GameState = {
@@ -38,6 +40,8 @@ const initialState: GameState = {
   sessionId: null,
   isLoading: false,
   lastSaved: null,
+  showLevelUpModal: false,
+  levelUpRewards: { spores: 0 },
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -58,6 +62,8 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   processGameEvents: (events) => {
     set((state) => {
       let newState = { ...state };
+      let didLevelUp = false;
+      let sporesEarned = 0;
       
       events.forEach(event => {
         switch (event.type) {
@@ -65,8 +71,11 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
             const newXp = newState.xp + event.data.amount;
             const xpForLevel = newState.level * 100;
             if (newXp >= xpForLevel) {
+              didLevelUp = true;
+              sporesEarned = 10 + (newState.level * 5);
               newState.level += 1;
               newState.xp = newXp - xpForLevel;
+              newState.spores += sporesEarned;
             } else {
               newState.xp = newXp;
             }
@@ -116,6 +125,14 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
         }
       });
       
+      if (didLevelUp) {
+        newState.showLevelUpModal = true;
+        newState.levelUpRewards = { 
+          spores: sporesEarned,
+          milestone: newState.level % 5 === 0 ? `Milestone Achieved: Level ${newState.level}!` : undefined
+        };
+      }
+      
       return newState;
     });
   },
@@ -129,4 +146,8 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   resetGame: () => set(initialState),
   
   clearMessages: () => set({ messages: [] }),
+  
+  setShowLevelUpModal: (show) => set({ showLevelUpModal: show }),
+  
+  setLevelUpRewards: (rewards) => set({ levelUpRewards: rewards }),
 }));

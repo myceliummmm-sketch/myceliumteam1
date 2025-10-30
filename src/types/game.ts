@@ -75,4 +75,11 @@ export interface GameState {
   sessionId: string | null;
   isLoading: boolean;
   lastSaved: Date | null;
+  
+  // UI State
+  showLevelUpModal: boolean;
+  levelUpRewards: {
+    spores: number;
+    milestone?: string;
+  };
 }

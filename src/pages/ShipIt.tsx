@@ -7,6 +7,7 @@ import { ChatTerminal } from '@/components/shipit/ChatTerminal';
 import { InputBar } from '@/components/shipit/InputBar';
 import { StatsPanel } from '@/components/shipit/StatsPanel';
 import { QuestLog } from '@/components/shipit/QuestLog';
+import { LevelUpModal } from '@/components/shipit/LevelUpModal';
 import { LogOut, Loader2 } from 'lucide-react';
 
 export default function ShipIt() {
@@ -26,6 +27,8 @@ export default function ShipIt() {
 
   return (
     <div className="min-h-screen bg-background p-4">
+      <LevelUpModal />
+      
       <div className="flex justify-end mb-4">
         <Button variant="outline" onClick={signOut} size="sm">
           <LogOut className="h-4 w-4" />

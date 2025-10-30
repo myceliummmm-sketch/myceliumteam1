@@ -2,6 +2,10 @@ import { useGameStore } from '@/stores/gameStore';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { floatingTextAnimation, floatingTextTransition } from '@/lib/animations';
+import { AlertTriangle, Zap } from 'lucide-react';
 
 export function StatsPanel() {
   const xp = useGameStore((state) => state.xp);
@@ -11,10 +15,24 @@ export function StatsPanel() {
   const streak = useGameStore((state) => state.streak);
   const codeHealth = useGameStore((state) => state.codeHealth);
 
+  const [prevXp, setPrevXp] = useState(xp);
+  const [showXpGain, setShowXpGain] = useState(false);
+  const [xpGainAmount, setXpGainAmount] = useState(0);
+
   const xpToNextLevel = level * 100;
   const xpProgress = (xp / xpToNextLevel) * 100;
   const maxEnergy = 10;
   const energyProgress = (energy / maxEnergy) * 100;
+
+  useEffect(() => {
+    if (xp > prevXp) {
+      const gain = xp - prevXp;
+      setXpGainAmount(gain);
+      setShowXpGain(true);
+      setTimeout(() => setShowXpGain(false), 1500);
+    }
+    setPrevXp(xp);
+  }, [xp, prevXp]);
 
   return (
     <Card className="p-4">
@@ -30,12 +48,56 @@ export function StatsPanel() {
         </div>
 
         {/* XP */}
-        <div>
+        <div className="relative">
           <div className="flex justify-between text-xs mb-1">
             <span className="text-muted-foreground">XP</span>
-            <span className="font-mono">{xp}/{xpToNextLevel}</span>
+            <motion.span 
+              key={xp}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.3 }}
+              className="font-mono"
+            >
+              {xp}/{xpToNextLevel}
+            </motion.span>
           </div>
-          <Progress value={xpProgress} className="h-2" />
+          <div className="relative">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 0.5 }}
+            >
+              <Progress 
+                value={xpProgress} 
+                className={`h-2 transition-all duration-300 ${
+                  xpProgress > 90 
+                    ? 'shadow-[0_0_15px_hsl(var(--primary)/0.8)]' 
+                    : ''
+                }`}
+                style={{
+                  background: xpProgress > 90 
+                    ? 'hsl(var(--chart-1))' 
+                    : xpProgress > 50 
+                    ? 'hsl(var(--chart-5))' 
+                    : 'hsl(var(--secondary))'
+                }}
+              />
+            </motion.div>
+            <AnimatePresence>
+              {showXpGain && (
+                <motion.div
+                  variants={floatingTextAnimation}
+                  initial="initial"
+                  animate="animate"
+                  exit="initial"
+                  transition={floatingTextTransition}
+                  className="absolute -top-6 right-0 text-primary font-bold text-sm"
+                >
+                  +{xpGainAmount} XP
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Spores */}
@@ -47,10 +109,35 @@ export function StatsPanel() {
         {/* Energy */}
         <div>
           <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground">ENERGY ⚡</span>
+            <span className="text-muted-foreground flex items-center gap-1">
+              ENERGY 
+              {energy < 3 && (
+                <motion.span
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <Zap className="h-3 w-3 text-destructive" />
+                </motion.span>
+              )}
+            </span>
             <span className="font-mono">{energy}/{maxEnergy}</span>
           </div>
-          <Progress value={energyProgress} className="h-2 bg-yellow-900/20" />
+          <motion.div
+            animate={energy < 3 ? { 
+              boxShadow: [
+                "0 0 0px transparent",
+                "0 0 10px hsl(var(--destructive)/0.5)",
+                "0 0 0px transparent"
+              ]
+            } : {}}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <Progress 
+              value={energyProgress} 
+              className="h-2"
+              style={{ background: 'hsl(var(--chart-1) / 0.2)' }}
+            />
+          </motion.div>
         </div>
 
         {/* Streak */}
@@ -62,15 +149,48 @@ export function StatsPanel() {
         {/* Code Health */}
         <div>
           <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground">CODE HEALTH</span>
-            <span className="font-mono">{codeHealth}%</span>
+            <span className="text-muted-foreground flex items-center gap-1">
+              CODE HEALTH
+              {codeHealth < 30 && (
+                <motion.span
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 0.8, repeat: Infinity }}
+                >
+                  <AlertTriangle className="h-3 w-3 text-destructive" />
+                </motion.span>
+              )}
+            </span>
+            <motion.span 
+              key={codeHealth}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.1, 1] }}
+              className="font-mono"
+            >
+              {codeHealth}%
+            </motion.span>
           </div>
-          <Progress 
-            value={codeHealth} 
-            className={`h-2 ${
-              codeHealth > 70 ? 'bg-green-900/20' : codeHealth > 30 ? 'bg-yellow-900/20' : 'bg-red-900/20'
-            }`}
-          />
+          <motion.div
+            animate={codeHealth < 30 ? { 
+              boxShadow: [
+                "0 0 0px transparent",
+                "0 0 10px hsl(var(--destructive)/0.5)",
+                "0 0 0px transparent"
+              ]
+            } : {}}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <Progress 
+              value={codeHealth} 
+              style={{
+                background: codeHealth > 70 
+                  ? 'hsl(var(--chart-2) / 0.2)' 
+                  : codeHealth > 30 
+                  ? 'hsl(var(--chart-1) / 0.2)' 
+                  : 'hsl(var(--destructive) / 0.2)'
+              }}
+              className="h-2"
+            />
+          </motion.div>
         </div>
       </div>
     </Card>

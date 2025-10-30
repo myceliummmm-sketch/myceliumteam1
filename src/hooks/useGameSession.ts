@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGameStore } from '@/stores/gameStore';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
@@ -183,16 +183,39 @@ export function useGameSession() {
       const processGameEvents = useGameStore.getState().processGameEvents;
       processGameEvents(data.gameEvents);
 
-      // Show level up toast
-      const levelUpEvent = data.gameEvents?.find((e: any) => e.type === 'LEVEL_UP');
-      if (levelUpEvent) {
-        toast.success(`🎉 Level Up! You're now level ${levelUpEvent.data.newLevel}!`);
-      }
-
-      // Show XP gain
+      // Show XP gain (level up modal handles level up celebration)
       const xpGainEvent = data.gameEvents?.find((e: any) => e.type === 'XP_GAIN');
-      if (xpGainEvent) {
-        toast.success(`+${xpGainEvent.data.amount} XP: ${xpGainEvent.data.reason}`);
+      if (xpGainEvent && xpGainEvent.data.amount > 0) {
+        toast.success(`⭐ +${xpGainEvent.data.amount} XP`, {
+          description: xpGainEvent.data.reason || 'Great progress!',
+          duration: 3000
+        });
+      }
+      
+      // Show phase change
+      const phaseChangeEvent = data.gameEvents?.find((e: any) => e.type === 'PHASE_CHANGE');
+      if (phaseChangeEvent) {
+        toast.success(`🚀 Phase Change: ${phaseChangeEvent.data.newPhase}`, {
+          description: 'New challenges await!',
+          duration: 4000
+        });
+      }
+      
+      // Show task completion
+      const taskCompleteEvent = data.gameEvents?.find((e: any) => e.type === 'TASK_COMPLETE');
+      if (taskCompleteEvent) {
+        toast.success(`✅ Task Complete!`, {
+          description: 'Keep up the great work!',
+          duration: 3000
+        });
+      }
+      
+      // Show energy warning
+      if (data.updatedState?.energy !== undefined && data.updatedState.energy < 3) {
+        toast.warning(`⚡ Low Energy: ${data.updatedState.energy}/10`, {
+          description: 'Take a break soon!',
+          duration: 4000
+        });
       }
 
     } catch (error) {
