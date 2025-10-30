@@ -28,7 +28,7 @@ export function InputBar() {
   };
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 border-t-2">
       <div className="flex gap-2">
         <div className="flex-1 relative">
           <Textarea

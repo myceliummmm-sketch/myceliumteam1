@@ -43,10 +43,14 @@ export default function ShipIt() {
         </div>
         
         {/* Center: Chat & Terminal (7 cols) */}
-        <div className="col-span-7 flex flex-col gap-4">
+        <div className="col-span-7 flex flex-col gap-4 min-h-0">
           <PhaseProgress />
-          <ChatTerminal />
-          <InputBar />
+          <div className="flex-1 min-h-0">
+            <ChatTerminal />
+          </div>
+          <div className="sticky bottom-0 bg-background">
+            <InputBar />
+          </div>
         </div>
         
         {/* Right: Stats & Quest Log (3 cols) */}

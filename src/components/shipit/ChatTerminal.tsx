@@ -33,8 +33,8 @@ export function ChatTerminal() {
   }, [messages, isLoading]);
 
   return (
-    <Card className="flex-1 overflow-hidden">
-      <ScrollArea className="h-full p-4">
+    <Card className="h-full flex flex-col overflow-hidden">
+      <ScrollArea className="flex-1 p-4">
         <div ref={scrollRef} className="space-y-4">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground text-sm py-8">
