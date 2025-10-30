@@ -30,8 +30,8 @@ export default function Register() {
       toast.error(error.message);
       setLoading(false);
     } else {
-      toast.success('Account created! Welcome to Mycelium.');
-      navigate('/shipit');
+      toast.success('Account created! Logging you in...');
+      // Navigation handled by useEffect when user state updates
     }
   };
 
