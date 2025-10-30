@@ -54,7 +54,7 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
               isHovered 
                 ? 'inset-0 w-full h-full' 
                 : 'right-0 top-0 bottom-0 w-1/2'
-            } object-cover transition-all duration-500 ease-in-out z-0`}
+            } object-contain transition-all duration-500 ease-in-out z-0`}
             src={video}
           />
         )}
@@ -65,7 +65,7 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
             <img 
               src={image} 
               alt={name} 
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-contain object-center"
             />
           </div>
         )}
