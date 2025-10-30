@@ -14,7 +14,206 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          achievement_data: Json | null
+          achievement_type: string
+          id: string
+          player_id: string
+          unlocked_at: string | null
+        }
+        Insert: {
+          achievement_data?: Json | null
+          achievement_type: string
+          id?: string
+          player_id: string
+          unlocked_at?: string | null
+        }
+        Update: {
+          achievement_data?: Json | null
+          achievement_type?: string
+          id?: string
+          player_id?: string
+          unlocked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievements_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          game_events: Json | null
+          id: string
+          role: string
+          segments: Json | null
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          game_events?: Json | null
+          id?: string
+          role: string
+          segments?: Json | null
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          game_events?: Json | null
+          id?: string
+          role?: string
+          segments?: Json | null
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_phase: Database["public"]["Enums"]["game_phase"] | null
+          final_level: number | null
+          final_xp: number | null
+          id: string
+          is_active: boolean | null
+          player_id: string
+          started_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_phase?: Database["public"]["Enums"]["game_phase"] | null
+          final_level?: number | null
+          final_xp?: number | null
+          id?: string
+          is_active?: boolean | null
+          player_id: string
+          started_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_phase?: Database["public"]["Enums"]["game_phase"] | null
+          final_level?: number | null
+          final_xp?: number | null
+          id?: string
+          is_active?: boolean | null
+          player_id?: string
+          started_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_states: {
+        Row: {
+          blockers: Json | null
+          code_health: number | null
+          completed_tasks: Json | null
+          created_at: string | null
+          current_phase: Database["public"]["Enums"]["game_phase"] | null
+          current_tasks: Json | null
+          energy: number | null
+          id: string
+          level: number | null
+          milestones: Json | null
+          session_id: string
+          spores: number | null
+          streak: number | null
+          team_mood: Json | null
+          xp: number | null
+        }
+        Insert: {
+          blockers?: Json | null
+          code_health?: number | null
+          completed_tasks?: Json | null
+          created_at?: string | null
+          current_phase?: Database["public"]["Enums"]["game_phase"] | null
+          current_tasks?: Json | null
+          energy?: number | null
+          id?: string
+          level?: number | null
+          milestones?: Json | null
+          session_id: string
+          spores?: number | null
+          streak?: number | null
+          team_mood?: Json | null
+          xp?: number | null
+        }
+        Update: {
+          blockers?: Json | null
+          code_health?: number | null
+          completed_tasks?: Json | null
+          created_at?: string | null
+          current_phase?: Database["public"]["Enums"]["game_phase"] | null
+          current_tasks?: Json | null
+          energy?: number | null
+          id?: string
+          level?: number | null
+          milestones?: Json | null
+          session_id?: string
+          spores?: number | null
+          streak?: number | null
+          team_mood?: Json | null
+          xp?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_states_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      players: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +222,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      game_phase:
+        | "INCEPTION"
+        | "RESEARCH"
+        | "DESIGN"
+        | "BUILD"
+        | "TEST"
+        | "SHIP"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +355,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      game_phase: ["INCEPTION", "RESEARCH", "DESIGN", "BUILD", "TEST", "SHIP"],
+    },
   },
 } as const
