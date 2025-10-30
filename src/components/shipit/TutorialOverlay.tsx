@@ -20,20 +20,24 @@ export function TutorialOverlay() {
     if (element) {
       setTargetElement(element);
       
-      // Calculate card position
+      // Calculate card position - mobile responsive
       const rect = element.getBoundingClientRect();
-      const cardWidth = 320;
+      const isMobile = window.innerWidth < 768;
+      const cardWidth = isMobile ? window.innerWidth - 32 : 320;
       const cardHeight = 200;
       
       let top = rect.top + window.scrollY;
-      let left = rect.right + 20;
+      let left = isMobile ? 16 : rect.right + 20;
 
-      // Adjust if card would go off screen
-      if (left + cardWidth > window.innerWidth) {
+      // Adjust if card would go off screen (desktop only)
+      if (!isMobile && left + cardWidth > window.innerWidth) {
         left = rect.left - cardWidth - 20;
       }
       
-      if (top + cardHeight > window.innerHeight + window.scrollY) {
+      // On mobile, position at bottom
+      if (isMobile) {
+        top = window.innerHeight + window.scrollY - cardHeight - 80;
+      } else if (top + cardHeight > window.innerHeight + window.scrollY) {
         top = window.innerHeight + window.scrollY - cardHeight - 20;
       }
 
@@ -92,7 +96,7 @@ export function TutorialOverlay() {
             zIndex: 52
           }}
         >
-          <Card className="w-80 p-6 shadow-2xl">
+          <Card className="w-[calc(100vw-32px)] sm:w-80 p-4 sm:p-6 shadow-2xl">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">

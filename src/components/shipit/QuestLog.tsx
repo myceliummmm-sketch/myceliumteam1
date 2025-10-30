@@ -12,7 +12,7 @@ export function QuestLog() {
     <Card className="p-4">
       <h3 className="text-sm font-mono text-muted-foreground mb-4">QUEST LOG</h3>
       
-      <ScrollArea className="h-[300px]">
+      <ScrollArea className="h-[200px] sm:h-[300px] lg:h-[400px]">
         <div className="space-y-3">
           {/* Active Blockers */}
           {blockers.length > 0 && (

@@ -28,7 +28,7 @@ export function InputBar() {
   };
 
   return (
-    <Card className="p-4 border-t-2">
+    <Card className="p-2 sm:p-4 border-t-2">
       <div className="flex gap-2">
         <div className="flex-1 relative">
           <Textarea
@@ -36,10 +36,10 @@ export function InputBar() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message... (Shift+Enter for new line)"
-            className="min-h-[60px] pr-16"
+            className="min-h-[60px] sm:min-h-[80px] pr-16"
             disabled={isLoading}
           />
-          <span className="absolute top-2 right-2 text-xs text-muted-foreground">
+          <span className="absolute top-2 right-2 text-[10px] sm:text-xs text-muted-foreground">
             -1⚡ {input.length}/500
           </span>
         </div>

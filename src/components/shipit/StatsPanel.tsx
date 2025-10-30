@@ -158,12 +158,12 @@ export function StatsPanel() {
           </motion.div>
           {/* Energy Timer */}
           {energy < maxEnergy && lastEnergyUpdate && (
-            <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground">
+            <div className="flex items-center gap-1 mt-1 text-[10px] sm:text-xs text-muted-foreground">
               <Clock className="h-3 w-3" />
-              <span>
+              <span className="text-[10px] sm:text-xs">
                 {energy === maxEnergy - 1 
                   ? 'Full Energy!' 
-                  : `Next energy in: ${timeUntilNext.hours}h ${timeUntilNext.minutes}m`}
+                  : `Next: ${timeUntilNext.hours}h ${timeUntilNext.minutes}m`}
               </span>
             </div>
           )}
