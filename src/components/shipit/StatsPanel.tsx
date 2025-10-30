@@ -4,14 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
 export function StatsPanel() {
-  const { xp, level, spores, energy, streak, codeHealth } = useGameStore((state) => ({
-    xp: state.xp,
-    level: state.level,
-    spores: state.spores,
-    energy: state.energy,
-    streak: state.streak,
-    codeHealth: state.codeHealth,
-  }));
+  const xp = useGameStore((state) => state.xp);
+  const level = useGameStore((state) => state.level);
+  const spores = useGameStore((state) => state.spores);
+  const energy = useGameStore((state) => state.energy);
+  const streak = useGameStore((state) => state.streak);
+  const codeHealth = useGameStore((state) => state.codeHealth);
 
   const xpToNextLevel = level * 100;
   const xpProgress = (xp / xpToNextLevel) * 100;
