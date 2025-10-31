@@ -28,7 +28,7 @@ export function useGameSession() {
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         let sessionId = existingSession?.id;
 
@@ -99,7 +99,7 @@ export function useGameSession() {
           .eq('session_id', sessionId)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (latestState) {
           // Check for energy regeneration

@@ -25,18 +25,18 @@ const avatarMap: Record<string, string> = {
 export function ChatTerminal() {
   const messages = useGameStore((state) => state.messages);
   const isLoading = useGameStore((state) => state.isLoading);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isLoading]);
 
   return (
     <Card className="h-full flex flex-col overflow-hidden">
       <ScrollArea className="flex-1 p-4">
-        <div ref={scrollRef} className="space-y-4">
+        <div className="space-y-4">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground text-sm py-8">
               <p className="font-mono">// TERMINAL READY</p>
@@ -110,6 +110,7 @@ export function ChatTerminal() {
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
     </Card>
