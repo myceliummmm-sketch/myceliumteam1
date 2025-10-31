@@ -163,7 +163,7 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
       session_id: sessionId,
       role: 'user',
       content: message,
-      segment: { type: 'speech', content: message },
+      segments: [{ type: 'speech', content: message }],
       game_events: []
     });
 
@@ -181,7 +181,7 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
         session_id: sessionId,
         role: segment.type === 'narration' ? 'system' : 'assistant',
         content: segment.content,
-        segment: segment,
+        segments: [segment],
         game_events: isLastSegment ? gameEvents : [], // Only attach events to last segment
         suggested_actions: isLastSegment ? suggestedActions : null // Only attach actions to last segment
       });

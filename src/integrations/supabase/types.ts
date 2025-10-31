@@ -55,6 +55,7 @@ export type Database = {
           role: string
           segments: Json | null
           session_id: string
+          suggested_actions: Json | null
         }
         Insert: {
           content: string
@@ -64,6 +65,7 @@ export type Database = {
           role: string
           segments?: Json | null
           session_id: string
+          suggested_actions?: Json | null
         }
         Update: {
           content?: string
@@ -73,6 +75,7 @@ export type Database = {
           role?: string
           segments?: Json | null
           session_id?: string
+          suggested_actions?: Json | null
         }
         Relationships: [
           {

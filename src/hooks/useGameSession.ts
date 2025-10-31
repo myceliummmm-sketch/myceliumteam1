@@ -248,7 +248,8 @@ export function useGameSession() {
               content: msg.content,
               segment: firstSegment || { type: 'speech', content: msg.content },
               gameEvents: msg.game_events as any,
-              createdAt: new Date(msg.created_at)
+              createdAt: new Date(msg.created_at),
+              suggestedActions: msg.suggested_actions as any
             });
           });
         }
