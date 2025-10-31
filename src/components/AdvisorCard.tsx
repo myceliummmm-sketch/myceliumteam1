@@ -42,7 +42,7 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
     >
       {/* Card Container */}
       <div className={`relative aspect-square rounded-2xl bg-gradient-to-br ${colorClasses[color]} backdrop-blur-sm border-2 overflow-hidden transition-all duration-500 ${isHovered ? "border-opacity-70" : ""}`}>
-        {/* Video - Replaces portrait when available, static by default, plays and expands on hover */}
+        {/* Video - Full background, paused by default, plays on hover */}
         {video && (
           <video
             ref={videoRef}
@@ -50,11 +50,7 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
             muted
             playsInline
             preload="metadata"
-            className={`absolute ${
-              isHovered 
-                ? 'inset-0 w-full h-full' 
-                : 'right-0 top-0 bottom-0 w-1/2'
-            } object-cover transition-all duration-500 ease-in-out z-0`}
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out z-0"
             src={video}
           />
         )}

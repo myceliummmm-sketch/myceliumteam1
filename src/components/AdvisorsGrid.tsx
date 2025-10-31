@@ -26,7 +26,7 @@ const advisors = [
     stat: "47 campaigns optimized today",
     image: phoenixImg,
     color: "red" as const,
-    video: "/phoenix-hover.mp4", // Add your video here
+    video: "/advisor-hover.mp4",
   },
   {
     name: "Zen",
