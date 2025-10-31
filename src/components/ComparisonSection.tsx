@@ -1,8 +1,6 @@
 import { X, Check } from "lucide-react";
-
 const ComparisonSection = () => {
-  return (
-    <section className="py-24 px-6 bg-gradient-to-b from-background to-secondary/20">
+  return <section className="py-24 px-6 bg-gradient-to-b from-background to-secondary/20">
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-6xl font-mono font-bold mb-6">
@@ -51,7 +49,7 @@ const ComparisonSection = () => {
 
         {/* Block 2: WHY PROJECTS DIE */}
         <div className="mb-20">
-          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 text-neon-red">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 text-neon-red text-red-400">
             WHY PROJECTS DIE
           </h2>
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
@@ -101,7 +99,7 @@ const ComparisonSection = () => {
 
         {/* Block 3: WE FIXED THE SYSTEM */}
         <div className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-slate-50">
             WE FIXED THE SYSTEM
           </h2>
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
@@ -158,8 +156,6 @@ const ComparisonSection = () => {
           </p>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default ComparisonSection;
