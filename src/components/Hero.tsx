@@ -36,43 +36,43 @@ const Hero = () => {
 
       {/* Content */}
       <div className="container relative z-20 px-6 py-24 text-center animate-fade-in">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-primary/20 mb-8">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-mono text-muted-foreground">building the digital state for the ai generation</span>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-900/50 backdrop-blur-sm border border-pink-500/50 mb-8">
+          <Sparkles className="w-4 h-4 text-pink-400" />
+          <span className="text-sm font-mono text-pink-400">COHORT #3 - STARTS FEB 10</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-mono font-extrabold mb-6 leading-tight tracking-tight">
-          <span className="bg-gradient-to-r from-muted-foreground via-primary/60 to-muted-foreground bg-clip-text text-transparent">
-            advisors are dead.
-          </span>
+        <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight tracking-tight">
+          <span className="neon-text-pink text-7xl md:text-9xl">85%</span>
+          <span className="text-white"> of developers</span>
           <br />
-          <span className="text-foreground">get </span>
-          <span className="relative inline-block">
-            <span className="relative z-10 text-primary">7 founders</span>
-            <span className="absolute inset-0 blur-2xl bg-primary/40 animate-pulse" />
-          </span>
-          <span className="text-foreground"> for $29</span>
+          <span className="neon-text-cyan">abandon side projects</span>
         </h1>
 
-        <p className="text-xl md:text-2xl mb-4 max-w-2xl mx-auto font-medium">
-          <span className="bg-gradient-to-r from-electric-blue via-neon-green to-electric-blue bg-clip-text text-transparent animate-pulse">
-            Real advice. Real time. Real results.
-          </span>
+        <p className="text-2xl mb-4 max-w-2xl mx-auto text-purple-300">
+          You're not weak. The system is broken.
         </p>
         
-        <p className="text-sm md:text-base mb-12 font-mono">
-          <span className="bg-gradient-to-r from-neon-red/70 via-primary/70 to-neon-red/70 bg-clip-text text-transparent">
-            your competition doesn't know this exists yet
+        <p className="text-xl md:text-2xl font-bold mb-6 max-w-3xl mx-auto">
+          <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-cyan bg-clip-text text-transparent">
+            AI Squad of 7 + Mycelium Network of 20+ founders
           </span>
+        </p>
+
+        <p className="text-base md:text-lg text-cyan-400 font-semibold mb-2">
+          Find a co-founder. Ship together. Network forever.
+        </p>
+        
+        <p className="text-sm md:text-base text-purple-300 mb-12">
+          2-3 weeks for MVP. Lifetime for connections.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Button 
             onClick={() => navigate('/register')}
             size="lg" 
-            className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono font-bold shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)] transition-all duration-300"
+            className="text-lg px-8 py-6 bg-gradient-to-r from-neon-pink to-neon-purple hover:from-pink-600 hover:to-purple-700 text-white font-bold neon-glow-pink transition-all duration-300"
           >
-            Get In Now
+            Join Cohort #3
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
           <Button 
