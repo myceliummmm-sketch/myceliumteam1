@@ -49,30 +49,106 @@ const ComparisonSection = () => {
           </div>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
-          <div className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-primary/20">
-            <div className="text-4xl mb-4">🎯</div>
-            <h4 className="font-mono font-bold mb-2 text-foreground">Actually Done It</h4>
-            <p className="text-sm text-muted-foreground">
-              Our AI is trained by founders who've actually done the thing
-            </p>
-          </div>
+        {/* Block 2: WHY PROJECTS DIE */}
+        <div className="mb-20">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 text-neon-red">
+            WHY PROJECTS DIE
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            {/* BURNOUT Card */}
+            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-transparent bg-gradient-to-br from-red-500/20 to-pink-500/20 hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 opacity-50 blur-xl group-hover:opacity-70 transition-opacity -z-10" />
+              <div className="text-6xl mb-4">💀</div>
+              <h3 className="text-2xl font-black mb-6 text-red-400">BURNOUT</h3>
+              <ul className="space-y-3 text-purple-200 text-sm">
+                <li>• 83% experience burnout</li>
+                <li>• No energy by day 10</li>
+                <li>• Code 16 hours → crash</li>
+                <li>• 47 projects in Downloads</li>
+                <li>• Zero in portfolio</li>
+              </ul>
+            </div>
 
-          <div className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-primary/20">
-            <div className="text-4xl mb-4">📞</div>
-            <h4 className="font-mono font-bold mb-2 text-foreground">Real Human Backup</h4>
-            <p className="text-sm text-muted-foreground">
-              When shit gets real, video call the human behind the AI
-            </p>
-          </div>
+            {/* CHAOS Card */}
+            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-transparent bg-gradient-to-br from-orange-500/20 to-red-500/20 hover:shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-50 blur-xl group-hover:opacity-70 transition-opacity -z-10" />
+              <div className="text-6xl mb-4">🌀</div>
+              <h3 className="text-2xl font-black mb-6 text-orange-400">CHAOS</h3>
+              <ul className="space-y-3 text-purple-200 text-sm">
+                <li>• What to do? No clue.</li>
+                <li>• No plan, no structure</li>
+                <li>• Feature creep kills</li>
+                <li>• 3 months, nothing ready</li>
+                <li>• Endless refactoring</li>
+              </ul>
+            </div>
 
-          <div className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-primary/20">
-            <div className="text-4xl mb-4">💯</div>
-            <h4 className="font-mono font-bold mb-2 text-foreground">Keep Everything</h4>
-            <p className="text-sm text-muted-foreground">
-              When you win, keep 100% equity and revenue
-            </p>
+            {/* ALONE Card */}
+            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-transparent bg-gradient-to-br from-red-900/20 to-red-700/20 hover:shadow-[0_0_30px_rgba(127,29,29,0.3)] transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-red-700 opacity-50 blur-xl group-hover:opacity-70 transition-opacity -z-10" />
+              <div className="text-6xl mb-4">😰</div>
+              <h3 className="text-2xl font-black mb-6 text-red-300">ALONE</h3>
+              <ul className="space-y-3 text-purple-200 text-sm">
+                <li>• Stuck. No one to ask.</li>
+                <li>• 11 PM. Bug. Alone.</li>
+                <li>• Googling until 3 AM</li>
+                <li>• No one to show code</li>
+                <li>• Solo = stuck forever</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Block 3: WE FIXED THE SYSTEM */}
+        <div className="mb-16">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-transparent">
+            WE FIXED THE SYSTEM
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            {/* ANTI-BURNOUT Card */}
+            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-cyan-400 hover:border-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.5)] transition-all duration-300">
+              <div className="text-6xl mb-4">🛡</div>
+              <h3 className="text-2xl font-black mb-6 text-cyan-400">ANTI-BURNOUT</h3>
+              <ul className="space-y-3 text-purple-200 text-sm mb-6">
+                <li>• Zen monitors your energy</li>
+                <li>• Energy tracking (1-10 scale)</li>
+                <li>• Buddy system support</li>
+                <li>• &lt;5% burnout rate</li>
+              </ul>
+              <p className="text-lg font-bold text-cyan-400 mt-6">
+                → You'll finish
+              </p>
+            </div>
+
+            {/* ANTI-CHAOS Card */}
+            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-purple-400 hover:border-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(168,85,247,0.5)] transition-all duration-300">
+              <div className="text-6xl mb-4">📋</div>
+              <h3 className="text-2xl font-black mb-6 text-purple-400">ANTI-CHAOS</h3>
+              <ul className="space-y-3 text-purple-200 text-sm mb-6">
+                <li>• 10 clear phases</li>
+                <li>• Daily action plan</li>
+                <li>• Inception → Ship</li>
+                <li>• 100% structure</li>
+              </ul>
+              <p className="text-lg font-bold text-purple-400 mt-6">
+                → Zero chaos
+              </p>
+            </div>
+
+            {/* ANTI-SOLO Card */}
+            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-pink-400 hover:border-pink-300 shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_40px_rgba(236,72,153,0.5)] transition-all duration-300">
+              <div className="text-6xl mb-4">👥</div>
+              <h3 className="text-2xl font-black mb-6 text-pink-400">ANTI-SOLO</h3>
+              <ul className="space-y-3 text-purple-200 text-sm mb-6">
+                <li>• Squad + Network</li>
+                <li>• 7 AI experts 24/7</li>
+                <li>• 20+ founders in cohort</li>
+                <li>• Co-founder matching</li>
+              </ul>
+              <p className="text-lg font-bold text-pink-400 mt-6">
+                → Never alone
+              </p>
+            </div>
           </div>
         </div>
 
