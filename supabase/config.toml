@@ -2,6 +2,3 @@ project_id = "qkqvuaadhitmyklnqivd"
 
 [functions.game-turn]
 verify_jwt = true
-
-[functions.consultant-prompts]
-verify_jwt = true

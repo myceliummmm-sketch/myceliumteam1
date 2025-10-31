@@ -28,7 +28,7 @@ export function useGameSession() {
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(1)
-          .maybeSingle();
+          .single();
 
         let sessionId = existingSession?.id;
 
@@ -72,22 +72,18 @@ export function useGameSession() {
             }
           });
 
-          // Add welcome messages (split into individual segments)
-          const welcomeSegments = [
-            { type: 'speech', speaker: 'zen', content: 'Welcome, builder. I am Zen, and these are your teammates. Together, we will ship something amazing.' },
-            { type: 'narration', content: 'The team gathers around. Ever Green grins optimistically, while Toxic crosses their arms skeptically. This is the beginning of your journey.' },
-            { type: 'speech', speaker: 'ever', content: 'So exciting! What are we building today?' }
-          ];
-
-          for (const segment of welcomeSegments) {
-            await supabase.from('chat_messages').insert({
-              session_id: sessionId,
-              role: segment.type === 'narration' ? 'system' : 'assistant',
-              content: segment.content,
-              segments: [segment], // Store as array for DB compatibility
-              game_events: []
-            });
-          }
+          // Add welcome message
+          await supabase.from('chat_messages').insert({
+            session_id: sessionId,
+            role: 'assistant',
+            content: 'Welcome to Ship It!',
+            segments: [
+              { type: 'speech', speaker: 'zen', content: 'Welcome, builder. I am Zen, and these are your teammates. Together, we will ship something amazing.' },
+              { type: 'narration', content: 'The team gathers around. Ever Green grins optimistically, while Toxic crosses their arms skeptically. This is the beginning of your journey.' },
+              { type: 'speech', speaker: 'ever', content: 'So exciting! What are we building today?' }
+            ],
+            game_events: []
+          });
         }
 
         setSessionId(sessionId!);
@@ -99,7 +95,7 @@ export function useGameSession() {
           .eq('session_id', sessionId)
           .order('created_at', { ascending: false })
           .limit(1)
-          .maybeSingle();
+          .single();
 
         if (latestState) {
           // Check for energy regeneration
@@ -239,17 +235,13 @@ export function useGameSession() {
 
         if (messages) {
           messages.forEach(msg => {
-            const segments = msg.segments as any;
-            const firstSegment = Array.isArray(segments) ? segments[0] : segments;
-            
             addMessage({
               id: msg.id,
               role: msg.role as any,
               content: msg.content,
-              segment: firstSegment || { type: 'speech', content: msg.content },
+              segments: msg.segments as any,
               gameEvents: msg.game_events as any,
-              createdAt: new Date(msg.created_at),
-              suggestedActions: msg.suggested_actions as any
+              createdAt: new Date(msg.created_at)
             });
           });
         }
@@ -275,7 +267,7 @@ export function useGameSession() {
       id: crypto.randomUUID(),
       role: 'user',
       content: message,
-      segment: { type: 'speech', content: message },
+      segments: [{ type: 'speech', content: message }],
       gameEvents: [],
       createdAt: new Date()
     });
@@ -289,22 +281,14 @@ export function useGameSession() {
 
       if (error) throw error;
 
-      // Split segments into individual messages
-      const segments = data.segments || [];
-      const suggestedActions = data.suggestedActions || [];
-      
-      segments.forEach((segment: any, index: number) => {
-        const isLastSegment = index === segments.length - 1;
-        
-        addMessage({
-          id: crypto.randomUUID(),
-          role: segment.type === 'narration' ? 'system' : 'assistant',
-          content: segment.content,
-          segment: segment,
-          gameEvents: isLastSegment ? data.gameEvents : [],
-          createdAt: new Date(),
-          suggestedActions: isLastSegment ? suggestedActions : undefined
-        });
+      // Add AI response to store
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: JSON.stringify(data.segments),
+        segments: data.segments,
+        gameEvents: data.gameEvents,
+        createdAt: new Date()
       });
 
       // Update game state

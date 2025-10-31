@@ -43,10 +43,9 @@ export interface ChatMessage {
   id: string;
   role: MessageRole;
   content: string;
-  segment: MessageSegment; // Changed from array to single segment
+  segments: MessageSegment[];
   gameEvents: GameEvent[];
   createdAt: Date;
-  suggestedActions?: string[]; // Optional quick reply suggestions
 }
 
 export interface GameState {

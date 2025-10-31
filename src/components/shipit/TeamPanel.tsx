@@ -35,9 +35,13 @@ export function TeamPanel() {
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === 'assistant' && lastMessage.segment) {
-      if (lastMessage.segment.type === 'speech' && lastMessage.segment.speaker) {
-        setActiveSpeaker(lastMessage.segment.speaker);
+    if (lastMessage?.role === 'assistant' && lastMessage.segments) {
+      const lastSpeech = lastMessage.segments
+        .filter(s => s.type === 'speech' && s.speaker)
+        .pop();
+      
+      if (lastSpeech?.speaker) {
+        setActiveSpeaker(lastSpeech.speaker);
         
         // Clear active speaker after 3 seconds
         const timeout = setTimeout(() => {

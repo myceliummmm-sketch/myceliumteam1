@@ -11,8 +11,7 @@ import { QuestLog } from '@/components/shipit/QuestLog';
 import { LevelUpModal } from '@/components/shipit/LevelUpModal';
 import { StreakCalendar } from '@/components/shipit/StreakCalendar';
 import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
-import { LogOut, Loader2, Users, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { LogOut, Loader2, Users } from 'lucide-react';
 
 export default function ShipIt() {
   const { signOut } = useAuth();
@@ -50,21 +49,11 @@ export default function ShipIt() {
           </SheetContent>
         </Sheet>
 
-        <div className="ml-auto flex gap-2">
-          {/* Consultant Mode Button */}
-          <Link to="/consultant">
-            <Button variant="outline" size="sm">
-              <Sparkles className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Consultant</span>
-            </Button>
-          </Link>
-
-          {/* Logout Button */}
-          <Button variant="outline" onClick={signOut} size="sm">
-            <LogOut className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:inline">Logout</span>
-          </Button>
-        </div>
+        {/* Logout Button */}
+        <Button variant="outline" onClick={signOut} size="sm" className="ml-auto">
+          <LogOut className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Logout</span>
+        </Button>
       </div>
       
       {/* Responsive Grid Layout */}
