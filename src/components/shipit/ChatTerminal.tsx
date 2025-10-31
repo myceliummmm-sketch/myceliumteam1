@@ -44,7 +44,8 @@ export function ChatTerminal() {
           ) : (
             messages.map((message) => {
               const isUser = message.role === 'user';
-              const speaker = message.segments[0]?.speaker;
+              const segments = message.segments || [];
+              const speaker = segments[0]?.speaker;
               
               return (
                 <div
@@ -71,7 +72,7 @@ export function ChatTerminal() {
                         {speaker.toUpperCase()}
                       </p>
                     )}
-                    {message.segments.map((segment, idx) => (
+                    {segments.map((segment, idx) => (
                       <p
                         key={idx}
                         className={segment.type === 'narration' ? 'italic text-muted-foreground' : ''}

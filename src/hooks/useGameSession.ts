@@ -28,7 +28,7 @@ export function useGameSession() {
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         let sessionId = existingSession?.id;
 
@@ -95,7 +95,7 @@ export function useGameSession() {
           .eq('session_id', sessionId)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (latestState) {
           // Check for energy regeneration
@@ -235,11 +235,17 @@ export function useGameSession() {
 
         if (messages) {
           messages.forEach(msg => {
+            // Ensure segments is always an array
+            let segments = msg.segments;
+            if (!Array.isArray(segments)) {
+              segments = segments ? [segments] : [];
+            }
+            
             addMessage({
               id: msg.id,
               role: msg.role as any,
               content: msg.content,
-              segments: msg.segments as any,
+              segments: segments as any,
               gameEvents: msg.game_events as any,
               createdAt: new Date(msg.created_at)
             });
