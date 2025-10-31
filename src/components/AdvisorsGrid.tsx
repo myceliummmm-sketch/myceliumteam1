@@ -36,7 +36,7 @@ const advisors = [
     stat: "89 founders from burnout saved",
     image: zenImg,
     color: "green" as const,
-    video: "/zen-hover.mp4", // Add your video here
+    video: "/zen-hover.mp4",
   },
   {
     name: "Toxic",
@@ -46,7 +46,7 @@ const advisors = [
     stat: "Saved users €2.4M from breaches",
     image: toxicImg,
     color: "red" as const,
-    video: "/toxic-hover.mp4", // Add your video here
+    video: "/toxic-hover.mp4",
   },
   {
     name: "Virgil",
@@ -56,7 +56,7 @@ const advisors = [
     stat: "374 brands elevated",
     image: virgilImg,
     color: "purple" as const,
-    video: "/virgil-hover.mp4", // Add your video here
+    video: "/virgil-hover.mp4",
   },
   {
     name: "Prisma",
@@ -66,7 +66,7 @@ const advisors = [
     stat: "12 features killed today",
     image: prismaImg,
     color: "blue" as const,
-    video: "/prisma-hover.mp4", // Add your video here
+    video: "/prisma-hover.mp4",
   },
   {
     name: "Tech Priest",
