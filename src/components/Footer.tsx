@@ -2,69 +2,66 @@ import { Button } from "@/components/ui/button";
 
 const Footer = () => {
   return (
-<footer className="bg-dark-purple border-t border-neon-pink/30 py-12 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-3xl">🍄</span>
-              <span className="font-black text-lg neon-text-pink">Zero to Hero</span>
-            </div>
-            <p className="text-sm text-purple-300 mb-4">
-              Ship together. Grow forever.
-            </p>
-          </div>
-
-          {/* Product */}
-          <div>
-            <div className="font-bold text-neon-cyan mb-4">Product</div>
-            <ul className="space-y-2 text-sm text-purple-300">
-              <li><a href="#how-it-works" className="hover:text-neon-cyan transition-colors">How it Works</a></li>
-              <li><a href="#squad" className="hover:text-neon-cyan transition-colors">The Squad</a></li>
-              <li><a href="#pricing" className="hover:text-neon-cyan transition-colors">Pricing</a></li>
-              <li><a href="#faq" className="hover:text-neon-cyan transition-colors">FAQ</a></li>
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <div className="font-bold text-neon-pink mb-4">Company</div>
-            <ul className="space-y-2 text-sm text-purple-300">
-              <li><a href="#" className="hover:text-neon-pink transition-colors">About</a></li>
-              <li><a href="#" className="hover:text-neon-pink transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-neon-pink transition-colors">Network</a></li>
-              <li><a href="#" className="hover:text-neon-pink transition-colors">Contact</a></li>
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <div className="font-bold text-neon-cyan mb-4">Legal</div>
-            <ul className="space-y-2 text-sm text-purple-300">
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Terms</a></li>
-              <li><a href="#" className="hover:text-neon-cyan transition-colors">Privacy</a></li>
-            </ul>
-          </div>
+    <footer className="relative py-24 px-6 bg-gradient-to-b from-background to-darker-black overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-primary/10" />
+      
+      <div className="container mx-auto max-w-4xl relative z-10">
+        {/* Main CTA */}
+        <div className="text-center mb-16 animate-fade-in">
+          <h2 className="text-4xl md:text-6xl font-mono font-bold mb-8 leading-tight">
+            We're letting in <span className="text-primary">50 founders</span> this week. 
+            <br />
+            Most will overthink it. 
+            <br />
+            <span className="text-muted-foreground">You?</span>
+          </h2>
+          
+          <Button 
+            size="lg" 
+            className="text-xl px-12 py-8 bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_60px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_80px_hsl(var(--primary)/0.6)] transition-all duration-300 animate-pulse"
+          >
+            Apply Now
+          </Button>
         </div>
 
-        <div className="border-t border-neon-pink/30 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-purple-400">
-            <div>
-              © 2025 From Zero to Hero. All rights reserved.
+        {/* Micro Copy */}
+        <div className="space-y-4 text-center text-sm text-muted-foreground font-mono mb-12">
+          <p>• backed by real founders you've actually heard of</p>
+          <p>• no, we won't spam your inbox</p>
+          <p>• yes, you can expense this to your company</p>
+        </div>
+
+        {/* Branding */}
+        <div className="text-center border-t border-primary/10 pt-12">
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
+              <span className="text-xs font-mono font-bold">M</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span>Made with</span>
-              <span className="text-neon-pink">♥</span>
-              <span>by developers, for developers</span>
-            </div>
+            <span className="text-xl font-mono font-bold">Mycelium</span>
           </div>
+          <p className="text-sm text-muted-foreground">
+            Building the Digital State for the AI Generation
+          </p>
+        </div>
+
+        {/* Footer Links */}
+        <div className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground">
+          <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+          <span>•</span>
+          <a href="#" className="hover:text-primary transition-colors">Terms</a>
+          <span>•</span>
+          <a href="#" className="hover:text-primary transition-colors">Contact</a>
+        </div>
+
+        <div className="text-center mt-8 text-xs text-muted-foreground/50 font-mono">
+          © 2025 Mycelium Ecosystem. All rights reserved.
         </div>
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-neon-pink/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
     </footer>
   );
 };
