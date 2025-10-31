@@ -6,6 +6,7 @@ import SocialProofTicker from "@/components/SocialProofTicker";
 import ComparisonSection from "@/components/ComparisonSection";
 import AdvisorsGrid from "@/components/AdvisorsGrid";
 import SuccessStories from "@/components/SuccessStories";
+import NetworkJourney from "@/components/NetworkJourney";
 import PricingSection from "@/components/PricingSection";
 import Footer from "@/components/Footer";
 
@@ -25,6 +26,7 @@ const Index = () => {
       <ComparisonSection />
       <AdvisorsGrid />
       <SuccessStories />
+      <NetworkJourney />
       <PricingSection />
       <Footer />
     </div>
