@@ -44,8 +44,17 @@ RESPONSE FORMAT (must be valid JSON):
     {"type": "XP_GAIN", "data": {"amount": 25, "reason": "Defined clear user persona"}},
     {"type": "TASK_COMPLETE", "data": {"taskId": "task-1"}},
     {"type": "TASK_ADDED", "data": {"description": "Research competitor apps", "xpReward": 30, "phase": "RESEARCH"}}
-  ]
+  ],
+  "suggestedActions": ["Action 1", "Action 2", "Action 3"]
 }
+
+SUGGESTED ACTIONS:
+- Always provide 2-3 contextual quick reply suggestions in the suggestedActions array
+- Make them specific to the current phase and situation
+- Keep them short (3-6 words max)
+- Examples: "Start user research", "Review code quality", "Ship to production", "Fix critical bugs"
+- Adapt to player's energy level (suggest breaks if low energy)
+- Guide next logical steps in the project
 
 Make responses engaging, advance the story, and generate appropriate game events. Keep speeches concise (2-3 sentences max per character).`;
 
