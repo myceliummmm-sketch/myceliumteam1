@@ -76,7 +76,7 @@ const advisors = [
     stat: "99.9% uptime maintained",
     image: techPriestImg,
     color: "blue" as const,
-    video: "/tech-priest-hover.mp4", // Add your video here
+    video: "/tech-priest-hover.mp4",
   },
 ];
 
