@@ -15,146 +15,106 @@ const PricingSection = () => {
   }, []);
 
   return (
-    <section className="py-24 px-6 bg-gradient-to-b from-secondary/20 to-background">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16 animate-fade-in">
-          <div className="inline-block animate-glitch mb-6">
-            <h2 className="text-5xl md:text-7xl font-mono font-bold text-primary">
-              THE DEAL:
-            </h2>
-          </div>
+    <section className="py-20 px-6 vaporwave-bg scanlines" id="pricing">
+      <div className="container mx-auto max-w-4xl">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-6xl font-black mb-4">
+            <span className="neon-text-pink">Simple</span>{' '}
+            <span className="neon-text-cyan">Pricing</span>
+          </h2>
+          <p className="text-xl text-purple-300">
+            One cohort. One price.{' '}
+            <span className="text-neon-cyan font-bold">Lifetime network access.</span>
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {/* Free Tier */}
-          <div className="relative p-8 rounded-2xl bg-card/50 backdrop-blur-sm border border-muted hover:border-primary/30 transition-all duration-300">
-            <div className="mb-6">
-              <h3 className="text-2xl font-mono font-bold mb-2">Free Trial</h3>
-              <p className="text-sm text-muted-foreground">48 hours free. No card needed.</p>
+        <div className="bg-gradient-to-br from-purple-950/60 to-pink-950/60 backdrop-blur-sm rounded-3xl p-8 md:p-12 border-2 border-neon-pink neon-glow-pink">
+          <div className="text-center mb-8">
+            <div className="inline-block px-6 py-2 bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold rounded-full mb-6 neon-glow-pink">
+              COHORT #3 - STARTS FEB 10 - 8 SPOTS LEFT
             </div>
-
-            <div className="mb-6">
-              <div className="text-4xl font-mono font-bold text-foreground">€0</div>
-              <p className="text-sm text-muted-foreground">for 48 hours</p>
+            <div className="text-6xl md:text-7xl font-black neon-text-cyan mb-2">
+              $497
             </div>
-
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm text-muted-foreground">Full access to all advisors</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm text-muted-foreground">Unlimited messages</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm text-muted-foreground">No credit card required</span>
-              </li>
-            </ul>
-
-            <Button onClick={() => navigate('/register')} variant="outline" className="w-full border-primary/30 hover:bg-primary/10 font-mono">
-              Start Free Trial
-            </Button>
+            <div className="text-purple-300 text-lg">2-3 weeks intensive</div>
+            <div className="text-neon-cyan text-sm mt-2">
+              ~$35/день твоего будущего
+            </div>
           </div>
 
-          {/* Builder Tier */}
-          <div className="relative p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent border-2 border-primary/50 backdrop-blur-sm shadow-[0_0_40px_hsl(var(--primary)/0.3)] scale-105 z-10">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <div className="px-4 py-1 rounded-full bg-primary text-primary-foreground text-xs font-mono font-bold flex items-center gap-1">
-                <Zap className="w-3 h-3" />
-                MOST POPULAR
+          <div className="space-y-4 mb-8">
+            <div className="flex items-start gap-3 text-white">
+              <Check className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold">Full Mycelium Squad</span> (7 AI advisors)
               </div>
             </div>
-
-            <div className="mb-6">
-              <h3 className="text-2xl font-mono font-bold mb-2">Builder</h3>
-              <p className="text-sm text-muted-foreground">When you're ready to build for real</p>
+            <div className="flex items-start gap-3 text-white">
+              <Check className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+              <div>Complete research & design phase</div>
             </div>
-
-            <div className="mb-6">
-              <div className="text-4xl font-mono font-bold text-foreground">€29</div>
-              <p className="text-sm text-muted-foreground">per month</p>
+            <div className="flex items-start gap-3 text-white">
+              <Check className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+              <div>Daily support during build (&lt;10min response)</div>
             </div>
-
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm">Everything in Free</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm">Priority response times</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm">Code review & architecture help</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm">Weekly group sessions</span>
-              </li>
-            </ul>
-
-            <Button onClick={() => navigate('/register')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
-              Get Started →
-            </Button>
-
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent blur-2xl -z-10" />
+            <div className="flex items-start gap-3 text-white">
+              <Check className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+              <div>Master Prompt for your project</div>
+            </div>
+            <div className="flex items-start gap-3 text-white">
+              <Check className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+              <div>Launch strategy & first users</div>
+            </div>
+            <div className="flex items-start gap-3 text-white">
+              <Check className="w-5 h-5 text-neon-pink shrink-0 mt-0.5" />
+              <div className="font-bold neon-text-pink">
+                Lifetime Mycelium Network access
+              </div>
+            </div>
           </div>
 
-          {/* Scale Tier */}
-          <div className="relative p-8 rounded-2xl bg-card/50 backdrop-blur-sm border border-muted hover:border-neon-green/30 transition-all duration-300">
-            <div className="mb-6">
-              <h3 className="text-2xl font-mono font-bold mb-2">Scale</h3>
-              <p className="text-sm text-muted-foreground">When you need humans on speed dial</p>
-            </div>
-
-            <div className="mb-6">
-              <div className="text-4xl font-mono font-bold text-foreground">€299</div>
-              <p className="text-sm text-muted-foreground">per month</p>
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-neon-green shrink-0 mt-0.5" />
-                <span className="text-sm">Everything in Builder</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-neon-green shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold">Video calls with real founders</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-neon-green shrink-0 mt-0.5" />
-                <span className="text-sm">Direct Slack/Discord access</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-neon-green shrink-0 mt-0.5" />
-                <span className="text-sm">Custom integrations & tools</span>
-              </li>
-            </ul>
-
-            <Button onClick={() => navigate('/register')} variant="outline" className="w-full border-neon-green/30 hover:bg-neon-green/10 font-mono">
-              Contact Sales
-            </Button>
-          </div>
-        </div>
-
-        {/* Comparison Text */}
-        <div className="text-center space-y-4 mb-12">
-          <p className="text-lg text-muted-foreground font-mono">
-            Cheaper than one hour with McKinsey. Better than your friend who "knows business".
-          </p>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm font-mono text-primary font-bold">{count} people ahead of you</span>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <Button onClick={() => navigate('/register')} size="lg" className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_40px_hsl(var(--primary)/0.3)]">
-            Apply for Early Access
+          <Button 
+            onClick={() => navigate('/register')}
+            className="w-full bg-gradient-to-r from-neon-pink to-neon-purple hover:from-neon-pink/90 hover:to-neon-purple/90 text-white font-black text-xl py-5 rounded-xl neon-glow-pink transition-all transform hover:scale-105"
+          >
+            Join Cohort #3 →
           </Button>
+
+          <div className="mt-8 space-y-3 text-center">
+            <div className="flex items-center justify-center gap-6 text-sm">
+              <span className="flex items-center gap-2 text-purple-300">
+                <Zap className="w-4 h-4 text-neon-cyan" />
+                <span className="font-bold text-neon-pink">8 spots left</span> / 15 total
+              </span>
+              <span className="flex items-center gap-2 text-purple-300">
+                <span className="text-neon-cyan">💰</span>
+                100% money-back
+              </span>
+            </div>
+            <div className="text-xs text-purple-400">
+              Alumni Network Forever 🍄 • Co-founder Matchmaking • Lifetime Support
+            </div>
+          </div>
+        </div>
+
+        {/* Trust badges */}
+        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="text-purple-300 text-sm">
+            <div className="text-neon-cyan font-bold">342</div>
+            Products Shipped
+          </div>
+          <div className="text-purple-300 text-sm">
+            <div className="text-neon-pink font-bold">30%</div>
+            Found Co-Founders
+          </div>
+          <div className="text-purple-300 text-sm">
+            <div className="text-neon-cyan font-bold">4.9/5</div>
+            Average Rating
+          </div>
+          <div className="text-purple-300 text-sm">
+            <div className="text-neon-pink font-bold">Forever</div>
+            Alumni Network
+          </div>
         </div>
       </div>
     </section>

@@ -8,53 +8,63 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 180 100% 95%;
+    /* Vaporwave Background Colors */
+    --background: 270 100% 4%;
+    --foreground: 190 100% 95%;
+    --deep-purple: 270 100% 10%;
+    --dark-purple: 270 100% 4%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 180 100% 95%;
+    --card: 270 100% 6%;
+    --card-foreground: 190 100% 95%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 180 100% 95%;
+    --popover: 270 100% 6%;
+    --popover-foreground: 190 100% 95%;
 
+    /* Vaporwave Neon Colors */
     --primary: 190 100% 50%;
-    --primary-foreground: 0 0% 4%;
+    --primary-foreground: 270 100% 4%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 180 100% 95%;
+    --secondary: 270 100% 10%;
+    --secondary-foreground: 190 100% 95%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 270 40% 15%;
+    --muted-foreground: 270 20% 60%;
 
     --accent: 190 100% 50%;
-    --accent-foreground: 0 0% 4%;
+    --accent-foreground: 270 100% 4%;
 
     --destructive: 350 100% 50%;
     --destructive-foreground: 0 0% 98%;
 
     --success: 150 100% 50%;
-    --success-foreground: 0 0% 4%;
+    --success-foreground: 270 100% 4%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
+    --border: 270 40% 15%;
+    --input: 270 40% 15%;
     --ring: 190 100% 50%;
 
     --radius: 0.75rem;
 
-    /* Mycelium Brand Colors */
-    --electric-blue: 190 100% 50%;
+    /* Vaporwave Neon Palette */
+    --neon-pink: 330 100% 50%;
+    --neon-cyan: 190 100% 50%;
+    --neon-purple: 270 100% 50%;
+    --neon-magenta: 300 100% 50%;
     --neon-red: 350 100% 50%;
     --neon-green: 150 100% 50%;
-    --deep-black: 0 0% 4%;
-    --darker-black: 0 0% 2%;
+    --electric-blue: 190 100% 50%;
+    --deep-black: 270 100% 4%;
+    --darker-black: 270 100% 2%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(190 100% 30%) 0%, hsl(0 0% 4%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 0% 4%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(270 100% 10%) 0%, hsl(270 100% 4%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(270 60% 8%) 0%, hsl(270 100% 4%) 100%);
     --gradient-glow: radial-gradient(circle, hsl(190 100% 50% / 0.15) 0%, transparent 70%);
     
     /* Shadows */
     --shadow-glow: 0 0 40px hsl(190 100% 50% / 0.3);
+    --shadow-glow-pink: 0 0 40px hsl(330 100% 50% / 0.3);
+    --shadow-glow-cyan: 0 0 40px hsl(190 100% 50% / 0.3);
     --shadow-glow-red: 0 0 40px hsl(350 100% 50% / 0.3);
     --shadow-glow-green: 0 0 40px hsl(150 100% 50% / 0.3);
     --shadow-card: 0 10px 30px -10px hsl(0 0% 0% / 0.5);
@@ -62,6 +72,68 @@ All colors MUST be HSL.
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+/* Vaporwave Effects */
+@layer utilities {
+  .vaporwave-bg {
+    background: 
+      linear-gradient(rgba(0, 245, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 245, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-color: hsl(270 100% 4%);
+  }
+
+  .scanlines {
+    position: relative;
+  }
+
+  .scanlines::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 245, 255, 0.03) 2px,
+      rgba(0, 245, 255, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .neon-glow-pink {
+    box-shadow: 0 0 20px rgba(255, 0, 110, 0.6),
+                0 0 40px rgba(255, 0, 110, 0.4);
+  }
+
+  .neon-glow-cyan {
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.6),
+                0 0 40px rgba(0, 245, 255, 0.4);
+  }
+
+  .neon-text-pink {
+    color: hsl(330 100% 50%);
+    text-shadow: 0 0 10px rgba(255, 0, 110, 0.8),
+                 0 0 20px rgba(255, 0, 110, 0.6),
+                 0 0 30px rgba(255, 0, 110, 0.4);
+  }
+
+  .neon-text-cyan {
+    color: hsl(190 100% 50%);
+    text-shadow: 0 0 10px rgba(0, 245, 255, 0.8),
+                 0 0 20px rgba(0, 245, 255, 0.6);
+  }
+
+  .neon-text-purple {
+    color: hsl(270 100% 50%);
+    text-shadow: 0 0 10px rgba(139, 0, 255, 0.8),
+                 0 0 20px rgba(139, 0, 255, 0.6);
   }
 }
 

@@ -23,78 +23,84 @@ const Hero = () => {
   ];
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen vaporwave-bg scanlines flex items-center justify-center overflow-hidden">
       {/* Hero Video Background */}
       <div className="absolute inset-0 w-full h-full">
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-deep-purple/80 via-deep-purple/60 to-dark-purple z-10" />
         <img 
           src="/hero-video.gif" 
           alt="Mycelium ecosystem visualization"
-          className="w-full h-full object-cover opacity-90 blur-[2px]"
+          className="w-full h-full object-cover opacity-40 blur-[1px]"
         />
       </div>
 
       {/* Content */}
       <div className="container relative z-20 px-6 py-24 text-center animate-fade-in">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-primary/20 mb-8">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-mono text-muted-foreground">building the digital state for the ai generation</span>
+        <div className="mb-6">
+          <span className="inline-block px-4 py-2 bg-purple-900/50 border border-neon-pink/50 rounded-full text-neon-pink text-sm font-bold">
+            COHORT #3 - STARTS FEB 10
+          </span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-mono font-extrabold mb-6 leading-tight tracking-tight">
-          <span className="bg-gradient-to-r from-muted-foreground via-primary/60 to-muted-foreground bg-clip-text text-transparent">
-            advisors are dead.
-          </span>
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight tracking-tight">
+          <span className="neon-text-pink">From Zero</span>
           <br />
-          <span className="text-foreground">get </span>
-          <span className="relative inline-block">
-            <span className="relative z-10 text-primary">7 founders</span>
-            <span className="absolute inset-0 blur-2xl bg-primary/40 animate-pulse" />
-          </span>
-          <span className="text-foreground"> for $29</span>
+          <span className="neon-text-cyan">to Hero</span>
         </h1>
 
-        <p className="text-xl md:text-2xl mb-4 max-w-2xl mx-auto font-medium">
-          <span className="bg-gradient-to-r from-electric-blue via-neon-green to-electric-blue bg-clip-text text-transparent animate-pulse">
-            Real advice. Real time. Real results.
-          </span>
-        </p>
-        
-        <p className="text-sm md:text-base mb-12 font-mono">
-          <span className="bg-gradient-to-r from-neon-red/70 via-primary/70 to-neon-red/70 bg-clip-text text-transparent">
-            your competition doesn't know this exists yet
-          </span>
+        <p className="text-xl md:text-2xl text-purple-300 mb-8 max-w-3xl mx-auto">
+          Ship your first product in 2-3 weeks with a full AI advisory squad.
+          <br />
+          <span className="text-neon-cyan font-bold">No more building alone.</span>
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
           <Button 
             onClick={() => navigate('/register')}
             size="lg" 
-            className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-mono font-bold shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)] transition-all duration-300"
+            className="text-lg px-8 py-6 bg-gradient-to-r from-neon-pink to-neon-purple hover:from-neon-pink/90 hover:to-neon-purple/90 text-white font-bold neon-glow-pink transition-all"
           >
-            Get In Now
-            <ArrowRight className="ml-2 w-5 h-5" />
+            Join Cohort #3 →
           </Button>
           <Button 
             onClick={() => navigate('/register')}
             size="lg" 
-            variant="ghost"
-            className="text-lg px-8 py-6 border border-primary/30 hover:bg-primary/10 hover:border-primary/50 font-mono transition-all duration-300"
+            className="text-lg px-8 py-6 bg-purple-900/50 hover:bg-purple-900/70 border-2 border-neon-cyan text-neon-cyan font-bold transition-all"
           >
-            Watch Them Cook
+            Watch Demo ▶
           </Button>
+        </div>
+
+        {/* Trust Badges */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
+          <div className="bg-purple-900/30 backdrop-blur-sm p-4 rounded-xl border border-neon-cyan/30">
+            <div className="text-3xl font-black neon-text-cyan mb-1">342</div>
+            <div className="text-purple-300 text-sm">Products Shipped</div>
+          </div>
+          <div className="bg-purple-900/30 backdrop-blur-sm p-4 rounded-xl border border-neon-pink/30">
+            <div className="text-3xl font-black neon-text-pink mb-1">30%</div>
+            <div className="text-purple-300 text-sm">Found Co-Founders</div>
+          </div>
+          <div className="bg-purple-900/30 backdrop-blur-sm p-4 rounded-xl border border-neon-cyan/30">
+            <div className="text-3xl font-black neon-text-cyan mb-1">4.9/5</div>
+            <div className="text-purple-300 text-sm">Rating</div>
+          </div>
+          <div className="bg-purple-900/30 backdrop-blur-sm p-4 rounded-xl border border-neon-pink/30">
+            <div className="text-3xl font-black neon-text-pink mb-1">100%</div>
+            <div className="text-purple-300 text-sm">Money Back</div>
+          </div>
         </div>
 
         {/* Advisor Preview Grid */}
         <div className="flex items-center justify-center gap-4 flex-wrap max-w-2xl mx-auto">
-          <p className="text-sm text-muted-foreground font-mono w-full mb-4">meet your team:</p>
+          <p className="text-sm text-purple-300 font-mono w-full mb-4">meet your team:</p>
           {advisorAvatars.map((advisor, i) => (
             <div
               key={advisor.name}
-              className="group relative w-16 h-16 rounded-full border-2 border-primary/50 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-110 hover:border-primary hover:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+              className="group relative w-16 h-16 rounded-full border-2 border-neon-pink/50 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-110 hover:border-neon-cyan hover:neon-glow-cyan"
               style={{ animationDelay: `${i * 100}ms` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent group-hover:from-primary/40 transition-all duration-300 z-10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-purple/20 to-transparent group-hover:from-neon-cyan/40 transition-all duration-300 z-10" />
               <img 
                 src={advisor.image} 
                 alt={advisor.name}
@@ -107,8 +113,8 @@ const Hero = () => {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-pulse">
-        <div className="w-6 h-10 rounded-full border-2 border-primary/50 flex items-start justify-center p-2">
-          <div className="w-1 h-3 bg-primary rounded-full animate-[float_2s_ease-in-out_infinite]" />
+        <div className="w-6 h-10 rounded-full border-2 border-neon-cyan/50 flex items-start justify-center p-2">
+          <div className="w-1 h-3 bg-neon-cyan rounded-full animate-[float_2s_ease-in-out_infinite]" />
         </div>
       </div>
     </section>

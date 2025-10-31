@@ -1,4 +1,5 @@
 import AdvisorCard from "./AdvisorCard";
+import { Button } from "@/components/ui/button";
 import everGreenImg from "@/assets/advisor-ever-green.jpg";
 import phoenixImg from "@/assets/advisor-phoenix.jpg";
 import prismaImg from "@/assets/advisor-prisma.jpg";
@@ -82,14 +83,16 @@ const advisors = [
 
 const AdvisorsGrid = () => {
   return (
-    <section className="py-24 px-6 bg-gradient-to-b from-background via-background/95 to-background">
+    <section className="py-24 px-6 vaporwave-bg scanlines" id="squad">
       <div className="container mx-auto">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-6xl font-mono font-bold mb-4">
-            <span className="text-primary">MEET YOUR TEAM</span>
+          <h2 className="text-4xl md:text-6xl font-black mb-4">
+            <span className="neon-text-cyan">Meet Your</span>{' '}
+            <span className="neon-text-pink">Squad</span>
           </h2>
-          <p className="text-xl text-muted-foreground font-mono">
-            gaming-style character selection, but for your startup
+          <p className="text-xl text-purple-300">
+            7 AI advisors. Each with 10+ years experience.{' '}
+            <span className="text-neon-cyan font-bold">Working for YOU.</span>
           </p>
         </div>
 
@@ -106,9 +109,16 @@ const AdvisorsGrid = () => {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-sm text-muted-foreground font-mono">
-            btw your competition doesn't know this exists yet
+          <p className="text-purple-300 mb-6">
+            <span className="neon-text-pink font-bold">Это не tutorial.</span>{' '}
+            Это твоя команда.
           </p>
+          <Button 
+            onClick={() => {}}
+            className="bg-gradient-to-r from-neon-pink to-neon-purple hover:from-neon-pink/90 hover:to-neon-purple/90 text-white font-bold text-lg px-8 py-4 rounded-lg neon-glow-pink transition-all"
+          >
+            Meet Your Squad →
+          </Button>
         </div>
       </div>
     </section>
