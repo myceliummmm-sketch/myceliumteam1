@@ -8,60 +8,70 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 180 100% 95%;
+    --background: 280 100% 2%;
+    --foreground: 280 20% 95%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 180 100% 95%;
+    --card: 280 50% 8%;
+    --card-foreground: 280 20% 95%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 180 100% 95%;
+    --popover: 280 50% 8%;
+    --popover-foreground: 280 20% 95%;
 
-    --primary: 190 100% 50%;
-    --primary-foreground: 0 0% 4%;
+    --primary: 166 100% 50%;
+    --primary-foreground: 280 100% 2%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 180 100% 95%;
+    --secondary: 280 50% 12%;
+    --secondary-foreground: 280 20% 95%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 280 30% 18%;
+    --muted-foreground: 280 10% 60%;
 
-    --accent: 190 100% 50%;
-    --accent-foreground: 0 0% 4%;
+    --accent: 166 100% 50%;
+    --accent-foreground: 280 100% 2%;
 
-    --destructive: 350 100% 50%;
+    --destructive: 338 100% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 150 100% 50%;
-    --success-foreground: 0 0% 4%;
+    --success: 166 100% 50%;
+    --success-foreground: 280 100% 2%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 190 100% 50%;
+    --border: 280 30% 18%;
+    --input: 280 30% 18%;
+    --ring: 166 100% 50%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    /* Mycelium Brand Colors */
-    --electric-blue: 190 100% 50%;
-    --neon-red: 350 100% 50%;
-    --neon-green: 150 100% 50%;
-    --deep-black: 0 0% 4%;
-    --darker-black: 0 0% 2%;
+    /* Premium AI Accelerator Brand Colors */
+    --neon-cyan: 166 100% 50%;
+    --neon-pink: 338 100% 55%;
+    --neon-purple: 270 100% 65%;
+    --deep-purple: 280 100% 2%;
+    --dark-purple: 280 50% 8%;
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(190 100% 30%) 0%, hsl(0 0% 4%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 0% 4%) 100%);
-    --gradient-glow: radial-gradient(circle, hsl(190 100% 50% / 0.15) 0%, transparent 70%);
+    /* Advanced Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(280 100% 5%) 0%, hsl(280 100% 2%) 50%, hsl(338 100% 10%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(280 50% 10% / 0.4) 0%, hsl(280 50% 8% / 0.2) 100%);
+    --gradient-holographic: linear-gradient(135deg, hsl(166 100% 50% / 0.2), hsl(270 100% 65% / 0.2), hsl(338 100% 55% / 0.2));
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(166 100% 50% / 0.15) 0%, transparent 70%);
+    --gradient-mesh: radial-gradient(at 0% 0%, hsl(166 100% 50% / 0.1) 0%, transparent 50%), 
+                     radial-gradient(at 100% 100%, hsl(338 100% 55% / 0.1) 0%, transparent 50%),
+                     radial-gradient(at 50% 50%, hsl(270 100% 65% / 0.05) 0%, transparent 50%);
     
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsl(190 100% 50% / 0.3);
-    --shadow-glow-red: 0 0 40px hsl(350 100% 50% / 0.3);
-    --shadow-glow-green: 0 0 40px hsl(150 100% 50% / 0.3);
-    --shadow-card: 0 10px 30px -10px hsl(0 0% 0% / 0.5);
+    /* Premium Shadows & Glows */
+    --shadow-glow-cyan: 0 0 60px hsl(166 100% 50% / 0.4), 0 0 30px hsl(166 100% 50% / 0.2);
+    --shadow-glow-pink: 0 0 60px hsl(338 100% 55% / 0.4), 0 0 30px hsl(338 100% 55% / 0.2);
+    --shadow-glow-purple: 0 0 60px hsl(270 100% 65% / 0.4), 0 0 30px hsl(270 100% 65% / 0.2);
+    --shadow-card: 0 20px 60px -15px hsl(0 0% 0% / 0.8);
+    --shadow-elevation: 0 4px 20px hsl(0 0% 0% / 0.5), 0 0 2px hsl(166 100% 50% / 0.3);
 
-    /* Animations */
+    /* Glassmorphism */
+    --glass-background: hsl(280 50% 10% / 0.3);
+    --glass-border: hsl(280 30% 40% / 0.2);
+
+    /* Smooth Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-elastic: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 }
 
@@ -72,5 +82,50 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background-image: var(--gradient-mesh);
+  }
+}
+
+@layer components {
+  .neon-text-cyan {
+    color: hsl(var(--neon-cyan));
+    text-shadow: 0 0 20px hsl(var(--neon-cyan) / 0.5), 0 0 40px hsl(var(--neon-cyan) / 0.3);
+  }
+
+  .neon-text-pink {
+    color: hsl(var(--neon-pink));
+    text-shadow: 0 0 20px hsl(var(--neon-pink) / 0.5), 0 0 40px hsl(var(--neon-pink) / 0.3);
+  }
+
+  .neon-text-purple {
+    color: hsl(var(--neon-purple));
+    text-shadow: 0 0 20px hsl(var(--neon-purple) / 0.5), 0 0 40px hsl(var(--neon-purple) / 0.3);
+  }
+
+  .neon-border-cyan {
+    border: 1px solid hsl(var(--neon-cyan));
+    box-shadow: 0 0 10px hsl(var(--neon-cyan) / 0.5), inset 0 0 10px hsl(var(--neon-cyan) / 0.1);
+  }
+
+  .neon-border-pink {
+    border: 1px solid hsl(var(--neon-pink));
+    box-shadow: 0 0 10px hsl(var(--neon-pink) / 0.5), inset 0 0 10px hsl(var(--neon-pink) / 0.1);
+  }
+
+  .glass-card {
+    background: var(--glass-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+  }
+
+  .holographic {
+    background: var(--gradient-holographic);
+    background-size: 200% 200%;
+    animation: holographic-shift 3s ease infinite;
+  }
+
+  @keyframes holographic-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
 }

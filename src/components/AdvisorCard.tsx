@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 interface AdvisorCardProps {
   name: string;
@@ -8,7 +9,7 @@ interface AdvisorCardProps {
   status: string;
   stat: string;
   image: string;
-  color: "blue" | "red" | "green" | "purple";
+  color: "cyan" | "pink" | "purple" | "green";
   video?: string;
 }
 
@@ -17,15 +18,39 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const colorClasses = {
-    blue: "from-primary/20 to-transparent border-primary/30 shadow-[0_0_30px_hsl(var(--primary)/0.2)]",
-    red: "from-neon-red/20 to-transparent border-neon-red/30 shadow-[0_0_30px_hsl(var(--neon-red)/0.2)]",
-    green: "from-neon-green/20 to-transparent border-neon-green/30 shadow-[0_0_30px_hsl(var(--neon-green)/0.2)]",
-    purple: "from-purple-500/20 to-transparent border-purple-500/30 shadow-[0_0_30px_hsl(280_100%_50%/0.2)]",
+    cyan: {
+      border: "border-neon-cyan/30",
+      glow: "shadow-glow-cyan",
+      bg: "from-neon-cyan/10",
+      text: "text-neon-cyan",
+      button: "border-neon-cyan/50 hover:bg-neon-cyan/20",
+    },
+    pink: {
+      border: "border-neon-pink/30",
+      glow: "shadow-glow-pink",
+      bg: "from-neon-pink/10",
+      text: "text-neon-pink",
+      button: "border-neon-pink/50 hover:bg-neon-pink/20",
+    },
+    purple: {
+      border: "border-neon-purple/30",
+      glow: "shadow-glow-purple",
+      bg: "from-neon-purple/10",
+      text: "text-neon-purple",
+      button: "border-neon-purple/50 hover:bg-neon-purple/20",
+    },
+    green: {
+      border: "border-success/30",
+      glow: "shadow-[0_0_60px_hsl(var(--success)/0.4)]",
+      bg: "from-success/10",
+      text: "text-success",
+      button: "border-success/50 hover:bg-success/20",
+    },
   };
 
   return (
     <div
-      className={`relative group cursor-pointer transition-all duration-500 ${isHovered ? "scale-105" : ""}`}
+      className={`relative group cursor-pointer transition-all duration-700 ${isHovered ? "scale-105 -translate-y-2" : ""}`}
       onMouseEnter={() => {
         setIsHovered(true);
         if (videoRef.current) {
@@ -40,9 +65,10 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
         }
       }}
     >
-      {/* Card Container */}
-      <div className={`relative aspect-square rounded-2xl bg-gradient-to-br ${colorClasses[color]} backdrop-blur-sm border-2 overflow-hidden transition-all duration-500 ${isHovered ? "border-opacity-70" : ""}`}>
-        {/* Video - Full background, paused by default, plays on hover */}
+      {/* Executive Profile Card */}
+      <div className={`relative aspect-[4/5] rounded-3xl glass-card border-2 ${colorClasses[color].border} overflow-hidden transition-all duration-700 ${isHovered ? colorClasses[color].glow : ""}`}>
+        
+        {/* Video Background */}
         {video && (
           <video
             ref={videoRef}
@@ -50,57 +76,67 @@ const AdvisorCard = ({ name, role, tagline, status, stat, image, color, video }:
             muted
             playsInline
             preload="metadata"
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out z-0"
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out z-0"
             src={video}
           />
         )}
         
-        {/* Portrait Image - Only when no video */}
+        {/* Image Fallback */}
         {!video && (
-          <div className="absolute right-0 top-0 bottom-0 w-1/2">
+          <div className="absolute inset-0">
             <img 
               src={image} 
               alt={name} 
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover"
             />
           </div>
         )}
 
-        {/* Content - Left Side */}
-        <div className="relative z-10 h-full flex flex-col justify-between p-6 w-1/2">
-          {/* Header */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className={`w-2 h-2 rounded-full ${color === "blue" ? "bg-primary" : color === "red" ? "bg-neon-red" : color === "green" ? "bg-neon-green" : "bg-purple-500"} animate-pulse`} />
+        {/* Gradient Overlay */}
+        <div className={`absolute inset-0 bg-gradient-to-t ${colorClasses[color].bg} via-background/50 to-transparent z-10`} />
+
+        {/* Holographic Overlay on Hover */}
+        <div className={`absolute inset-0 holographic opacity-0 group-hover:opacity-20 transition-opacity duration-700 z-10`} />
+
+        {/* Content */}
+        <div className="relative z-20 h-full flex flex-col justify-between p-6">
+          {/* Header - Status */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 glass-card px-3 py-1.5 rounded-full">
+              <div className={`w-2 h-2 rounded-full ${colorClasses[color].text.replace('text-', 'bg-')} animate-pulse`} />
               <span className="text-xs font-mono text-foreground/80">{status}</span>
             </div>
+            <Sparkles className={`w-5 h-5 ${colorClasses[color].text} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
           </div>
 
           {/* Bottom Content */}
           <div>
-            <h3 className="text-3xl font-mono font-bold mb-2 text-foreground">{name}</h3>
-            <p className="text-sm font-medium mb-2 bg-gradient-to-r from-primary via-neon-green to-primary bg-clip-text text-transparent">
+            <h3 className="text-4xl font-black mb-2 text-foreground tracking-tight">{name}</h3>
+            <p className={`text-base font-bold mb-3 ${colorClasses[color].text}`}>
               {role}
             </p>
             
-            {/* Tagline */}
+            {/* Executive Tagline */}
             <p className="text-lg font-semibold mb-4 leading-tight text-foreground">{tagline}</p>
 
-            {/* Stats */}
-            <div className={`p-3 rounded-lg bg-background/70 backdrop-blur-sm border ${color === "blue" ? "border-primary/30" : color === "red" ? "border-neon-red/30" : color === "green" ? "border-neon-green/30" : "border-purple-500/30"} mb-4`}>
-              <p className="text-sm font-mono">{stat}</p>
+            {/* ROI Stats */}
+            <div className={`p-4 rounded-xl glass-card border ${colorClasses[color].border} mb-4 transition-all duration-300 group-hover:scale-105`}>
+              <p className="text-sm font-mono font-semibold">{stat}</p>
             </div>
 
-            {/* CTA */}
+            {/* Premium CTA */}
             <Button
               variant="outline"
-              className={`w-full border-2 ${color === "blue" ? "border-primary/50 hover:bg-primary/20" : color === "red" ? "border-neon-red/50 hover:bg-neon-red/20" : color === "green" ? "border-neon-green/50 hover:bg-neon-green/20" : "border-purple-500/50 hover:bg-purple-500/20"} transition-all duration-300 font-mono backdrop-blur-sm`}
+              className={`w-full border-2 ${colorClasses[color].button} transition-all duration-300 font-bold backdrop-blur-sm rounded-xl py-6 group-hover:scale-105`}
             >
-              Get Advice Now
+              Book Advisory Session
             </Button>
           </div>
         </div>
       </div>
+
+      {/* External Glow Effect */}
+      <div className={`absolute inset-0 ${colorClasses[color].bg} to-transparent blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
     </div>
   );
 };

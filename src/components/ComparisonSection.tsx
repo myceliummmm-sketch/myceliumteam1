@@ -1,64 +1,80 @@
-import { X, Check } from "lucide-react";
+import { X, Check, Zap } from "lucide-react";
+
 const ComparisonSection = () => {
-  return <section className="py-24 px-6 bg-gradient-to-b from-background to-secondary/20">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-6xl font-mono font-bold mb-6">
-            yeah, this isn't chatgpt with a fancy skin
+  return (
+    <section className="py-32 px-6 bg-gradient-to-b from-background to-dark-purple relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-neon-purple/30 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+      </div>
+
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="text-center mb-20 animate-fade-in">
+          <h2 className="text-4xl md:text-6xl font-black mb-6">
+            <span className="text-muted-foreground">This Isn't</span>
+            <br />
+            <span className="neon-text-pink">ChatGPT With a Fancy Skin</span>
           </h2>
+          <p className="text-xl text-muted-foreground font-mono">
+            Generic AI gives advice. Mycelium gives results.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 gap-8 mb-32">
           {/* Generic AI */}
-          <div className="relative p-8 rounded-2xl bg-muted/20 border border-muted backdrop-blur-sm opacity-60">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-muted">
-                <X className="w-6 h-6 text-muted-foreground" />
+          <div className="relative p-10 rounded-3xl bg-muted/10 border border-muted/30 backdrop-blur-sm opacity-60">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-xl bg-muted/20">
+                <X className="w-7 h-7 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-mono text-muted-foreground">Generic ChatGPT</h3>
+              <h3 className="text-2xl font-mono text-muted-foreground">Generic ChatGPT</h3>
             </div>
             
-            <div className="space-y-4 text-sm text-muted-foreground">
-              <p>"Your idea has potential. Consider researching your market..."</p>
-              <p>"You should focus on user experience..."</p>
-              <p>"Have you thought about monetization strategies?"</p>
-              <p className="italic opacity-60">(Translation: I have no idea what I'm talking about)</p>
+            <div className="space-y-6 text-sm text-muted-foreground">
+              <p className="italic">"Your idea has potential. Consider researching your market..."</p>
+              <p className="italic">"You should focus on user experience..."</p>
+              <p className="italic">"Have you thought about monetization strategies?"</p>
+              <p className="text-xs opacity-60 font-mono">(Translation: I have no idea what I'm talking about)</p>
             </div>
           </div>
 
           {/* Mycelium */}
-          <div className="relative p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent border-2 border-primary/50 backdrop-blur-sm shadow-[0_0_40px_hsl(var(--primary)/0.3)]">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-primary/20 border border-primary/50">
-                <Check className="w-6 h-6 text-primary" />
+          <div className="relative p-10 rounded-3xl glass-card border-2 neon-border-cyan" style={{ boxShadow: 'var(--shadow-glow-cyan)' }}>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-xl glass-card neon-border-cyan">
+                <Check className="w-7 h-7 neon-text-cyan" />
               </div>
-              <h3 className="text-xl font-mono text-primary">Mycelium Advisors</h3>
+              <h3 className="text-2xl font-mono neon-text-cyan font-bold">Mycelium Advisors</h3>
             </div>
             
-            <div className="space-y-4 text-sm">
-              <p className="text-foreground font-medium">"Your TAM is bullshit. Here's why: [specific breakdown]. Fix it like this: [actual framework]"</p>
-              <p className="text-foreground font-medium">"I see you're using Firebase. That'll cost you €2K/month at 10K users. Switch to Supabase now."</p>
-              <p className="text-foreground font-medium">"Your landing page converts at 0.8%. Here's the exact copy change that'll get you to 3%..."</p>
-              <p className="text-neon-green italic font-semibold">(Translation: I've done this 47 times)</p>
+            <div className="space-y-6 text-sm">
+              <p className="text-foreground font-semibold">"Your TAM is bullshit. Here's why: [specific breakdown]. Fix it like this: [actual framework]"</p>
+              <p className="text-foreground font-semibold">"I see you're using Firebase. That'll cost you €2K/month at 10K users. Switch to Supabase now."</p>
+              <p className="text-foreground font-semibold">"Your landing page converts at 0.8%. Here's the exact copy change that'll get you to 3%..."</p>
+              <p className="text-xs neon-text-cyan italic font-bold font-mono">(Translation: I've done this 10,000 times)</p>
             </div>
 
             {/* Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent blur-2xl -z-10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 to-transparent blur-3xl -z-10" />
           </div>
         </div>
 
-        {/* Block 2: WHY PROJECTS DIE */}
-        <div className="mb-20">
-          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 text-neon-red text-red-400">
-            WHY PROJECTS DIE
+        {/* What Separates Winners from Wishers */}
+        <div className="mb-32">
+          <h2 className="text-4xl md:text-6xl font-black text-center mb-6 neon-text-pink">
+            WHAT SEPARATES WINNERS FROM WISHERS
           </h2>
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {/* BURNOUT Card */}
-            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-transparent bg-gradient-to-br from-red-500/20 to-pink-500/20 hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 opacity-50 blur-xl group-hover:opacity-70 transition-opacity -z-10" />
-              <div className="text-6xl mb-4">💀</div>
-              <h3 className="text-2xl font-black mb-6 text-red-400">BURNOUT</h3>
-              <ul className="space-y-3 text-purple-200 text-sm">
+          <p className="text-center text-xl text-muted-foreground font-mono mb-16">
+            Your competition has teams. Do you?
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Working Harder */}
+            <div className="group p-10 rounded-3xl glass-card border-2 border-neon-pink/30 hover:border-neon-pink transition-all duration-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-pink/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity blur-2xl -z-10" />
+              <div className="text-6xl mb-6">💀</div>
+              <h3 className="text-3xl font-black mb-6 neon-text-pink">WORKING HARDER ISN'T WORKING</h3>
+              <ul className="space-y-4 text-foreground/80 text-sm font-mono">
                 <li>• 83% experience burnout</li>
                 <li>• No energy by day 10</li>
                 <li>• Code 16 hours → crash</li>
@@ -67,12 +83,12 @@ const ComparisonSection = () => {
               </ul>
             </div>
 
-            {/* CHAOS Card */}
-            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-transparent bg-gradient-to-br from-orange-500/20 to-red-500/20 hover:shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-50 blur-xl group-hover:opacity-70 transition-opacity -z-10" />
-              <div className="text-6xl mb-4">🌀</div>
-              <h3 className="text-2xl font-black mb-6 text-orange-400">CHAOS</h3>
-              <ul className="space-y-3 text-purple-200 text-sm">
+            {/* Following Tutorials */}
+            <div className="group p-10 rounded-3xl glass-card border-2 border-neon-purple/30 hover:border-neon-purple transition-all duration-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-purple/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity blur-2xl -z-10" />
+              <div className="text-6xl mb-6">🌀</div>
+              <h3 className="text-3xl font-black mb-6 neon-text-purple">FOLLOWING 47 TUTORIALS WON'T SHIP PRODUCTS</h3>
+              <ul className="space-y-4 text-foreground/80 text-sm font-mono">
                 <li>• What to do? No clue.</li>
                 <li>• No plan, no structure</li>
                 <li>• Feature creep kills</li>
@@ -81,12 +97,12 @@ const ComparisonSection = () => {
               </ul>
             </div>
 
-            {/* ALONE Card */}
-            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-transparent bg-gradient-to-br from-red-900/20 to-red-700/20 hover:shadow-[0_0_30px_rgba(127,29,29,0.3)] transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-red-700 opacity-50 blur-xl group-hover:opacity-70 transition-opacity -z-10" />
-              <div className="text-6xl mb-4">😰</div>
-              <h3 className="text-2xl font-black mb-6 text-red-300">ALONE</h3>
-              <ul className="space-y-3 text-purple-200 text-sm">
+            {/* Your Competition */}
+            <div className="group p-10 rounded-3xl glass-card border-2 border-neon-cyan/30 hover:border-neon-cyan transition-all duration-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity blur-2xl -z-10" />
+              <div className="text-6xl mb-6">😰</div>
+              <h3 className="text-3xl font-black mb-6 neon-text-cyan">YOUR COMPETITION HAS TEAMS. DO YOU?</h3>
+              <ul className="space-y-4 text-foreground/80 text-sm font-mono">
                 <li>• Stuck. No one to ask.</li>
                 <li>• 11 PM. Bug. Alone.</li>
                 <li>• Googling until 3 AM</li>
@@ -97,65 +113,76 @@ const ComparisonSection = () => {
           </div>
         </div>
 
-        {/* Block 3: WE FIXED THE SYSTEM */}
+        {/* The Unfair Advantage */}
         <div className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-center mb-12 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-slate-50">
-            WE FIXED THE SYSTEM
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {/* ANTI-BURNOUT Card */}
-            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-cyan-400 hover:border-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.5)] transition-all duration-300">
-              <div className="text-6xl mb-4">🛡</div>
-              <h3 className="text-2xl font-black mb-6 text-cyan-400">ANTI-BURNOUT</h3>
-              <ul className="space-y-3 text-purple-200 text-sm mb-6">
-                <li>• Zen monitors your energy</li>
-                <li>• Energy tracking (1-10 scale)</li>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 glass-card px-6 py-3 rounded-full mb-6 neon-border-cyan">
+              <Zap className="w-5 h-5 neon-text-cyan" />
+              <span className="text-sm font-mono neon-text-cyan uppercase tracking-wider font-bold">The Unfair Advantage</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black">
+              <span className="bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-transparent">
+                WE FIXED THE SYSTEM
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* AI Monitors Your Velocity */}
+            <div className="group p-10 rounded-3xl glass-card border-2 neon-border-cyan hover:scale-105 transition-all duration-500" style={{ boxShadow: 'var(--shadow-glow-cyan)' }}>
+              <div className="text-6xl mb-6">🛡</div>
+              <h3 className="text-3xl font-black mb-6 neon-text-cyan">AI MONITORS YOUR VELOCITY & ENERGY</h3>
+              <ul className="space-y-4 text-foreground/80 text-sm font-mono mb-8">
+                <li>• Zen tracks your energy (1-10)</li>
                 <li>• Buddy system support</li>
+                <li>• Auto-adjust workload</li>
                 <li>• &lt;5% burnout rate</li>
               </ul>
-              <p className="text-lg font-bold text-cyan-400 mt-6">
+              <p className="text-xl font-black neon-text-cyan">
                 → You'll finish
               </p>
             </div>
 
-            {/* ANTI-CHAOS Card */}
-            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-purple-400 hover:border-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(168,85,247,0.5)] transition-all duration-300">
-              <div className="text-6xl mb-4">📋</div>
-              <h3 className="text-2xl font-black mb-6 text-purple-400">ANTI-CHAOS</h3>
-              <ul className="space-y-3 text-purple-200 text-sm mb-6">
-                <li>• 10 clear phases</li>
+            {/* 10-Phase Playbook */}
+            <div className="group p-10 rounded-3xl glass-card border-2 neon-border-purple hover:scale-105 transition-all duration-500" style={{ boxShadow: 'var(--shadow-glow-purple)' }}>
+              <div className="text-6xl mb-6">📋</div>
+              <h3 className="text-3xl font-black mb-6 neon-text-purple">10-PHASE PLAYBOOK FROM IDEA TO REVENUE</h3>
+              <ul className="space-y-4 text-foreground/80 text-sm font-mono mb-8">
+                <li>• Inception → Ship in 21 days</li>
                 <li>• Daily action plan</li>
-                <li>• Inception → Ship</li>
+                <li>• Clear milestones</li>
                 <li>• 100% structure</li>
               </ul>
-              <p className="text-lg font-bold text-purple-400 mt-6">
+              <p className="text-xl font-black neon-text-purple">
                 → Zero chaos
               </p>
             </div>
 
-            {/* ANTI-SOLO Card */}
-            <div className="p-8 rounded-2xl bg-purple-950/40 backdrop-blur-sm border-2 border-pink-400 hover:border-pink-300 shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_40px_rgba(236,72,153,0.5)] transition-all duration-300">
-              <div className="text-6xl mb-4">👥</div>
-              <h3 className="text-2xl font-black mb-6 text-pink-400">ANTI-SOLO</h3>
-              <ul className="space-y-3 text-purple-200 text-sm mb-6">
-                <li>• Squad + Network</li>
+            {/* Instant Access */}
+            <div className="group p-10 rounded-3xl glass-card border-2 neon-border-pink hover:scale-105 transition-all duration-500" style={{ boxShadow: 'var(--shadow-glow-pink)' }}>
+              <div className="text-6xl mb-6">👥</div>
+              <h3 className="text-3xl font-black mb-6 neon-text-pink">INSTANT ACCESS TO PROVEN CO-FOUNDERS</h3>
+              <ul className="space-y-4 text-foreground/80 text-sm font-mono mb-8">
                 <li>• 7 AI experts 24/7</li>
                 <li>• 20+ founders in cohort</li>
                 <li>• Co-founder matching</li>
+                <li>• Squad + Network</li>
               </ul>
-              <p className="text-lg font-bold text-pink-400 mt-6">
+              <p className="text-xl font-black neon-text-pink">
                 → Never alone
               </p>
             </div>
           </div>
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center glass-card rounded-2xl p-6 max-w-2xl mx-auto" style={{ border: '1px solid hsl(var(--neon-cyan) / 0.2)' }}>
           <p className="text-sm text-muted-foreground font-mono">
-            small text: btw your competition doesn't know this exists yet
+            We don't do motivational quotes. We ship products.
           </p>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default ComparisonSection;

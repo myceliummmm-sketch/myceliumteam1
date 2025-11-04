@@ -10,90 +10,100 @@ import zenImg from "@/assets/advisor-zen.jpg";
 const advisors = [
   {
     name: "Ever Green",
-    role: "🚀 CEO",
+    role: "Venture Strategist",
     tagline: "Built 3 unicorns. Will call out your BS.",
     status: "Online (always is)",
-    stat: "Live roast: Your TAM slide is fiction",
+    stat: "ROI: Turns weak pitches → €2M raises",
     image: everGreenImg,
-    color: "blue" as const,
+    color: "cyan" as const,
     video: "/ever-green-hover.mp4",
   },
   {
     name: "Phoenix",
-    role: "📈 CMO/Growth",
-    tagline: "Your marketing sucks. Let me fix it.",
-    status: "Plotting growth hacks",
-    stat: "47 campaigns optimized today",
+    role: "Growth Architect",
+    tagline: "Turns 0.8% → 3% conversion",
+    status: "Optimizing campaigns",
+    stat: "ROI: 47 products scaled to 10K+ users",
     image: phoenixImg,
-    color: "red" as const,
+    color: "pink" as const,
     video: "/phoenix-hover.mp4",
   },
   {
     name: "Zen",
-    role: "🌸 HR/Wellbeing",
+    role: "Performance Coach",
     tagline: "Burn bright, not out",
-    status: "Morning yoga session",
-    stat: "89 founders from burnout saved",
+    status: "Monitoring velocity",
+    stat: "ROI: 89 founders saved from burnout",
     image: zenImg,
     color: "green" as const,
     video: "/zen-hover.mp4",
   },
   {
     name: "Toxic",
-    role: "🔒 Security/Red Team Lead",
+    role: "Security Lead",
     tagline: "I'll hack you before they do",
     status: "Finding vulnerabilities",
-    stat: "Saved users €2.4M from breaches",
+    stat: "ROI: Saved users €2.4M from breaches",
     image: toxicImg,
-    color: "red" as const,
+    color: "pink" as const,
     video: "/toxic-hover.mp4",
   },
   {
     name: "Virgil",
-    role: "🎬 Visual Storyteller",
+    role: "Design Director",
     tagline: "Make it beautiful or don't ship",
     status: "Perfecting pixels",
-    stat: "374 brands elevated",
+    stat: "ROI: 374 brands elevated to premium tier",
     image: virgilImg,
     color: "purple" as const,
     video: "/virgil-hover.mp4",
   },
   {
     name: "Prisma",
-    role: "📦 Product Manager",
+    role: "Product Strategist",
     tagline: "Ship faster. Overthink less.",
-    status: "Reviewing PRDs",
-    stat: "12 features killed today",
+    status: "Reviewing roadmaps",
+    stat: "ROI: 12 features killed, 2 winners shipped",
     image: prismaImg,
-    color: "blue" as const,
+    color: "cyan" as const,
     video: "/prisma-hover.mp4",
   },
   {
     name: "Tech Priest",
-    role: "⚙️ CTO",
+    role: "Infrastructure Lead",
     tagline: "Your architecture is showing",
-    status: "Refactoring reality",
-    stat: "99.9% uptime maintained",
+    status: "Optimizing systems",
+    stat: "ROI: 99.9% uptime, €40K saved on infra",
     image: techPriestImg,
-    color: "blue" as const,
+    color: "cyan" as const,
     video: "/tech-priest-hover.mp4",
   },
 ];
 
 const AdvisorsGrid = () => {
   return (
-    <section className="py-24 px-6 bg-gradient-to-b from-background via-background/95 to-background">
-      <div className="container mx-auto">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-6xl font-mono font-bold mb-4">
-            <span className="text-primary">MEET YOUR TEAM</span>
+    <section className="py-32 px-6 bg-gradient-to-b from-background via-dark-purple to-background relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-cyan/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-neon-pink/20 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto relative z-10">
+        <div className="text-center mb-20 animate-fade-in">
+          <div className="inline-block glass-card px-6 py-3 rounded-full mb-6 neon-border-cyan">
+            <p className="text-sm font-mono neon-text-cyan uppercase tracking-wider">Trained on 10,000+ successful launches</p>
+          </div>
+          <h2 className="text-5xl md:text-7xl font-black mb-6">
+            <span className="neon-text-cyan">YOUR PERSONAL</span>
+            <br />
+            <span className="text-foreground">AI BOARD OF DIRECTORS</span>
           </h2>
-          <p className="text-xl text-muted-foreground font-mono">
-            gaming-style character selection, but for your startup
+          <p className="text-xl md:text-2xl text-muted-foreground font-mono max-w-3xl mx-auto">
+            $500/hr consultant quality. Instant responses. Zero attitude.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
           {advisors.map((advisor, index) => (
             <div
               key={advisor.name}
@@ -105,9 +115,12 @@ const AdvisorsGrid = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <p className="text-sm text-muted-foreground font-mono">
-            btw your competition doesn't know this exists yet
+        <div className="text-center glass-card rounded-2xl p-8 max-w-2xl mx-auto" style={{ border: '1px solid hsl(var(--neon-cyan) / 0.2)' }}>
+          <p className="text-sm text-muted-foreground font-mono mb-2">
+            Your competition shipped 3 products while you read this
+          </p>
+          <p className="text-xs text-muted-foreground/60 font-mono">
+            (seriously, they don't know this exists yet)
           </p>
         </div>
       </div>
