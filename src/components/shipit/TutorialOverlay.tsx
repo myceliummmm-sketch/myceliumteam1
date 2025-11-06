@@ -9,6 +9,7 @@ import { tutorialSteps } from '@/lib/tutorialSteps';
 export function TutorialOverlay() {
   const { showTutorial, tutorialStep, nextTutorialStep, skipTutorial } = useGameStore();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
+  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [cardPosition, setCardPosition] = useState({ top: 0, left: 0 });
 
   const currentStep = tutorialSteps[tutorialStep || 0];
@@ -20,8 +21,11 @@ export function TutorialOverlay() {
     if (element) {
       setTargetElement(element);
       
-      // Calculate card position - mobile responsive
+      // Get element position using getBoundingClientRect for accurate viewport coordinates
       const rect = element.getBoundingClientRect();
+      setHighlightRect(rect);
+      
+      // Calculate card position - mobile responsive
       const isMobile = window.innerWidth < 768;
       const cardWidth = isMobile ? window.innerWidth - 32 : 320;
       const cardHeight = 350;
@@ -60,27 +64,38 @@ export function TutorialOverlay() {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50"
       >
-        {/* Dark overlay with cutout effect */}
-        <div className="absolute inset-0 bg-black/80" />
-        
-        {/* Highlight target element */}
-        {targetElement && (
+        {/* Highlight target element with cutout effect */}
+        {targetElement && highlightRect && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              boxShadow: [
+                '0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 40px hsl(var(--primary))',
+                '0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 60px hsl(var(--primary))',
+                '0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 40px hsl(var(--primary))'
+              ]
+            }}
+            transition={{
+              duration: 0.3,
+              boxShadow: {
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            }}
             style={{
-              position: 'absolute',
-              top: targetElement.offsetTop - 8,
-              left: targetElement.offsetLeft - 8,
-              width: targetElement.offsetWidth + 16,
-              height: targetElement.offsetHeight + 16,
-              border: '3px solid hsl(var(--primary))',
-              borderRadius: '12px',
-              boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 30px hsl(var(--primary))',
+              position: 'fixed',
+              top: highlightRect.top - 12,
+              left: highlightRect.left - 12,
+              width: highlightRect.width + 24,
+              height: highlightRect.height + 24,
+              border: '4px solid hsl(var(--primary))',
+              borderRadius: '16px',
               pointerEvents: 'none',
               zIndex: 51
             }}
-            className="animate-pulse"
           />
         )}
 
