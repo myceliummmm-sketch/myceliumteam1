@@ -3,24 +3,9 @@ import { useGameStore } from '@/stores/gameStore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import everGreenImg from '@/assets/advisor-ever-green.jpg';
-import phoenixImg from '@/assets/advisor-phoenix.jpg';
-import prismaImg from '@/assets/advisor-prisma.jpg';
-import techPriestImg from '@/assets/advisor-tech-priest.jpg';
-import toxicImg from '@/assets/advisor-toxic.jpg';
-import virgilImg from '@/assets/advisor-virgil.jpg';
-import zenImg from '@/assets/advisor-zen.jpg';
+import { ProgressiveMessage } from './ProgressiveMessage';
 import mLogo from '@/assets/m-logo.png';
 
-const avatarMap: Record<string, string> = {
-  ever: everGreenImg,
-  prisma: prismaImg,
-  toxic: toxicImg,
-  phoenix: phoenixImg,
-  techpriest: techPriestImg,
-  virgil: virgilImg,
-  zen: zenImg,
-};
 
 export function ChatTerminal() {
   const messages = useGameStore((state) => state.messages);
@@ -55,20 +40,19 @@ export function ChatTerminal() {
             messages.map((message) => {
               const isUser = message.role === 'user';
               const segments = message.segments || [];
-              const speaker = segments.find(s => s.speaker)?.speaker;
               
+              // Use progressive reveal for AI assistant messages with segments
+              if (message.role === 'assistant' && segments.length > 0) {
+                return <ProgressiveMessage key={message.id} message={message} />;
+              }
+              
+              // Keep existing rendering for user and system messages
               return (
                 <div
                   key={message.id}
                   data-message-item
                   className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
                 >
-                  {!isUser && speaker && (
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={avatarMap[speaker]} alt={speaker} />
-                      <AvatarFallback>{speaker[0].toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                  )}
                   <div
                     className={`max-w-[80%] rounded-lg p-3 ${
                       isUser
@@ -78,11 +62,6 @@ export function ChatTerminal() {
                         : 'bg-muted'
                     }`}
                   >
-                    {!isUser && speaker && (
-                      <p className="text-xs font-bold text-primary mb-1">
-                        {speaker.toUpperCase()}
-                      </p>
-                    )}
                     {segments.map((segment, idx) => (
                       <p
                         key={idx}
