@@ -61,7 +61,29 @@ export function useGameSession() {
             code_health: 100,
             current_phase: 'INCEPTION',
             completed_tasks: [],
-            current_tasks: [],
+            current_tasks: [
+              {
+                id: crypto.randomUUID(),
+                description: 'Define your product vision and target user',
+                xpReward: 25,
+                phase: 'INCEPTION',
+                completed: false
+              },
+              {
+                id: crypto.randomUUID(),
+                description: 'Identify the core problem you\'re solving',
+                xpReward: 25,
+                phase: 'INCEPTION',
+                completed: false
+              },
+              {
+                id: crypto.randomUUID(),
+                description: 'Brainstorm solution approaches with the team',
+                xpReward: 30,
+                phase: 'INCEPTION',
+                completed: false
+              }
+            ],
             blockers: [],
             milestones: [],
             team_mood: {
@@ -83,7 +105,7 @@ export function useGameSession() {
             segments: [
               { type: 'speech', speaker: 'zen', content: 'Welcome, builder. I am Zen, and these are your teammates. Together, we will ship something amazing.' },
               { type: 'narration', content: 'The team gathers around. Ever Green grins optimistically, while Toxic crosses their arms skeptically. This is the beginning of your journey.' },
-              { type: 'speech', speaker: 'ever', content: 'So exciting! What are we building today?' }
+              { type: 'speech', speaker: 'ever', content: 'So exciting! I\'ve added some starter tasks to get us going. What are we building today?' }
             ],
             game_events: []
           });

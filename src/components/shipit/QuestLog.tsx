@@ -3,16 +3,28 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Circle, AlertTriangle } from 'lucide-react';
+import { useRef, useEffect } from 'react';
 
 export function QuestLog() {
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const currentTasks = useGameStore((state) => state.currentTasks);
   const blockers = useGameStore((state) => state.blockers);
+
+  // Scroll to top when tasks or blockers update
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [currentTasks, blockers]);
 
   return (
     <Card className="p-4">
       <h3 className="text-sm font-mono text-muted-foreground mb-4">QUEST LOG</h3>
       
-      <ScrollArea className="h-[200px] sm:h-[300px] lg:h-[400px]">
+      <ScrollArea ref={scrollAreaRef} className="h-[200px] sm:h-[300px] lg:h-[400px]">
         <div className="space-y-3">
           {/* Active Blockers */}
           {blockers.length > 0 && (

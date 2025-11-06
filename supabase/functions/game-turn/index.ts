@@ -33,6 +33,20 @@ GAME MECHANICS:
 - Phase transitions happen when major milestones are reached
 - Team mood affects dialogue tone
 
+TASK GENERATION RULES (CRITICAL - ALWAYS FOLLOW):
+- Generate 1-2 TASK_ADDED events per turn to maintain momentum
+- Tasks MUST be specific and actionable (e.g., "Create user persona document" NOT "Think about users")
+- Each phase should have 3-5 active tasks at any time
+- Task XP rewards: 15-25 for small tasks, 30-50 for major milestones
+- When a task is completed, immediately suggest a follow-up task
+- Phase-specific task examples:
+  • INCEPTION: "Define target user demographics", "Research 3 competitors", "Write problem statement"
+  • RESEARCH: "Interview 5 potential users", "Analyze survey results", "Create user journey map"
+  • DESIGN: "Create low-fidelity wireframes", "Map user flow", "Design core screens"
+  • BUILD: "Implement authentication", "Set up database schema", "Build API endpoints"
+  • TEST: "Write unit tests for auth", "Perform load testing", "Fix critical bugs"
+  • SHIP: "Configure production environment", "Create launch checklist", "Deploy to production"
+
 RESPONSE FORMAT (must be valid JSON):
 {
   "segments": [
