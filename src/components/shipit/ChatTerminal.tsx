@@ -10,6 +10,7 @@ import techPriestImg from '@/assets/advisor-tech-priest.jpg';
 import toxicImg from '@/assets/advisor-toxic.jpg';
 import virgilImg from '@/assets/advisor-virgil.jpg';
 import zenImg from '@/assets/advisor-zen.jpg';
+import mLogo from '@/assets/m-logo.png';
 
 const avatarMap: Record<string, string> = {
   ever: everGreenImg,
@@ -28,7 +29,10 @@ export function ChatTerminal() {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
   }, [messages, isLoading]);
 
@@ -96,7 +100,8 @@ export function ChatTerminal() {
           {isLoading && (
             <div className="flex gap-3">
               <Avatar className="h-8 w-8">
-                <AvatarFallback>AI</AvatarFallback>
+                <AvatarImage src={mLogo} alt="M" className="object-contain p-1" />
+                <AvatarFallback>M</AvatarFallback>
               </Avatar>
               <div className="bg-muted rounded-lg p-3">
                 <div className="flex gap-1">
