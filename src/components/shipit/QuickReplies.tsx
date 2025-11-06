@@ -11,7 +11,7 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
   if (suggestions.length === 0) return null;
   
   return (
-    <div className="flex flex-wrap gap-2 px-2 pb-2">
+    <div className="flex flex-wrap gap-2 px-2 pb-2 pt-2 border-t border-border/40">
       {suggestions.map((suggestion, idx) => (
         <Button
           key={idx}

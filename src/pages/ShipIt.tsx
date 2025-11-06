@@ -74,13 +74,13 @@ export default function ShipIt() {
           <div className="flex-1 min-h-[400px] lg:min-h-0" data-tutorial-target="chat-terminal">
             <ChatTerminal />
           </div>
+          <QuickReplies 
+            suggestions={quickReplies}
+            onSelect={sendMessage}
+            disabled={isLoading || energy < 1}
+          />
           <div className="sticky bottom-0 bg-background" data-tutorial-target="input-bar">
             <InputBar />
-            <QuickReplies 
-              suggestions={quickReplies}
-              onSelect={sendMessage}
-              disabled={isLoading || energy < 1}
-            />
           </div>
         </div>
         
