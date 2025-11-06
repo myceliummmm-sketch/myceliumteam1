@@ -55,6 +55,7 @@ export type Database = {
           role: string
           segments: Json | null
           session_id: string
+          suggested_actions: Json | null
         }
         Insert: {
           content: string
@@ -64,6 +65,7 @@ export type Database = {
           role: string
           segments?: Json | null
           session_id: string
+          suggested_actions?: Json | null
         }
         Update: {
           content?: string
@@ -73,6 +75,7 @@ export type Database = {
           role?: string
           segments?: Json | null
           session_id?: string
+          suggested_actions?: Json | null
         }
         Relationships: [
           {
@@ -246,24 +249,81 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
+          is_test_user: boolean | null
           updated_at: string | null
+          user_type: string | null
           username: string | null
         }
         Insert: {
           created_at?: string | null
           email: string
           id: string
+          is_test_user?: boolean | null
           updated_at?: string | null
+          user_type?: string | null
           username?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string
           id?: string
+          is_test_user?: boolean | null
           updated_at?: string | null
+          user_type?: string | null
           username?: string | null
         }
         Relationships: []
+      }
+      user_events: {
+        Row: {
+          created_at: string | null
+          event_category: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          is_test_event: boolean | null
+          page_url: string | null
+          player_id: string
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_category?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          is_test_event?: boolean | null
+          page_url?: string | null
+          player_id: string
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_category?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          is_test_event?: boolean | null
+          page_url?: string | null
+          player_id?: string
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_events_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

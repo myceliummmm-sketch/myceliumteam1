@@ -310,6 +310,22 @@ export function useGameSession() {
 
     setGameLoading(true);
 
+    // Track message sent event (fire and forget)
+    if (user) {
+      void supabase.from('user_events').insert({
+        player_id: user.id,
+        session_id: sessionId,
+        event_type: 'message_sent',
+        event_category: 'gameplay',
+        event_data: {
+          message_length: message.length,
+          current_phase: store.currentPhase,
+          energy_remaining: store.energy - 1
+        },
+        page_url: window.location.pathname
+      });
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('game-turn', {
         body: { message, sessionId }

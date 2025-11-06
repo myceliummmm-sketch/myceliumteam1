@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function Login() {
@@ -30,6 +31,16 @@ export default function Login() {
       setLoading(false);
     } else {
       toast.success('Welcome back!');
+      // Track login event (fire and forget)
+      if (user) {
+        void supabase.from('user_events').insert({
+          player_id: user.id,
+          event_type: 'login_completed',
+          event_category: 'auth',
+          event_data: { method: 'email' },
+          page_url: window.location.pathname
+        });
+      }
       navigate('/shipit');
     }
   };

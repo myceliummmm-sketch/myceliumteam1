@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function Register() {
@@ -31,6 +32,18 @@ export default function Register() {
       setLoading(false);
     } else {
       toast.success('Account created! Logging you in...');
+      // Track signup event (fire and forget)
+      setTimeout(() => {
+        if (user) {
+          void supabase.from('user_events').insert({
+            player_id: user.id,
+            event_type: 'signup_completed',
+            event_category: 'auth',
+            event_data: { method: 'email' },
+            page_url: window.location.pathname
+          });
+        }
+      }, 100);
       // Navigation handled by useEffect when user state updates
     }
   };
