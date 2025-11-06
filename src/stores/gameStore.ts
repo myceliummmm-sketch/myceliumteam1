@@ -142,6 +142,22 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
           spores: sporesEarned,
           milestone: newState.level % 5 === 0 ? `Milestone Achieved: Level ${newState.level}!` : undefined
         };
+        
+        // Track level up event
+        const user = (window as any).supabaseUser;
+        const sessionId = state.sessionId;
+        if (user && sessionId) {
+          import('@/integrations/supabase/client').then(({ supabase }) => {
+            void supabase.from('user_events').insert({
+              player_id: user.id,
+              session_id: sessionId,
+              event_type: 'level_up',
+              event_category: 'gameplay',
+              event_data: { new_level: newState.level, spores_earned: sporesEarned },
+              page_url: window.location.pathname
+            });
+          });
+        }
       }
       
       return newState;

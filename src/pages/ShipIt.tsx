@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useGameSession } from '@/hooks/useGameSession';
 import { useGameStore } from '@/stores/gameStore';
@@ -13,9 +14,10 @@ import { QuestLog } from '@/components/shipit/QuestLog';
 import { LevelUpModal } from '@/components/shipit/LevelUpModal';
 import { StreakCalendar } from '@/components/shipit/StreakCalendar';
 import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
-import { LogOut, Loader2, Users } from 'lucide-react';
+import { LogOut, Loader2, Users, BarChart3 } from 'lucide-react';
 
 export default function ShipIt() {
+  const navigate = useNavigate();
   const { signOut } = useAuth();
   const { loading, sendMessage } = useGameSession();
   const quickReplies = useGameStore((state) => state.quickReplies);
@@ -54,11 +56,17 @@ export default function ShipIt() {
           </SheetContent>
         </Sheet>
 
-        {/* Logout Button */}
-        <Button variant="outline" onClick={signOut} size="sm" className="ml-auto">
-          <LogOut className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">Logout</span>
-        </Button>
+        {/* Analytics and Logout Buttons */}
+        <div className="flex gap-2 ml-auto">
+          <Button variant="outline" onClick={() => navigate('/analytics')} size="sm">
+            <BarChart3 className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Analytics</span>
+          </Button>
+          <Button variant="outline" onClick={signOut} size="sm">
+            <LogOut className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Logout</span>
+          </Button>
+        </div>
       </div>
       
       {/* Responsive Grid Layout */}

@@ -17,6 +17,9 @@ export function useGameSession() {
 
   useEffect(() => {
     if (!user) return;
+    
+    // Make user available globally for analytics tracking
+    (window as any).supabaseUser = user;
 
     const initSession = async () => {
       try {
