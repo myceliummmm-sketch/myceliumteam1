@@ -31,6 +31,7 @@ const Hero = () => {
         <img 
           src="/hero-video.gif" 
           alt="AI-powered ecosystem"
+          loading="eager"
           className="w-full h-full object-cover opacity-40 blur-[1px]"
         />
       </div>
@@ -63,9 +64,9 @@ const Hero = () => {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Button 
-            onClick={() => navigate('/register')}
+            onClick={() => navigate('/shipit')}
             size="lg" 
-            className="group text-lg px-10 py-7 bg-gradient-to-r from-neon-cyan to-neon-purple hover:from-neon-purple hover:to-neon-pink text-background font-black rounded-2xl transition-all duration-500 hover:scale-105"
+            className="group text-lg px-10 py-8 sm:py-7 w-full sm:w-auto bg-gradient-to-r from-neon-cyan to-neon-purple hover:from-neon-purple hover:to-neon-pink text-background font-black rounded-2xl transition-all duration-500 hover:scale-105"
             style={{ 
               boxShadow: 'var(--shadow-glow-cyan)',
               border: '2px solid hsl(var(--neon-cyan))'
@@ -76,9 +77,9 @@ const Hero = () => {
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
           <Button 
-            onClick={() => navigate('/register')}
+            onClick={() => navigate('/shipit')}
             size="lg" 
-            className="group text-lg px-10 py-7 glass-card hover:glass-card font-bold rounded-2xl transition-all duration-300 hover:scale-105"
+            className="group text-lg px-10 py-8 sm:py-7 w-full sm:w-auto glass-card hover:glass-card font-bold rounded-2xl transition-all duration-300 hover:scale-105"
             style={{
               border: '2px solid hsl(var(--neon-cyan) / 0.3)',
             }}

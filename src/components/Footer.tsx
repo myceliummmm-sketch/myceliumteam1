@@ -18,8 +18,9 @@ const Footer = () => {
           </h2>
           
           <Button 
+            onClick={() => window.location.href = '/shipit'}
             size="lg" 
-            className="text-xl px-12 py-8 bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_60px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_80px_hsl(var(--primary)/0.6)] transition-all duration-300 animate-pulse"
+            className="text-xl px-12 py-8 w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-mono shadow-[0_0_60px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_80px_hsl(var(--primary)/0.6)] transition-all duration-300 animate-pulse"
           >
             Apply Now
           </Button>

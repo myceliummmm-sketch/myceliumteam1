@@ -64,7 +64,7 @@ const PricingSection = () => {
               </li>
             </ul>
 
-            <Button onClick={() => navigate('/register')} variant="outline" className="w-full border-2 border-muted/30 hover:bg-muted/10 font-bold py-6 rounded-2xl transition-all">
+            <Button onClick={() => navigate('/shipit')} variant="outline" className="w-full border-2 border-muted/30 hover:bg-muted/10 font-bold py-7 text-base rounded-2xl transition-all min-h-[48px]">
               Test Drive Your AI Team
             </Button>
           </div>
@@ -113,8 +113,8 @@ const PricingSection = () => {
             </ul>
 
             <Button 
-              onClick={() => navigate('/register')} 
-              className="w-full bg-gradient-to-r from-neon-cyan to-neon-purple hover:from-neon-purple hover:to-neon-cyan text-background font-black py-7 rounded-2xl transition-all duration-500"
+              onClick={() => navigate('/shipit')} 
+              className="w-full bg-gradient-to-r from-neon-cyan to-neon-purple hover:from-neon-purple hover:to-neon-cyan text-background font-black py-8 text-base rounded-2xl transition-all duration-500 min-h-[52px]"
               style={{ boxShadow: 'var(--shadow-glow-cyan)' }}
             >
               Claim Your Advisory Board →
@@ -163,9 +163,9 @@ const PricingSection = () => {
             </ul>
 
             <Button 
-              onClick={() => navigate('/register')} 
+              onClick={() => navigate('/shipit')} 
               variant="outline" 
-              className="w-full border-2 neon-border-pink hover:bg-neon-pink/10 font-bold py-6 rounded-2xl transition-all"
+              className="w-full border-2 neon-border-pink hover:bg-neon-pink/10 font-bold py-7 text-base rounded-2xl transition-all min-h-[48px]"
             >
               Apply for Hypergrowth
             </Button>
