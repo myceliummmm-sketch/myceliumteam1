@@ -6,11 +6,14 @@ import { toast } from '@/components/ui/sonner';
 import { calculateEnergyRegeneration } from '@/lib/energySystem';
 import { calculateStreak, getStreakMilestone } from '@/lib/streakSystem';
 import { format } from 'date-fns';
+import { useSound } from '@/hooks/useSound';
+import { generateQuickReplies } from '@/lib/quickReplies';
 
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial } = useGameStore();
+  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial, setQuickReplies } = useGameStore();
+  const { playSound } = useSound();
 
   useEffect(() => {
     if (!user) return;
@@ -252,6 +255,11 @@ export function useGameSession() {
           });
         }
 
+        // Generate initial quick replies
+        const currentState = useGameStore.getState();
+        const initialReplies = generateQuickReplies(currentState);
+        setQuickReplies(initialReplies);
+
       } catch (error) {
         console.error('Failed to initialize session:', error);
         toast.error('Failed to load game session');
@@ -300,9 +308,15 @@ export function useGameSession() {
       // Update game state
       updateStats(data.updatedState);
       
-      // Process game events for toasts
+      // Process game events for toasts and sounds
       const processGameEvents = useGameStore.getState().processGameEvents;
       processGameEvents(data.gameEvents);
+
+      // Play sounds for key events
+      const levelUpEvent = data.gameEvents?.find((e: any) => e.type === 'LEVEL_UP');
+      if (levelUpEvent) {
+        playSound('levelUp');
+      }
 
       // Show XP gain (level up modal handles level up celebration)
       const xpGainEvent = data.gameEvents?.find((e: any) => e.type === 'XP_GAIN');
@@ -316,6 +330,7 @@ export function useGameSession() {
       // Show phase change
       const phaseChangeEvent = data.gameEvents?.find((e: any) => e.type === 'PHASE_CHANGE');
       if (phaseChangeEvent) {
+        playSound('phaseChange');
         toast.success(`🚀 Phase Change: ${phaseChangeEvent.data.newPhase}`, {
           description: 'New challenges await!',
           duration: 4000
@@ -325,6 +340,7 @@ export function useGameSession() {
       // Show task completion
       const taskCompleteEvent = data.gameEvents?.find((e: any) => e.type === 'TASK_COMPLETE');
       if (taskCompleteEvent) {
+        playSound('taskComplete');
         toast.success(`✅ Task Complete!`, {
           description: 'Keep up the great work!',
           duration: 3000
@@ -338,6 +354,11 @@ export function useGameSession() {
           duration: 4000
         });
       }
+
+      // Generate quick replies based on updated game state
+      const currentState = useGameStore.getState();
+      const replies = generateQuickReplies(currentState);
+      setQuickReplies(replies);
 
     } catch (error) {
       console.error('Failed to send message:', error);

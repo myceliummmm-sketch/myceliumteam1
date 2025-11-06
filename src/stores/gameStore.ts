@@ -17,6 +17,7 @@ interface GameActions {
   nextTutorialStep: () => void;
   skipTutorial: () => void;
   setShowTutorial: (show: boolean) => void;
+  setQuickReplies: (replies: string[]) => void;
 }
 
 const initialState: GameState = {
@@ -42,6 +43,7 @@ const initialState: GameState = {
     zen: 'happy',
   },
   messages: [],
+  quickReplies: [],
   sessionId: null,
   isLoading: false,
   lastSaved: null,
@@ -232,4 +234,6 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   },
   
   setShowTutorial: (show) => set({ showTutorial: show }),
+  
+  setQuickReplies: (replies) => set({ quickReplies: replies }),
 }));

@@ -70,6 +70,7 @@ export interface GameState {
   
   // Chat
   messages: ChatMessage[];
+  quickReplies: string[];
   
   // Session
   sessionId: string | null;

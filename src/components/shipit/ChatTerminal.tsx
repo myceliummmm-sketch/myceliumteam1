@@ -31,7 +31,13 @@ export function ChatTerminal() {
     if (scrollRef.current) {
       const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (viewport) {
-        viewport.scrollTop = viewport.scrollHeight;
+        // Get all message elements and scroll to the beginning of the last one
+        const messageElements = viewport.querySelectorAll('[data-message-item]');
+        const lastMessage = messageElements[messageElements.length - 1];
+        
+        if (lastMessage) {
+          lastMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     }
   }, [messages, isLoading]);
@@ -54,6 +60,7 @@ export function ChatTerminal() {
               return (
                 <div
                   key={message.id}
+                  data-message-item
                   className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   {!isUser && speaker && (

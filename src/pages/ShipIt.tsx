@@ -1,11 +1,13 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useGameSession } from '@/hooks/useGameSession';
+import { useGameStore } from '@/stores/gameStore';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { TeamPanel } from '@/components/shipit/TeamPanel';
 import { PhaseProgress } from '@/components/shipit/PhaseProgress';
 import { ChatTerminal } from '@/components/shipit/ChatTerminal';
 import { InputBar } from '@/components/shipit/InputBar';
+import { QuickReplies } from '@/components/shipit/QuickReplies';
 import { StatsPanel } from '@/components/shipit/StatsPanel';
 import { QuestLog } from '@/components/shipit/QuestLog';
 import { LevelUpModal } from '@/components/shipit/LevelUpModal';
@@ -15,7 +17,10 @@ import { LogOut, Loader2, Users } from 'lucide-react';
 
 export default function ShipIt() {
   const { signOut } = useAuth();
-  const { loading } = useGameSession();
+  const { loading, sendMessage } = useGameSession();
+  const quickReplies = useGameStore((state) => state.quickReplies);
+  const isLoading = useGameStore((state) => state.isLoading);
+  const energy = useGameStore((state) => state.energy);
 
   if (loading) {
     return (
@@ -71,6 +76,11 @@ export default function ShipIt() {
           </div>
           <div className="sticky bottom-0 bg-background" data-tutorial-target="input-bar">
             <InputBar />
+            <QuickReplies 
+              suggestions={quickReplies}
+              onSelect={sendMessage}
+              disabled={isLoading || energy < 1}
+            />
           </div>
         </div>
         
