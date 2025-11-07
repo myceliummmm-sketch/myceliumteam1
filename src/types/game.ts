@@ -4,6 +4,21 @@ export type Mood = 'happy' | 'neutral' | 'stressed' | 'excited';
 export type MessageRole = 'user' | 'assistant' | 'system';
 export type ArtifactId = 'deepresearch' | 'product' | 'marketing';
 export type BlockerType = 'normal' | 'boss';
+export type QuickReplyCategory = 'ai-suggested' | 'task' | 'blocker' | 'phase' | 'energy' | 'general';
+export type QuickReplyUrgency = 'low' | 'medium' | 'high';
+
+export interface QuickReplyButton {
+  text: string;
+  category: QuickReplyCategory;
+  progress?: {
+    current: number;
+    total: number;
+    percentage: number;
+    type: 'tasks' | 'xp' | 'phase' | 'energy';
+  };
+  urgency?: QuickReplyUrgency;
+  icon?: string;
+}
 
 export interface Task {
   id: string;
@@ -128,7 +143,7 @@ export interface GameState {
   
   // Chat
   messages: ChatMessage[];
-  quickReplies: string[];
+  quickReplies: QuickReplyButton[];
   aiSuggestedActions: string[];
   
   // Session

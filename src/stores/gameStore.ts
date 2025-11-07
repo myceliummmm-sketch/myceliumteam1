@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId } from '@/types/game';
+import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId, QuickReplyButton } from '@/types/game';
 import { supabase } from '@/integrations/supabase/client';
 
 interface GameActions {
@@ -19,7 +19,7 @@ interface GameActions {
   nextTutorialStep: () => void;
   skipTutorial: () => void;
   setShowTutorial: (show: boolean) => void;
-  setQuickReplies: (replies: string[]) => void;
+  setQuickReplies: (replies: QuickReplyButton[]) => void;
   setAiSuggestedActions: (actions: string[]) => void;
 }
 
