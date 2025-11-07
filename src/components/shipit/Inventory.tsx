@@ -32,20 +32,41 @@ export function Inventory() {
 
         {/* Artifacts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {artifacts.map((artifact) => (
+          {artifacts.map((artifact, index) => (
             <motion.div
               key={artifact.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.4 }}
               whileHover={artifact.unlocked ? { scale: 1.02 } : {}}
-              transition={{ duration: 0.2 }}
             >
               <Card
-                className={`relative p-6 cursor-pointer transition-all ${
+                className={`relative p-6 cursor-pointer transition-all overflow-hidden ${
                   artifact.unlocked
                     ? 'bg-gradient-to-br from-primary/10 via-background to-background border-primary/50 hover:border-primary'
                     : 'bg-muted/20 border-muted'
                 }`}
                 onClick={() => artifact.unlocked && setSelectedArtifact(artifact)}
               >
+                {/* Shimmer effect for newly unlocked artifacts (within last 5 minutes) */}
+                {artifact.unlocked && artifact.unlockedAt && 
+                  new Date().getTime() - new Date(artifact.unlockedAt).getTime() < 5 * 60 * 1000 && (
+                  <motion.div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, hsl(var(--primary)/0.3), transparent)',
+                      backgroundSize: '200% 100%',
+                    }}
+                    animate={{
+                      backgroundPosition: ['200% 0', '-200% 0'],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: 'linear'
+                    }}
+                  />
+                )}
                 {/* Locked Overlay */}
                 {!artifact.unlocked && (
                   <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg z-10">

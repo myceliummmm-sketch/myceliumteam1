@@ -56,3 +56,28 @@ export const glowPulseAnimation = {
     }
   }
 };
+
+export const artifactUnlockAnimation = {
+  initial: { scale: 0, rotate: -180, opacity: 0 },
+  animate: { 
+    scale: 1, 
+    rotate: 0, 
+    opacity: 1 
+  },
+  transition: {
+    type: "spring" as const,
+    stiffness: 200,
+    damping: 15
+  }
+};
+
+export const shimmerAnimation = {
+  animate: {
+    backgroundPosition: ['200% 0', '-200% 0'],
+  },
+  transition: {
+    duration: 3,
+    repeat: Infinity,
+    ease: "linear" as const
+  }
+};

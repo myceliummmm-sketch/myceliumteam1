@@ -164,6 +164,30 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
             if (unlockedArtifact) {
               newState.showArtifactUnlockModal = true;
               newState.unlockedArtifact = unlockedArtifact;
+              
+              // Track artifact unlock event
+              const user = (window as any).supabaseUser;
+              const sessionId = state.sessionId;
+              if (user && sessionId) {
+                import('@/integrations/supabase/client').then(({ supabase }) => {
+                  void supabase.from('user_events').insert({
+                    player_id: user.id,
+                    session_id: sessionId,
+                    event_type: 'artifact_unlocked',
+                    event_category: 'gameplay',
+                    event_data: { 
+                      artifact_id: artifactId,
+                      artifact_name: unlockedArtifact.name,
+                      level: newState.level,
+                      phase: newState.currentPhase,
+                      xp_multiplier: unlockedArtifact.passiveBonuses.xpMultiplier,
+                      energy_bonus: unlockedArtifact.passiveBonuses.energyRegenBonus,
+                      spore_multiplier: unlockedArtifact.passiveBonuses.sporeMultiplier,
+                    },
+                    page_url: window.location.pathname
+                  });
+                });
+              }
             }
             break;
           
