@@ -82,8 +82,8 @@ export interface MessageSegment {
 
 export interface GameEvent {
   type: 'XP_GAIN' | 'SPORES_GAIN' | 'ENERGY_UPDATE' | 'LEVEL_UP' | 
-        'PHASE_CHANGE' | 'TASK_COMPLETE' | 'STREAK_UPDATE' | 
-        'CODE_HEALTH_UPDATE' | 'BLOCKER_ADDED' | 'MILESTONE_UNLOCKED';
+        'PHASE_CHANGE' | 'TASK_COMPLETE' | 'TASK_ADDED' | 'STREAK_UPDATE' | 
+        'CODE_HEALTH_UPDATE' | 'BLOCKER_ADDED' | 'BLOCKER_RESOLVED' | 'MILESTONE_UNLOCKED';
   data: any;
 }
 

@@ -132,6 +132,14 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
             newState.blockers = [...newState.blockers, blocker];
             break;
           
+          case 'BLOCKER_RESOLVED':
+            newState.blockers = newState.blockers.filter(b => b.id !== event.data.blockerId);
+            break;
+          
+          case 'SPORES_GAIN':
+            newState.spores += event.data.amount;
+            break;
+          
           case 'MILESTONE_UNLOCKED':
             const milestone = {
               id: crypto.randomUUID(),

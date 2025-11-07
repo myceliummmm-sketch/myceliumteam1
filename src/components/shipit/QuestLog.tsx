@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Circle, AlertTriangle } from 'lucide-react';
 import { useRef, useEffect } from 'react';
+import { BossBlockerCard } from './BossBlockerCard';
 
 export function QuestLog() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -34,15 +35,19 @@ export function QuestLog() {
                 BLOCKERS
               </h4>
               {blockers.map((blocker) => (
-                <div
-                  key={blocker.id}
-                  className="p-2 rounded bg-destructive/10 border border-destructive/20 mb-2"
-                >
-                  <p className="text-xs font-medium">{blocker.description}</p>
-                  <Badge variant="destructive" className="text-xs mt-1">
-                    {blocker.severity}
-                  </Badge>
-                </div>
+                blocker.type === 'boss' ? (
+                  <BossBlockerCard key={blocker.id} blocker={blocker} />
+                ) : (
+                  <div
+                    key={blocker.id}
+                    className="p-2 rounded bg-destructive/10 border border-destructive/20 mb-2"
+                  >
+                    <p className="text-xs font-medium">{blocker.description}</p>
+                    <Badge variant="destructive" className="text-xs mt-1">
+                      {blocker.severity}
+                    </Badge>
+                  </div>
+                )
               ))}
             </div>
           )}

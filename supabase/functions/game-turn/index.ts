@@ -32,6 +32,7 @@ GAME MECHANICS:
 - Code health (0-100) degrades with rushed decisions
 - Phase transitions happen when major milestones are reached
 - Team mood affects dialogue tone
+- BOSS BLOCKERS: Major challenges that appear at specific levels/phases and must be overcome for legendary artifacts
 
 TASK GENERATION RULES (CRITICAL - ALWAYS FOLLOW):
 - Generate 1-2 TASK_ADDED events per turn to maintain momentum
@@ -47,6 +48,11 @@ TASK GENERATION RULES (CRITICAL - ALWAYS FOLLOW):
   • TEST: "Write unit tests for auth", "Perform load testing", "Fix critical bugs"
   • SHIP: "Configure production environment", "Create launch checklist", "Deploy to production"
 
+BLOCKER RESOLUTION:
+- When a player addresses a blocker (especially boss blockers), acknowledge their progress
+- Generate BLOCKER_RESOLVED event when conditions are met
+- For boss blockers, make the resolution dramatic and rewarding
+
 RESPONSE FORMAT (must be valid JSON):
 {
   "segments": [
@@ -57,7 +63,8 @@ RESPONSE FORMAT (must be valid JSON):
   "gameEvents": [
     {"type": "XP_GAIN", "data": {"amount": 25, "reason": "Defined clear user persona"}},
     {"type": "TASK_COMPLETE", "data": {"taskId": "task-1"}},
-    {"type": "TASK_ADDED", "data": {"description": "Research competitor apps", "xpReward": 30, "phase": "RESEARCH"}}
+    {"type": "TASK_ADDED", "data": {"description": "Research competitor apps", "xpReward": 30, "phase": "RESEARCH"}},
+    {"type": "BLOCKER_RESOLVED", "data": {"blockerId": "blocker-id"}}
   ]
 }
 
@@ -112,6 +119,9 @@ serve(async (req) => {
     const contextMessages = (recentMessages || []).reverse();
 
     // Build AI context
+    const activeBlockers = gameState?.blockers || [];
+    const bossBlockersDefeated = gameState?.boss_blockers_defeated || [];
+    
     const gameContext = `
 CURRENT GAME STATE:
 - Phase: ${gameState?.current_phase || 'INCEPTION'}
@@ -119,6 +129,8 @@ CURRENT GAME STATE:
 - Energy: ${gameState?.energy || 10}/10
 - Code Health: ${gameState?.code_health || 100}/100
 - Active Tasks: ${JSON.stringify(gameState?.current_tasks || [])}
+- Active Blockers: ${JSON.stringify(activeBlockers)}
+- Boss Blockers Defeated: ${bossBlockersDefeated.length}/3
 - Team Mood: ${JSON.stringify(gameState?.team_mood || {})}
 
 RECENT CONVERSATION:
@@ -171,6 +183,77 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
       game_events: parsedResponse.gameEvents || []
     });
 
+    // Check for boss blocker spawn
+    const BOSS_BLOCKERS = [
+      {
+        id: 'research_block',
+        name: 'The Research Block',
+        description: 'A massive wall of uncertainty blocking your path to user insights',
+        lore: 'This ancient barrier appears when founders fear talking to users. Only deep research can shatter it.',
+        minLevel: 8,
+        phase: 'RESEARCH',
+        rewards: { xp: 200, spores: 50, artifact: 'deepresearch' }
+      },
+      {
+        id: 'technical_debt_demon',
+        name: 'The Technical Debt Demon',
+        description: 'A monstrous accumulation of shortcuts and hacks threatening your codebase',
+        lore: 'Born from rushed decisions and "temporary" solutions, this demon grows stronger with each compromise.',
+        minLevel: 18,
+        phase: 'BUILD',
+        rewards: { xp: 400, spores: 100, artifact: 'product' }
+      },
+      {
+        id: 'launch_anxiety_beast',
+        name: 'The Launch Anxiety Beast',
+        description: 'The paralyzing fear of putting your work out into the world',
+        lore: 'Every creator faces this beast. It whispers doubts and amplifies fears. Only courage can banish it.',
+        minLevel: 28,
+        phase: 'SHIP',
+        rewards: { xp: 600, spores: 150, artifact: 'marketing' }
+      }
+    ];
+
+    const existingBlockers = gameState?.blockers || [];
+    
+    // Check if we should spawn a boss blocker
+    for (const boss of BOSS_BLOCKERS) {
+      const alreadyDefeated = bossBlockersDefeated.includes(boss.id);
+      const alreadyActive = existingBlockers.some((b: any) => 
+        b.type === 'boss' && b.bossData?.name === boss.name
+      );
+      
+      if (!alreadyDefeated && !alreadyActive) {
+        const meetsLevel = (gameState?.level || 1) >= boss.minLevel;
+        const meetsPhase = gameState?.current_phase === boss.phase;
+        
+        if (meetsLevel && meetsPhase) {
+          // Spawn boss blocker
+          parsedResponse.gameEvents.push({
+            type: 'BLOCKER_ADDED',
+            data: {
+              description: boss.description,
+              severity: 'high',
+              type: 'boss',
+              bossData: {
+                name: boss.name,
+                lore: boss.lore,
+                defeatReward: boss.rewards
+              }
+            }
+          });
+          
+          // Add dramatic narration
+          parsedResponse.segments.push({
+            type: 'narration',
+            content: `⚔️ A BOSS BLOCKER APPEARS! ${boss.name} blocks your path forward!`
+          });
+          
+          break; // Only spawn one boss at a time
+        }
+      }
+    }
+
     // Process game events and update state
     const updatedState = { ...gameState };
     let energyDelta = -1; // Cost 1 energy per turn
@@ -209,6 +292,65 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
             completed: false
           };
           updatedState.current_tasks = [...(updatedState.current_tasks || []), newTask];
+          break;
+
+        case 'BLOCKER_ADDED':
+          const newBlocker = {
+            id: crypto.randomUUID(),
+            description: event.data.description,
+            severity: event.data.severity,
+            type: event.data.type || 'normal',
+            bossData: event.data.bossData,
+            createdAt: new Date().toISOString()
+          };
+          updatedState.blockers = [...(updatedState.blockers || []), newBlocker];
+          break;
+
+        case 'BLOCKER_RESOLVED':
+          const blockers = updatedState.blockers || [];
+          const resolvedBlocker = blockers.find((b: any) => b.id === event.data.blockerId);
+          
+          if (resolvedBlocker) {
+            // Remove from blockers
+            updatedState.blockers = blockers.filter((b: any) => b.id !== event.data.blockerId);
+            
+            // If it's a boss blocker, award rewards and track defeat
+            if (resolvedBlocker.type === 'boss' && resolvedBlocker.bossData) {
+              const bossRewards = resolvedBlocker.bossData.defeatReward;
+              updatedState.xp = (updatedState.xp || 0) + bossRewards.xp;
+              updatedState.spores = (updatedState.spores || 0) + bossRewards.spores;
+              
+              // Find boss ID from boss list
+              const bossId = BOSS_BLOCKERS.find(b => b.name === resolvedBlocker.bossData.name)?.id;
+              if (bossId) {
+                updatedState.boss_blockers_defeated = [
+                  ...(updatedState.boss_blockers_defeated || []),
+                  bossId
+                ];
+              }
+              
+              // Track in blocker_resolutions
+              await supabase.from('blocker_resolutions').insert({
+                player_id: user.id,
+                session_id: sessionId,
+                blocker_id: resolvedBlocker.id,
+                blocker_type: 'boss',
+                boss_name: resolvedBlocker.bossData.name,
+                xp_rewarded: bossRewards.xp,
+                spores_rewarded: bossRewards.spores
+              });
+              
+              // Add celebration event
+              parsedResponse.gameEvents.push({
+                type: 'XP_GAIN',
+                data: { amount: bossRewards.xp, reason: `Defeated ${resolvedBlocker.bossData.name}!` }
+              });
+              parsedResponse.gameEvents.push({
+                type: 'SPORES_GAIN',
+                data: { amount: bossRewards.spores }
+              });
+            }
+          }
           break;
 
         case 'ENERGY_UPDATE':
