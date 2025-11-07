@@ -20,6 +20,7 @@ interface GameActions {
   skipTutorial: () => void;
   setShowTutorial: (show: boolean) => void;
   setQuickReplies: (replies: string[]) => void;
+  setAiSuggestedActions: (actions: string[]) => void;
 }
 
 const initialState: GameState = {
@@ -53,6 +54,7 @@ const initialState: GameState = {
   },
   messages: [],
   quickReplies: [],
+  aiSuggestedActions: [],
   sessionId: null,
   isLoading: false,
   lastSaved: null,
@@ -320,6 +322,8 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   setShowTutorial: (show) => set({ showTutorial: show }),
   
   setQuickReplies: (replies) => set({ quickReplies: replies }),
+  
+  setAiSuggestedActions: (actions) => set({ aiSuggestedActions: actions }),
   
   setShowArtifactUnlockModal: (show) => set({ showArtifactUnlockModal: show }),
   

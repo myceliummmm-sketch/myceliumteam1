@@ -129,6 +129,7 @@ export interface GameState {
   // Chat
   messages: ChatMessage[];
   quickReplies: string[];
+  aiSuggestedActions: string[];
   
   // Session
   sessionId: string | null;

@@ -1,9 +1,20 @@
 import { GameState } from '@/types/game';
 
-export function generateQuickReplies(state: GameState): string[] {
+export function generateQuickReplies(state: GameState, aiSuggestedActions: string[] = []): string[] {
   const replies: string[] = [];
   
-  // Context-aware suggestions based on current state
+  // Priority 1: AI-suggested actions (these are the most contextual and helpful)
+  if (aiSuggestedActions.length > 0) {
+    // Take up to 3 AI suggestions
+    replies.push(...aiSuggestedActions.slice(0, 3));
+  }
+  
+  // If we have 3+ suggestions from AI, we're done
+  if (replies.length >= 3) {
+    return replies.slice(0, 4); // Max 4 buttons
+  }
+  
+  // Priority 2: Context-aware suggestions based on current state (fallbacks)
   
   // If low energy, suggest energy management
   if (state.energy < 5) {
@@ -50,13 +61,9 @@ export function generateQuickReplies(state: GameState): string[] {
       break;
   }
   
-  // Always include general prompts if we have room
-  if (replies.length < 3) {
-    replies.push("What should I do next?");
-  }
-  
+  // Priority 3: Always include one general help option if we have room
   if (replies.length < 4) {
-    replies.push("Show my progress");
+    replies.push("What should I focus on?");
   }
   
   // Return max 4 buttons

@@ -15,7 +15,7 @@ import { ArtifactId } from '@/types/game';
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial, setQuickReplies } = useGameStore();
+  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial, setQuickReplies, setAiSuggestedActions } = useGameStore();
   const { playSound } = useSound();
 
   useEffect(() => {
@@ -306,9 +306,9 @@ export function useGameSession() {
           });
         }
 
-        // Generate initial quick replies
+        // Generate initial quick replies (no AI suggestions yet)
         const currentState = useGameStore.getState();
-        const initialReplies = generateQuickReplies(currentState);
+        const initialReplies = generateQuickReplies(currentState, []);
         setQuickReplies(initialReplies);
 
       } catch (error) {
@@ -372,6 +372,10 @@ export function useGameSession() {
         createdAt: new Date()
       });
 
+      // Store AI-suggested actions
+      const aiActions = data.suggestedActions || [];
+      setAiSuggestedActions(aiActions);
+
       // Update game state
       updateStats(data.updatedState);
       
@@ -422,9 +426,9 @@ export function useGameSession() {
         });
       }
 
-      // Generate quick replies based on updated game state
+      // Generate quick replies based on updated game state and AI suggestions
       const currentState = useGameStore.getState();
-      const replies = generateQuickReplies(currentState);
+      const replies = generateQuickReplies(currentState, aiActions);
       setQuickReplies(replies);
 
     } catch (error) {

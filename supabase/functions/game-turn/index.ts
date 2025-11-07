@@ -34,6 +34,21 @@ GAME MECHANICS:
 - Team mood affects dialogue tone
 - BOSS BLOCKERS: Major challenges that appear at specific levels/phases and must be overcome for legendary artifacts
 
+CTA GENERATION RULES (CRITICAL - ALWAYS INCLUDE):
+- ALWAYS include 3-4 "suggestedActions" in every response
+- These are the action buttons the player will see - make them specific and compelling
+- Actions must be short imperative phrases (e.g., "Start brainstorming", "Interview users", "Deploy to production")
+- At least one action should advance the current phase toward completion
+- One action should address active blockers if any exist
+- One action can be a general guidance request (e.g., "What should I focus on?", "Review our progress")
+- Examples by phase:
+  • INCEPTION: "Define target audience", "Brainstorm solutions", "Research competitors", "Validate problem statement"
+  • RESEARCH: "Interview 5 users", "Create user survey", "Analyze feedback", "Map user journey"
+  • DESIGN: "Create wireframes", "Map user flows", "Review design system", "Prototype key screens"
+  • BUILD: "Implement authentication", "Set up database", "Build API endpoints", "Write tests"
+  • TEST: "Run QA checks", "Fix critical bugs", "Performance test", "User acceptance testing"
+  • SHIP: "Deploy to production", "Set up monitoring", "Create launch plan", "Celebrate launch"
+
 TASK GENERATION RULES (CRITICAL - ALWAYS FOLLOW):
 - Generate 1-2 TASK_ADDED events per turn to maintain momentum
 - Tasks MUST be specific and actionable (e.g., "Create user persona document" NOT "Think about users")
@@ -65,6 +80,12 @@ RESPONSE FORMAT (must be valid JSON):
     {"type": "TASK_COMPLETE", "data": {"taskId": "task-1"}},
     {"type": "TASK_ADDED", "data": {"description": "Research competitor apps", "xpReward": 30, "phase": "RESEARCH"}},
     {"type": "BLOCKER_RESOLVED", "data": {"blockerId": "blocker-id"}}
+  ],
+  "suggestedActions": [
+    "Interview 5 potential users",
+    "Create user survey",
+    "Analyze competitor feedback",
+    "Show my progress"
   ]
 }
 
@@ -438,6 +459,7 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
     return new Response(JSON.stringify({
       segments: parsedResponse.segments,
       gameEvents: parsedResponse.gameEvents,
+      suggestedActions: parsedResponse.suggestedActions || [],
       updatedState
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
