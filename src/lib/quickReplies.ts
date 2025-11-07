@@ -54,7 +54,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
       ? blocker.description.slice(0, 30) + '...' 
       : blocker.description;
     replies.push({
-      text: `${urgencyIcon} Fix: ${shortDesc}`,
+      text: `Fix: ${shortDesc}`,
       category: 'blocker',
       urgency: getBlockerUrgency(blocker.severity),
       icon: urgencyIcon
@@ -69,7 +69,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
       ? task.description.slice(0, 25) + '...' 
       : task.description;
     replies.push({
-      text: `✓ ${shortDesc}`,
+      text: shortDesc,
       category: 'task',
       progress: taskProgress.total > 0 ? {
         current: taskProgress.current,
@@ -85,7 +85,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
   const xpProgress = calculateXpProgress(state);
   if (xpProgress.percentage >= 80 && replies.length < 4) {
     replies.push({
-      text: `🎯 Level up soon`,
+      text: `Level up soon`,
       category: 'general',
       progress: {
         current: xpProgress.current,
@@ -100,7 +100,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
   // Priority 5: Low energy warning
   if (state.energy < 5 && replies.length < 4) {
     replies.push({
-      text: `⚡ Low energy (${state.energy}/10)`,
+      text: `Low energy (${state.energy}/10)`,
       category: 'energy',
       progress: {
         current: state.energy,
@@ -135,7 +135,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
     };
     
     replies.push({
-      text: `${phaseEmoji[state.currentPhase]} ${phaseAction[state.currentPhase]}`,
+      text: phaseAction[state.currentPhase],
       category: 'phase',
       progress: phaseProgress > 0 ? {
         current: phaseProgress,
@@ -150,7 +150,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
   // Priority 7: General help option if still have room
   if (replies.length < 4) {
     replies.push({
-      text: "💬 What should I focus on?",
+      text: "What should I focus on?",
       category: 'general',
       icon: '💬'
     });
