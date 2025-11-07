@@ -90,7 +90,9 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
       events.forEach(event => {
         switch (event.type) {
           case 'XP_GAIN':
-            const newXp = newState.xp + event.data.amount;
+            // Apply artifact XP multiplier
+            const xpAmount = Math.floor(event.data.amount * newState.artifactBonuses.xpMultiplier);
+            const newXp = newState.xp + xpAmount;
             const xpForLevel = newState.level * 100;
             if (newXp >= xpForLevel) {
               didLevelUp = true;
@@ -141,7 +143,28 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
             break;
           
           case 'SPORES_GAIN':
-            newState.spores += event.data.amount;
+            // Apply artifact spore multiplier
+            const sporeAmount = Math.floor(event.data.amount * newState.artifactBonuses.sporeMultiplier);
+            newState.spores += sporeAmount;
+            break;
+          
+          case 'ARTIFACT_UNLOCKED':
+            // Update the artifact to unlocked status
+            const artifactId = event.data.artifactId;
+            newState.artifacts = newState.artifacts.map(a => 
+              a.id === artifactId ? { ...a, unlocked: true, unlockedAt: new Date() } : a
+            );
+            
+            // Recalculate bonuses
+            const { applyArtifactBonuses } = require('@/lib/artifactSystem');
+            newState.artifactBonuses = applyArtifactBonuses(newState.artifacts);
+            
+            // Show unlock modal
+            const unlockedArtifact = newState.artifacts.find(a => a.id === artifactId);
+            if (unlockedArtifact) {
+              newState.showArtifactUnlockModal = true;
+              newState.unlockedArtifact = unlockedArtifact;
+            }
             break;
           
           case 'MILESTONE_UNLOCKED':

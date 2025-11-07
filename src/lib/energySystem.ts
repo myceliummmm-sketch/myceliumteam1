@@ -1,11 +1,19 @@
-const MAX_ENERGY = 10;
+import { useGameStore } from '@/stores/gameStore';
+
 const ENERGY_REGEN_HOURS = 6;
 const MS_PER_HOUR = 1000 * 60 * 60;
+
+export function getMaxEnergy(): number {
+  const artifactBonuses = useGameStore.getState().artifactBonuses;
+  return 10 + (artifactBonuses?.energyBonus || 0);
+}
 
 export function calculateEnergyRegeneration(
   lastUpdate: Date,
   currentEnergy: number
 ): { newEnergy: number; energyGained: number } {
+  const MAX_ENERGY = getMaxEnergy();
+  
   if (currentEnergy >= MAX_ENERGY) {
     return { newEnergy: currentEnergy, energyGained: 0 };
   }
@@ -38,8 +46,4 @@ export function getTimeUntilNextEnergy(lastUpdate: Date): {
   const minutes = totalMinutes % 60;
 
   return { hours, minutes, totalMinutes };
-}
-
-export function getMaxEnergy(): number {
-  return MAX_ENERGY;
 }

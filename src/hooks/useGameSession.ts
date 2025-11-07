@@ -8,6 +8,9 @@ import { calculateStreak, getStreakMilestone } from '@/lib/streakSystem';
 import { format } from 'date-fns';
 import { useSound } from '@/hooks/useSound';
 import { generateQuickReplies } from '@/lib/quickReplies';
+import { LEGENDARY_ARTIFACTS } from '@/lib/artifacts';
+import { createArtifactFromDefinition, applyArtifactBonuses } from '@/lib/artifactSystem';
+import { ArtifactId } from '@/types/game';
 
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
@@ -139,6 +142,26 @@ export function useGameSession() {
             energyGained = gained;
           }
 
+          // Load player artifacts
+          const { data: playerArtifacts } = await supabase
+            .from('player_artifacts')
+            .select('artifact_id, unlocked_at')
+            .eq('player_id', user.id);
+
+          // Create full artifact objects
+          const artifacts = Object.keys(LEGENDARY_ARTIFACTS).map((artifactId) => {
+            const unlockedArtifact = playerArtifacts?.find(
+              (pa) => pa.artifact_id === artifactId
+            );
+            return createArtifactFromDefinition(
+              artifactId as ArtifactId,
+              !!unlockedArtifact
+            );
+          });
+
+          // Calculate artifact bonuses
+          const artifactBonuses = applyArtifactBonuses(artifacts);
+
           updateStats({
             xp: latestState.xp,
             level: latestState.level,
@@ -153,8 +176,8 @@ export function useGameSession() {
             milestones: latestState.milestones as any,
             teamMood: latestState.team_mood as any,
             bossBlockersDefeated: (latestState.boss_blockers_defeated as any) || [],
-            artifacts: [],
-            artifactBonuses: { xpMultiplier: 1, energyBonus: 0, sporeMultiplier: 1 },
+            artifacts,
+            artifactBonuses,
             lastEnergyUpdate: latestState.last_energy_update ? new Date(latestState.last_energy_update) : new Date()
           });
 

@@ -349,6 +349,61 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
                 type: 'SPORES_GAIN',
                 data: { amount: bossRewards.spores }
               });
+
+              // Check for artifact unlocks
+              const artifactDefs = {
+                deepresearch: { minLevel: 10, bossesNeeded: 1, phases: ['INCEPTION', 'RESEARCH'] },
+                product: { minLevel: 20, bossesNeeded: 2, phases: ['INCEPTION', 'RESEARCH', 'DESIGN', 'BUILD'] },
+                marketing: { minLevel: 30, bossesNeeded: 3, phases: ['INCEPTION', 'RESEARCH', 'DESIGN', 'BUILD', 'TEST', 'SHIP'] }
+              };
+
+              const phaseOrder: Record<string, number> = { INCEPTION: 0, RESEARCH: 1, DESIGN: 2, BUILD: 3, TEST: 4, SHIP: 5 };
+              const currentPhaseIndex = phaseOrder[updatedState.current_phase as string] || 0;
+              const bossesDefeated = updatedState.boss_blockers_defeated.length;
+              const currentLevel = updatedState.level;
+
+              for (const [artifactId, requirements] of Object.entries(artifactDefs)) {
+                // Check if already unlocked
+                const { data: existingArtifact } = await supabase
+                  .from('player_artifacts')
+                  .select('*')
+                  .eq('player_id', user.id)
+                  .eq('artifact_id', artifactId)
+                  .maybeSingle();
+
+                if (!existingArtifact) {
+                  // Check requirements
+                  const meetsLevel = currentLevel >= requirements.minLevel;
+                  const meetsBosses = bossesDefeated >= requirements.bossesNeeded;
+                  const requiredPhaseIndex = Math.max(...requirements.phases.map((p: string) => phaseOrder[p] || 0));
+                  const meetsPhase = currentPhaseIndex >= requiredPhaseIndex;
+
+                  if (meetsLevel && meetsBosses && meetsPhase) {
+                    // Unlock artifact!
+                    await supabase.from('player_artifacts').insert({
+                      player_id: user.id,
+                      artifact_id: artifactId
+                    });
+
+                    // Add unlock event
+                    parsedResponse.gameEvents.push({
+                      type: 'ARTIFACT_UNLOCKED',
+                      data: { artifactId }
+                    });
+
+                    // Add dramatic narration
+                    const artifactNames: Record<string, string> = {
+                      deepresearch: 'The Deepresearch Codex',
+                      product: 'The Lovable Lens',
+                      marketing: 'The Viral Scroll'
+                    };
+                    parsedResponse.segments.push({
+                      type: 'narration',
+                      content: `✨ LEGENDARY ARTIFACT UNLOCKED: ${artifactNames[artifactId]}! A powerful new tool has been added to your arsenal!`
+                    });
+                  }
+                }
+              }
             }
           }
           break;
