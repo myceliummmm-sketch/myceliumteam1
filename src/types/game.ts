@@ -18,6 +18,8 @@ export interface QuickReplyButton {
   };
   urgency?: QuickReplyUrgency;
   icon?: string;
+  isHint?: boolean;
+  hintContent?: string[];
 }
 
 export interface Task {
