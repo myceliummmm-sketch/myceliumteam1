@@ -1,11 +1,12 @@
 import { useGameStore } from '@/stores/gameStore';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Sparkles } from 'lucide-react';
+import { Lock, Sparkles, Zap, TrendingUp, Coins } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { ArtifactModal } from './ArtifactModal';
 import { Artifact } from '@/types/game';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function Inventory() {
   const artifacts = useGameStore((state) => state.artifacts);
@@ -31,16 +32,18 @@ export function Inventory() {
         </div>
 
         {/* Artifacts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {artifacts.map((artifact, index) => (
-            <motion.div
-              key={artifact.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.4 }}
-              whileHover={artifact.unlocked ? { scale: 1.02 } : {}}
-            >
-              <Card
+        <TooltipProvider delayDuration={300}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {artifacts.map((artifact, index) => (
+              <Tooltip key={artifact.id}>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.4 }}
+                    whileHover={artifact.unlocked ? { scale: 1.02 } : {}}
+                  >
+                    <Card
                 className={`relative p-6 cursor-pointer transition-all overflow-hidden ${
                   artifact.unlocked
                     ? 'bg-gradient-to-br from-primary/10 via-background to-background border-primary/50 hover:border-primary'
@@ -149,8 +152,63 @@ export function Inventory() {
                 </div>
               </Card>
             </motion.div>
-          ))}
-        </div>
+          </TooltipTrigger>
+          
+          {/* Tooltip Content */}
+          <TooltipContent side="top" className="max-w-xs p-4 space-y-3">
+            <div>
+              <p className="font-semibold text-sm mb-1">{artifact.name}</p>
+              <p className="text-xs text-muted-foreground">{artifact.description}</p>
+            </div>
+            
+            {artifact.unlocked ? (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-primary">Active Bonuses:</p>
+                <div className="space-y-1">
+                  {artifact.passiveBonuses.xpMultiplier && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <TrendingUp className="h-3 w-3 text-primary" />
+                      <span>+{((artifact.passiveBonuses.xpMultiplier - 1) * 100).toFixed(0)}% XP Gain</span>
+                    </div>
+                  )}
+                  {artifact.passiveBonuses.energyRegenBonus && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Zap className="h-3 w-3 text-primary" />
+                      <span>+{artifact.passiveBonuses.energyRegenBonus} Max Energy</span>
+                    </div>
+                  )}
+                  {artifact.passiveBonuses.sporeMultiplier && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Coins className="h-3 w-3 text-primary" />
+                      <span>+{((artifact.passiveBonuses.sporeMultiplier - 1) * 100).toFixed(0)}% Spore Gain</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Requirements:</p>
+                <div className="space-y-1 text-xs">
+                  <div className={`flex items-center gap-1 ${level >= artifact.requirements.minLevel ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <div className={`h-1.5 w-1.5 rounded-full ${level >= artifact.requirements.minLevel ? 'bg-primary' : 'bg-muted-foreground'}`} />
+                    <span>Level {artifact.requirements.minLevel}+</span>
+                  </div>
+                  <div className={`flex items-center gap-1 ${bossBlockersDefeated.length >= artifact.requirements.bossBlockersDefeated ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <div className={`h-1.5 w-1.5 rounded-full ${bossBlockersDefeated.length >= artifact.requirements.bossBlockersDefeated ? 'bg-primary' : 'bg-muted-foreground'}`} />
+                    <span>Defeat {artifact.requirements.bossBlockersDefeated} Boss Blocker{artifact.requirements.bossBlockersDefeated !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+                    <span>Complete {artifact.requirements.phasesCompleted.join(', ')} phases</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </TooltipContent>
+        </Tooltip>
+      ))}
+    </div>
+  </TooltipProvider>
 
         {/* Progress Summary */}
         <Card className="mt-8 p-6">
