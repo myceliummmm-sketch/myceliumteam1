@@ -14,6 +14,14 @@ export function Inventory() {
   const bossBlockersDefeated = useGameStore((state) => state.bossBlockersDefeated);
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
 
+  // Check if artifact is ready to unlock (meets all requirements but not yet unlocked)
+  const isReadyToUnlock = (artifact: Artifact) => {
+    if (artifact.unlocked) return false;
+    const meetsLevel = level >= artifact.requirements.minLevel;
+    const meetsBossBlockers = bossBlockersDefeated.length >= artifact.requirements.bossBlockersDefeated;
+    return meetsLevel && meetsBossBlockers;
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
@@ -47,6 +55,8 @@ export function Inventory() {
                 className={`relative p-6 cursor-pointer transition-all overflow-hidden ${
                   artifact.unlocked
                     ? 'bg-gradient-to-br from-primary/10 via-background to-background border-primary/50 hover:border-primary'
+                    : isReadyToUnlock(artifact)
+                    ? 'bg-gradient-to-br from-primary/5 via-background to-background border-primary/80 animate-pulse'
                     : 'bg-muted/20 border-muted'
                 }`}
                 onClick={() => artifact.unlocked && setSelectedArtifact(artifact)}
@@ -95,11 +105,29 @@ export function Inventory() {
                   />
                 )}
 
+                {/* Ready to Unlock Glow Effect */}
+                {isReadyToUnlock(artifact) && (
+                  <motion.div
+                    className="absolute inset-0 rounded-lg"
+                    animate={{
+                      boxShadow: [
+                        '0 0 10px hsl(var(--primary)/0.3)',
+                        '0 0 25px hsl(var(--primary)/0.6)',
+                        '0 0 10px hsl(var(--primary)/0.3)',
+                      ],
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                )}
+
                 {/* Content */}
                 <div className="relative z-0">
                   {/* Phase Badge */}
-                  <Badge variant="secondary" className="mb-3 text-xs">
-                    {artifact.phase} PHASE
+                  <Badge 
+                    variant={isReadyToUnlock(artifact) ? "default" : "secondary"} 
+                    className="mb-3 text-xs"
+                  >
+                    {isReadyToUnlock(artifact) ? '✨ READY TO UNLOCK' : `${artifact.phase} PHASE`}
                   </Badge>
 
                   {/* Name */}
