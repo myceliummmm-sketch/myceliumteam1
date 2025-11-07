@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
-const phases = ['INCEPTION', 'RESEARCH', 'DESIGN', 'BUILD', 'TEST', 'SHIP'];
+const phases = ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE', 'POLISH', 'LAUNCH'];
 
 export function PhaseProgress() {
   const currentPhase = useGameStore((state) => state.currentPhase);

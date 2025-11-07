@@ -1,4 +1,4 @@
-export type Phase = 'INCEPTION' | 'RESEARCH' | 'DESIGN' | 'BUILD' | 'TEST' | 'SHIP';
+export type Phase = 'SPARK' | 'EXPLORE' | 'CRAFT' | 'FORGE' | 'POLISH' | 'LAUNCH';
 export type TeamMember = 'ever' | 'prisma' | 'toxic' | 'phoenix' | 'techpriest' | 'virgil' | 'zen';
 export type Mood = 'happy' | 'neutral' | 'stressed' | 'excited';
 export type MessageRole = 'user' | 'assistant' | 'system';

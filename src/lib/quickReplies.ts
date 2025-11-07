@@ -117,21 +117,21 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
   const phaseProgress = calculatePhaseProgress(state);
   if (replies.length < 4) {
     const phaseEmoji: Record<Phase, string> = {
-      INCEPTION: '💡',
-      RESEARCH: '🔍',
-      DESIGN: '🎨',
-      BUILD: '⚙️',
-      TEST: '🧪',
-      SHIP: '🚀'
+      SPARK: '⚡',
+      EXPLORE: '🗺️',
+      CRAFT: '🎨',
+      FORGE: '⚙️',
+      POLISH: '✨',
+      LAUNCH: '🚀'
     };
     
     const phaseAction: Record<Phase, string> = {
-      INCEPTION: 'Define project scope',
-      RESEARCH: 'Continue research',
-      DESIGN: 'Review design',
-      BUILD: 'Build features',
-      TEST: 'Test & validate',
-      SHIP: 'Ready to ship'
+      SPARK: 'Ignite your idea',
+      EXPLORE: 'Discover insights',
+      CRAFT: 'Design the vision',
+      FORGE: 'Build features',
+      POLISH: 'Perfect & validate',
+      LAUNCH: 'Release to world'
     };
     
     replies.push({

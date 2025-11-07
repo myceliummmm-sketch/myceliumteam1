@@ -6,13 +6,13 @@ export const LEGENDARY_ARTIFACTS: Record<ArtifactId, Omit<Artifact, 'unlocked' |
     name: 'The Deepresearch Codex',
     description: 'Ancient tome containing the secrets of user research and market discovery',
     lore: 'Forged in the fires of failed startups, this artifact reveals the truth hidden in user needs.',
-    phase: 'RESEARCH',
+    phase: 'EXPLORE',
     
     requirements: {
       minLevel: 10,
       bossBlockersDefeated: 1,
       milestonesRequired: ['complete_inception', 'first_user_interview'],
-      phasesCompleted: ['INCEPTION', 'RESEARCH']
+      phasesCompleted: ['SPARK', 'EXPLORE']
     },
     
     passiveBonuses: {
@@ -68,13 +68,13 @@ Provide detailed, actionable research insights with specific validation steps.`,
     name: 'The Lovable Lens',
     description: 'Mystical artifact that reveals the path to building products users love',
     lore: 'Crafted from the essence of 1000 successful launches, it shows the way to product-market fit.',
-    phase: 'BUILD',
+    phase: 'FORGE',
     
     requirements: {
       minLevel: 20,
       bossBlockersDefeated: 2,
       milestonesRequired: ['complete_design', 'first_prototype', 'first_feature_ship'],
-      phasesCompleted: ['INCEPTION', 'RESEARCH', 'DESIGN', 'BUILD']
+      phasesCompleted: ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE']
     },
     
     passiveBonuses: {
@@ -130,13 +130,13 @@ Provide a concrete product strategy with features prioritized by lovability and 
     name: 'The Viral Scroll',
     description: 'Legendary artifact containing the secrets of organic growth and word-of-mouth',
     lore: 'Born from viral tweets and shared stories, this scroll teaches the art of spreading ideas.',
-    phase: 'SHIP',
+    phase: 'LAUNCH',
     
     requirements: {
       minLevel: 30,
       bossBlockersDefeated: 3,
       milestonesRequired: ['complete_testing', 'first_user_feedback', 'ship_product'],
-      phasesCompleted: ['INCEPTION', 'RESEARCH', 'DESIGN', 'BUILD', 'TEST', 'SHIP']
+      phasesCompleted: ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE', 'POLISH', 'LAUNCH']
     },
     
     passiveBonuses: {

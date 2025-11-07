@@ -32,7 +32,7 @@ export const BOSS_BLOCKERS: BossBlockerDefinition[] = [
     
     triggerConditions: {
       minLevel: 8,
-      phase: 'RESEARCH',
+      phase: 'EXPLORE',
       taskCount: 3
     },
     
@@ -61,7 +61,7 @@ export const BOSS_BLOCKERS: BossBlockerDefinition[] = [
     
     triggerConditions: {
       minLevel: 18,
-      phase: 'BUILD'
+      phase: 'FORGE'
     },
     
     defeatConditions: {
@@ -89,7 +89,7 @@ export const BOSS_BLOCKERS: BossBlockerDefinition[] = [
     
     triggerConditions: {
       minLevel: 28,
-      phase: 'SHIP'
+      phase: 'LAUNCH'
     },
     
     defeatConditions: {

@@ -30,7 +30,7 @@ const initialState: GameState = {
   energy: 10,
   streak: 0,
   codeHealth: 100,
-  currentPhase: 'INCEPTION',
+  currentPhase: 'SPARK',
   completedTasks: [],
   currentTasks: [],
   blockers: [],
