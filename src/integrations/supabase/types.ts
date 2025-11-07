@@ -46,6 +46,60 @@ export type Database = {
           },
         ]
       }
+      blocker_resolutions: {
+        Row: {
+          blocker_id: string
+          blocker_type: string
+          boss_name: string | null
+          created_at: string | null
+          id: string
+          player_id: string
+          resolved_at: string | null
+          session_id: string
+          spores_rewarded: number | null
+          xp_rewarded: number | null
+        }
+        Insert: {
+          blocker_id: string
+          blocker_type: string
+          boss_name?: string | null
+          created_at?: string | null
+          id?: string
+          player_id: string
+          resolved_at?: string | null
+          session_id: string
+          spores_rewarded?: number | null
+          xp_rewarded?: number | null
+        }
+        Update: {
+          blocker_id?: string
+          blocker_type?: string
+          boss_name?: string | null
+          created_at?: string | null
+          id?: string
+          player_id?: string
+          resolved_at?: string | null
+          session_id?: string
+          spores_rewarded?: number | null
+          xp_rewarded?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocker_resolutions_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocker_resolutions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -158,6 +212,7 @@ export type Database = {
       game_states: {
         Row: {
           blockers: Json | null
+          boss_blockers_defeated: Json | null
           code_health: number | null
           completed_tasks: Json | null
           created_at: string | null
@@ -176,6 +231,7 @@ export type Database = {
         }
         Insert: {
           blockers?: Json | null
+          boss_blockers_defeated?: Json | null
           code_health?: number | null
           completed_tasks?: Json | null
           created_at?: string | null
@@ -194,6 +250,7 @@ export type Database = {
         }
         Update: {
           blockers?: Json | null
+          boss_blockers_defeated?: Json | null
           code_health?: number | null
           completed_tasks?: Json | null
           created_at?: string | null
@@ -216,6 +273,38 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_artifacts: {
+        Row: {
+          artifact_id: string
+          created_at: string | null
+          id: string
+          player_id: string
+          unlocked_at: string | null
+        }
+        Insert: {
+          artifact_id: string
+          created_at?: string | null
+          id?: string
+          player_id: string
+          unlocked_at?: string | null
+        }
+        Update: {
+          artifact_id?: string
+          created_at?: string | null
+          id?: string
+          player_id?: string
+          unlocked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_artifacts_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
             referencedColumns: ["id"]
           },
         ]

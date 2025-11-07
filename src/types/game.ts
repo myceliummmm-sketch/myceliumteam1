@@ -2,6 +2,8 @@ export type Phase = 'INCEPTION' | 'RESEARCH' | 'DESIGN' | 'BUILD' | 'TEST' | 'SH
 export type TeamMember = 'ever' | 'prisma' | 'toxic' | 'phoenix' | 'techpriest' | 'virgil' | 'zen';
 export type Mood = 'happy' | 'neutral' | 'stressed' | 'excited';
 export type MessageRole = 'user' | 'assistant' | 'system';
+export type ArtifactId = 'deepresearch' | 'product' | 'marketing';
+export type BlockerType = 'normal' | 'boss';
 
 export interface Task {
   id: string;
@@ -15,7 +17,18 @@ export interface Blocker {
   id: string;
   description: string;
   severity: 'low' | 'medium' | 'high';
+  type: BlockerType;
+  bossData?: {
+    name: string;
+    lore: string;
+    defeatReward: {
+      xp: number;
+      spores: number;
+      artifact?: ArtifactId;
+    };
+  };
   createdAt: Date;
+  resolvedAt?: Date;
 }
 
 export interface Milestone {
@@ -24,6 +37,41 @@ export interface Milestone {
   description: string;
   phase: Phase;
   unlockedAt: Date;
+}
+
+export interface Artifact {
+  id: ArtifactId;
+  name: string;
+  description: string;
+  lore: string;
+  phase: Phase;
+  unlocked: boolean;
+  unlockedAt: Date | null;
+  
+  requirements: {
+    minLevel: number;
+    bossBlockersDefeated: number;
+    milestonesRequired: string[];
+    phasesCompleted: Phase[];
+  };
+  
+  passiveBonuses: {
+    xpMultiplier?: number;
+    energyRegenBonus?: number;
+    sporeMultiplier?: number;
+  };
+  
+  unlocks: {
+    newAdvisor?: TeamMember;
+    specialQuickReplies?: string[];
+    featureUnlock?: string;
+  };
+  
+  prompt: {
+    title: string;
+    template: string;
+    usageInstructions: string;
+  };
 }
 
 export interface MessageSegment {
@@ -63,6 +111,15 @@ export interface GameState {
   currentTasks: Task[];
   blockers: Blocker[];
   milestones: Milestone[];
+  
+  // Artifacts system
+  artifacts: Artifact[];
+  bossBlockersDefeated: string[];
+  artifactBonuses: {
+    xpMultiplier: number;
+    energyBonus: number;
+    sporeMultiplier: number;
+  };
   
   // Team state
   activeSpeaker: TeamMember | null;

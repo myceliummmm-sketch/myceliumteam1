@@ -32,6 +32,13 @@ const initialState: GameState = {
   currentTasks: [],
   blockers: [],
   milestones: [],
+  artifacts: [],
+  bossBlockersDefeated: [],
+  artifactBonuses: {
+    xpMultiplier: 1,
+    energyBonus: 0,
+    sporeMultiplier: 1,
+  },
   activeSpeaker: null,
   teamMood: {
     ever: 'neutral',
@@ -118,6 +125,8 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
               id: crypto.randomUUID(),
               description: event.data.description,
               severity: event.data.severity,
+              type: event.data.type || 'normal',
+              bossData: event.data.bossData,
               createdAt: new Date()
             };
             newState.blockers = [...newState.blockers, blocker];
