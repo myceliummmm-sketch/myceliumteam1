@@ -6,6 +6,15 @@ import { useState, useEffect } from 'react';
 
 const phases = ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE', 'POLISH', 'LAUNCH'];
 
+const phaseEmojis: Record<string, string> = {
+  'SPARK': '⚡',
+  'EXPLORE': '🗺️',
+  'CRAFT': '🎨',
+  'FORGE': '⚙️',
+  'POLISH': '✨',
+  'LAUNCH': '🚀'
+};
+
 export function PhaseProgress() {
   const currentPhase = useGameStore((state) => state.currentPhase);
   const currentIndex = phases.indexOf(currentPhase);
@@ -62,16 +71,16 @@ export function PhaseProgress() {
             initial={{ opacity: 0.5 }}
             animate={{ 
               opacity: index <= currentIndex ? 1 : 0.5,
-              scale: index === currentIndex ? 1.1 : 1
+              scale: index === currentIndex ? 1.2 : 1
             }}
             transition={{ duration: 0.3 }}
-            className={`text-xs ${
+            className={`text-base ${
               index <= currentIndex
-                ? 'text-primary font-medium'
+                ? 'text-primary'
                 : 'text-muted-foreground'
             }`}
           >
-            {phase.slice(0, 3)}
+            {phaseEmojis[phase]}
           </motion.span>
         ))}
       </div>
