@@ -5,10 +5,12 @@ import { Card } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { floatingTextAnimation, floatingTextTransition } from '@/lib/animations';
-import { AlertTriangle, Zap, Clock } from 'lucide-react';
+import { AlertTriangle, Zap, Clock, Package } from 'lucide-react';
 import { getTimeUntilNextEnergy, getMaxEnergy } from '@/lib/energySystem';
+import { useNavigate } from 'react-router-dom';
 
 export function StatsPanel() {
+  const navigate = useNavigate();
   const xp = useGameStore((state) => state.xp);
   const level = useGameStore((state) => state.level);
   const spores = useGameStore((state) => state.spores);
@@ -16,6 +18,7 @@ export function StatsPanel() {
   const streak = useGameStore((state) => state.streak);
   const codeHealth = useGameStore((state) => state.codeHealth);
   const lastEnergyUpdate = useGameStore((state) => state.lastEnergyUpdate);
+  const artifacts = useGameStore((state) => state.artifacts);
 
   const [prevXp, setPrevXp] = useState(xp);
   const [showXpGain, setShowXpGain] = useState(false);
@@ -220,6 +223,20 @@ export function StatsPanel() {
               className="h-2"
             />
           </motion.div>
+        </div>
+
+        {/* Artifacts */}
+        <div 
+          className="flex items-center justify-between cursor-pointer hover:bg-muted/50 p-2 -m-2 rounded transition-colors"
+          onClick={() => navigate('/inventory')}
+        >
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Package className="h-3 w-3" />
+            ARTIFACTS
+          </span>
+          <Badge variant={artifacts.filter(a => a.unlocked).length > 0 ? "default" : "secondary"}>
+            {artifacts.filter(a => a.unlocked).length}/{artifacts.length}
+          </Badge>
         </div>
       </div>
     </Card>

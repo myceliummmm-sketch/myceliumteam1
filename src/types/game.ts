@@ -148,4 +148,6 @@ export interface GameState {
     spores: number;
     milestone?: string;
   };
+  showArtifactUnlockModal: boolean;
+  unlockedArtifact: Artifact | null;
 }

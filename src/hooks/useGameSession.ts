@@ -152,6 +152,9 @@ export function useGameSession() {
             blockers: latestState.blockers as any,
             milestones: latestState.milestones as any,
             teamMood: latestState.team_mood as any,
+            bossBlockersDefeated: (latestState.boss_blockers_defeated as any) || [],
+            artifacts: [],
+            artifactBonuses: { xpMultiplier: 1, energyBonus: 0, sporeMultiplier: 1 },
             lastEnergyUpdate: latestState.last_energy_update ? new Date(latestState.last_energy_update) : new Date()
           });
 

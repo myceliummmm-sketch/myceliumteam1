@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GameState, ChatMessage, GameEvent, TeamMember } from '@/types/game';
+import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId } from '@/types/game';
 import { supabase } from '@/integrations/supabase/client';
 
 interface GameActions {
@@ -13,6 +13,8 @@ interface GameActions {
   clearMessages: () => void;
   setShowLevelUpModal: (show: boolean) => void;
   setLevelUpRewards: (rewards: { spores: number; milestone?: string }) => void;
+  setShowArtifactUnlockModal: (show: boolean) => void;
+  setUnlockedArtifact: (artifact: Artifact | null) => void;
   regenerateEnergy: () => void;
   nextTutorialStep: () => void;
   skipTutorial: () => void;
@@ -60,6 +62,8 @@ const initialState: GameState = {
   hasCompletedTutorial: false,
   showLevelUpModal: false,
   levelUpRewards: { spores: 0 },
+  showArtifactUnlockModal: false,
+  unlockedArtifact: null,
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -269,4 +273,8 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   setShowTutorial: (show) => set({ showTutorial: show }),
   
   setQuickReplies: (replies) => set({ quickReplies: replies }),
+  
+  setShowArtifactUnlockModal: (show) => set({ showArtifactUnlockModal: show }),
+  
+  setUnlockedArtifact: (artifact) => set({ unlockedArtifact: artifact }),
 }));

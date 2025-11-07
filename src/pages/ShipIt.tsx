@@ -14,6 +14,7 @@ import { QuestLog } from '@/components/shipit/QuestLog';
 import { LevelUpModal } from '@/components/shipit/LevelUpModal';
 import { StreakCalendar } from '@/components/shipit/StreakCalendar';
 import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
+import { ArtifactUnlockModal } from '@/components/shipit/ArtifactUnlockModal';
 import { LogOut, Loader2, Users, BarChart3 } from 'lucide-react';
 
 export default function ShipIt() {
@@ -23,6 +24,9 @@ export default function ShipIt() {
   const quickReplies = useGameStore((state) => state.quickReplies);
   const isLoading = useGameStore((state) => state.isLoading);
   const energy = useGameStore((state) => state.energy);
+  const showArtifactUnlockModal = useGameStore((state) => state.showArtifactUnlockModal);
+  const unlockedArtifact = useGameStore((state) => state.unlockedArtifact);
+  const setShowArtifactUnlockModal = useGameStore((state) => state.setShowArtifactUnlockModal);
 
   if (loading) {
     return (
@@ -38,6 +42,12 @@ export default function ShipIt() {
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4">
       <LevelUpModal />
+      {showArtifactUnlockModal && unlockedArtifact && (
+        <ArtifactUnlockModal 
+          artifact={unlockedArtifact}
+          onClose={() => setShowArtifactUnlockModal(false)}
+        />
+      )}
       
       {/* Header with Team button on mobile and Logout */}
       <div className="flex justify-between items-center mb-4">
