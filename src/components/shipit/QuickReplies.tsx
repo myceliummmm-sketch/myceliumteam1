@@ -13,27 +13,27 @@ interface QuickRepliesProps {
 
 // Get button styling based on category and urgency
 function getButtonStyles(category: QuickReplyButton['category'], urgency?: QuickReplyButton['urgency']) {
-  const baseClasses = "text-xs h-auto min-h-[28px] px-3 py-1.5 relative overflow-hidden group";
+  const baseClasses = "text-sm h-auto min-h-[36px] px-4 py-2 relative overflow-hidden group transition-all duration-300 shadow-sm hover:shadow-md";
   
   switch (category) {
     case 'ai-suggested':
-      return `${baseClasses} border-primary/50 bg-primary/5 hover:bg-primary/10 hover:border-primary`;
+      return `${baseClasses} border-2 border-primary/70 bg-gradient-to-br from-primary/15 to-primary/5 hover:from-primary/25 hover:to-primary/10 hover:border-primary hover:scale-[1.02]`;
     case 'blocker':
       if (urgency === 'high') {
-        return `${baseClasses} border-destructive/50 bg-destructive/5 hover:bg-destructive/10 hover:border-destructive`;
+        return `${baseClasses} border-2 border-destructive/70 bg-gradient-to-br from-destructive/15 to-destructive/5 hover:from-destructive/25 hover:to-destructive/10 hover:border-destructive hover:scale-[1.02]`;
       }
-      return `${baseClasses} border-orange-500/50 bg-orange-500/5 hover:bg-orange-500/10`;
+      return `${baseClasses} border-2 border-orange-500/70 bg-gradient-to-br from-orange-500/15 to-orange-500/5 hover:from-orange-500/25 hover:to-orange-500/10 hover:border-orange-500 hover:scale-[1.02]`;
     case 'task':
-      return `${baseClasses} border-green-500/50 bg-green-500/5 hover:bg-green-500/10`;
+      return `${baseClasses} border-2 border-green-500/70 bg-gradient-to-br from-green-500/15 to-green-500/5 hover:from-green-500/25 hover:to-green-500/10 hover:border-green-500 hover:scale-[1.02]`;
     case 'energy':
       if (urgency === 'high') {
-        return `${baseClasses} border-destructive/50 bg-destructive/5 hover:bg-destructive/10`;
+        return `${baseClasses} border-2 border-destructive/70 bg-gradient-to-br from-destructive/15 to-destructive/5 hover:from-destructive/25 hover:to-destructive/10 hover:border-destructive hover:scale-[1.02]`;
       }
-      return `${baseClasses} border-yellow-500/50 bg-yellow-500/5 hover:bg-yellow-500/10`;
+      return `${baseClasses} border-2 border-yellow-500/70 bg-gradient-to-br from-yellow-500/15 to-yellow-500/5 hover:from-yellow-500/25 hover:to-yellow-500/10 hover:border-yellow-500 hover:scale-[1.02]`;
     case 'phase':
-      return `${baseClasses} border-blue-500/50 bg-blue-500/5 hover:bg-blue-500/10`;
+      return `${baseClasses} border-2 border-blue-500/70 bg-gradient-to-br from-blue-500/15 to-blue-500/5 hover:from-blue-500/25 hover:to-blue-500/10 hover:border-blue-500 hover:scale-[1.02]`;
     default:
-      return `${baseClasses} border-border/50 hover:bg-accent`;
+      return `${baseClasses} border-2 border-border/70 bg-gradient-to-br from-accent/50 to-background hover:from-accent hover:to-accent/50 hover:border-border hover:scale-[1.02]`;
   }
 }
 
@@ -50,15 +50,14 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
   };
   
   return (
-    <div className="flex flex-wrap gap-2 px-2 pb-2 pt-2 border-t border-border/40">
+    <div className="flex flex-wrap gap-3 px-3 pb-3 pt-3 border-t border-border/40 bg-background/50">
       {suggestions.map((suggestion, idx) => (
         <motion.div
           key={idx}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: idx * 0.05 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileTap={{ scale: 0.95 }}
           className="flex-shrink-0"
         >
           <Button
@@ -71,10 +70,10 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
             {/* Glow effect on click */}
             {clickedIndex === idx && (
               <motion.div
-                className="absolute inset-0 bg-primary/20"
+                className="absolute inset-0 bg-primary/40 rounded-md"
                 initial={{ scale: 0, opacity: 1 }}
-                animate={{ scale: 2, opacity: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
+                animate={{ scale: 2.5, opacity: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
               />
             )}
             
@@ -84,13 +83,13 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
                 {/* Icon with animation */}
                 {suggestion.category === 'ai-suggested' ? (
                   <motion.div
-                    animate={clickedIndex === idx ? { rotate: 360, scale: [1, 1.2, 1] } : {}}
+                    animate={clickedIndex === idx ? { rotate: 360, scale: [1, 1.3, 1] } : {}}
                     transition={{ duration: 0.5 }}
                   >
-                    <Sparkles className="h-3 w-3 flex-shrink-0 text-primary" />
+                    <Sparkles className="h-4 w-4 flex-shrink-0 text-primary drop-shadow-sm" />
                   </motion.div>
                 ) : suggestion.icon ? (
-                  <span className="text-xs flex-shrink-0">{suggestion.icon}</span>
+                  <span className="text-base flex-shrink-0">{suggestion.icon}</span>
                 ) : null}
                 
                 <span className="text-left flex-1 min-w-0 truncate">
@@ -99,7 +98,7 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
                 
                 {/* Progress badge */}
                 {suggestion.progress && (
-                  <span className="text-[10px] font-medium opacity-70 flex-shrink-0">
+                  <span className="text-xs font-semibold opacity-80 flex-shrink-0 px-1.5 py-0.5 rounded bg-background/60">
                     {suggestion.progress.type === 'tasks' && `${suggestion.progress.current}/${suggestion.progress.total}`}
                     {suggestion.progress.type === 'xp' && `${suggestion.progress.percentage}%`}
                     {suggestion.progress.type === 'phase' && `${suggestion.progress.percentage}%`}
@@ -110,9 +109,9 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
               
               {/* Mini progress bar */}
               {suggestion.progress && (
-                <div className="w-full h-1 bg-background/50 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-background/60 rounded-full overflow-hidden shadow-inner">
                   <motion.div
-                    className="h-full bg-current opacity-50"
+                    className="h-full bg-current opacity-70 rounded-full shadow-sm"
                     initial={{ width: 0 }}
                     animate={{ width: `${suggestion.progress.percentage}%` }}
                     transition={{ duration: 0.5, delay: idx * 0.05 + 0.2 }}
@@ -123,10 +122,10 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
             
             {/* Subtle shimmer on hover */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/5 to-transparent"
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/10 to-transparent rounded-md"
               initial={{ x: '-100%' }}
               whileHover={{ x: '100%' }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.8 }}
             />
           </Button>
         </motion.div>
