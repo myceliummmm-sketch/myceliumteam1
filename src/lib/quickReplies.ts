@@ -115,7 +115,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
   
   // Priority 6: Phase-specific suggestions with progress
   const phaseProgress = calculatePhaseProgress(state);
-  if (replies.length < 4) {
+  if (replies.length < 4 && state.currentPhase) {
     const phaseEmoji: Record<Phase, string> = {
       SPARK: '⚡',
       EXPLORE: '🗺️',
@@ -134,27 +134,30 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
       LAUNCH: 'Release to world'
     };
     
-    const hints = [
-      `Focus on ${phaseAction[state.currentPhase].toLowerCase()}`,
-      `${state.currentTasks.filter(t => !t.completed).length} task(s) remaining`,
-      state.energy < 5 ? '⚠️ Low energy - consider taking a break' : '✓ Energy levels good',
-      state.blockers.length > 0 ? `⚠️ ${state.blockers.length} blocker(s) need attention` : '✓ No active blockers',
-      `Level ${state.level} • ${state.xp} XP`
-    ];
-    
-    replies.push({
-      text: `💡 ${phaseAction[state.currentPhase]} Tips`,
-      category: 'phase',
-      progress: phaseProgress > 0 ? {
-        current: phaseProgress,
-        total: 100,
-        percentage: phaseProgress,
-        type: 'phase'
-      } : undefined,
-      icon: phaseEmoji[state.currentPhase],
-      isHint: true,
-      hintContent: hints
-    });
+    const currentPhaseAction = phaseAction[state.currentPhase];
+    if (currentPhaseAction) {
+      const hints = [
+        `Focus on ${currentPhaseAction.toLowerCase()}`,
+        `${state.currentTasks.filter(t => !t.completed).length} task(s) remaining`,
+        state.energy < 5 ? '⚠️ Low energy - consider taking a break' : '✓ Energy levels good',
+        state.blockers.length > 0 ? `⚠️ ${state.blockers.length} blocker(s) need attention` : '✓ No active blockers',
+        `Level ${state.level} • ${state.xp} XP`
+      ];
+      
+      replies.push({
+        text: `💡 ${currentPhaseAction} Tips`,
+        category: 'phase',
+        progress: phaseProgress > 0 ? {
+          current: phaseProgress,
+          total: 100,
+          percentage: phaseProgress,
+          type: 'phase'
+        } : undefined,
+        icon: phaseEmoji[state.currentPhase],
+        isHint: true,
+        hintContent: hints
+      });
+    }
   }
   
   // Priority 7: General help option if still have room
