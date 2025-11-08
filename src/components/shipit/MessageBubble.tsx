@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { MessageSegment } from '@/types/game';
-import everGreenImg from '@/assets/advisor-ever-green.jpg';
-import phoenixImg from '@/assets/advisor-phoenix.jpg';
-import prismaImg from '@/assets/advisor-prisma.jpg';
-import techPriestImg from '@/assets/advisor-tech-priest.jpg';
-import toxicImg from '@/assets/advisor-toxic.jpg';
-import virgilImg from '@/assets/advisor-virgil.jpg';
-import zenImg from '@/assets/advisor-zen.jpg';
+import everGreenImg from '@/assets/advisor-ever-green.png';
+import phoenixImg from '@/assets/advisor-phoenix.png';
+import prismaImg from '@/assets/advisor-prisma.png';
+import techPriestImg from '@/assets/advisor-tech-priest.png';
+import toxicImg from '@/assets/advisor-toxic.png';
+import virgilImg from '@/assets/advisor-virgil.png';
+import zenImg from '@/assets/advisor-zen.png';
 
 const avatarMap: Record<string, string> = {
   ever: everGreenImg,
