@@ -57,17 +57,17 @@ export default function Register() {
     await signInWithGoogle();
   };
   const benefits = [{
+    emoji: '🤖',
+    text: 'Vibe code with your AI team'
+  }, {
+    emoji: '💡',
+    text: 'No idea? No problem - we\'ll help you find one'
+  }, {
+    emoji: '🚀',
+    text: 'Ship real projects, not just tutorials'
+  }, {
     emoji: '🎮',
-    text: 'Gamified coding experience'
-  }, {
-    emoji: '⚡',
-    text: 'Ship projects faster'
-  }, {
-    emoji: '🏆',
-    text: 'Level up as you code'
-  }, {
-    emoji: '🤝',
-    text: 'Founding member status'
+    text: 'Level up while having fun'
   }];
   return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
       <div className="w-full max-w-6xl">
@@ -155,7 +155,7 @@ export default function Register() {
             <Card className="p-6 shadow-lg animate-fade-in" style={{
             animationDelay: '300ms'
           }}>
-              <h3 className="font-semibold mb-4 text-lg">What You'll Get</h3>
+              <h3 className="font-semibold mb-4 text-lg">What's the Vibe?</h3>
               <BenefitsList benefits={benefits} />
             </Card>
 
