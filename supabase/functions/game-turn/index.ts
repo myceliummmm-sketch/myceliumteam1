@@ -183,7 +183,17 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
     }
 
     const aiData = await aiResponse.json();
-    const aiContent = aiData.choices[0].message.content;
+    let aiContent = aiData.choices[0].message.content;
+    
+    // Strip markdown code blocks if present
+    aiContent = aiContent.trim();
+    if (aiContent.startsWith('```')) {
+      // Remove opening ```json or ```
+      aiContent = aiContent.replace(/^```(?:json)?\s*\n/, '');
+      // Remove closing ```
+      aiContent = aiContent.replace(/\n```\s*$/, '');
+    }
+    
     const parsedResponse = JSON.parse(aiContent);
 
     // Save user message
