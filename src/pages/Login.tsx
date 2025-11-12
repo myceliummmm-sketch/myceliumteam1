@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Sparkles } from 'lucide-react';
+import VersionSwitcher from '@/components/VersionSwitcher';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -60,6 +61,10 @@ export default function Login() {
           <p className="text-muted-foreground">
             Ready to continue your journey?
           </p>
+        </div>
+
+        <div className="mb-6">
+          <VersionSwitcher currentVersion="1.0" variant="full" />
         </div>
 
         {/* Login Form */}

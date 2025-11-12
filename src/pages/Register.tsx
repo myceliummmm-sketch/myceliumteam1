@@ -10,6 +10,7 @@ import { CheckCircle2, Zap, Clock } from 'lucide-react';
 import { NovemberBanner } from '@/components/auth/NovemberBanner';
 import { TrustBadge } from '@/components/auth/TrustBadge';
 import { BenefitsList } from '@/components/auth/BenefitsList';
+import VersionSwitcher from '@/components/VersionSwitcher';
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -79,6 +80,10 @@ export default function Register() {
           <p className="text-lg text-muted-foreground mb-6">
             Free access for early adopters • No credit card required
           </p>
+        </div>
+
+        <div className="mb-6 flex justify-center">
+          <VersionSwitcher currentVersion="1.0" variant="full" />
         </div>
 
         <NovemberBanner />

@@ -9,6 +9,7 @@ import SuccessStories from "@/components/SuccessStories";
 import NetworkJourney from "@/components/NetworkJourney";
 import PricingSection from "@/components/PricingSection";
 import Footer from "@/components/Footer";
+import VersionSwitcher from "@/components/VersionSwitcher";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ const Index = () => {
   }, [user, loading, navigate]);
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <div className="fixed top-4 right-4 z-50">
+        <VersionSwitcher currentVersion="1.0" variant="compact" />
+      </div>
       <Hero />
       <SocialProofTicker />
       <ComparisonSection />
