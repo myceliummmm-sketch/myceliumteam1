@@ -1,84 +1,5 @@
 import AdvisorCard from "./AdvisorCard";
-import everGreenImg from "@/assets/advisor-ever-green.png";
-import phoenixImg from "@/assets/advisor-phoenix.png";
-import prismaImg from "@/assets/advisor-prisma.png";
-import techPriestImg from "@/assets/advisor-tech-priest.png";
-import toxicImg from "@/assets/advisor-toxic.png";
-import virgilImg from "@/assets/advisor-virgil.png";
-import zenImg from "@/assets/advisor-zen.png";
-
-const advisors = [
-  {
-    name: "Ever Green",
-    role: "Venture Strategist",
-    tagline: "Built 3 unicorns. Will call out your BS.",
-    status: "Online (always is)",
-    stat: "ROI: Turns weak pitches → €2M raises",
-    image: everGreenImg,
-    color: "cyan" as const,
-    video: "/ever-green-hover.mp4",
-  },
-  {
-    name: "Phoenix",
-    role: "Growth Architect",
-    tagline: "Turns 0.8% → 3% conversion",
-    status: "Optimizing campaigns",
-    stat: "ROI: 47 products scaled to 10K+ users",
-    image: phoenixImg,
-    color: "pink" as const,
-    video: "/phoenix-hover.mp4",
-  },
-  {
-    name: "Zen",
-    role: "Performance Coach",
-    tagline: "Burn bright, not out",
-    status: "Monitoring velocity",
-    stat: "ROI: 89 founders saved from burnout",
-    image: zenImg,
-    color: "green" as const,
-    video: "/zen-hover.mp4",
-  },
-  {
-    name: "Toxic",
-    role: "Security Lead",
-    tagline: "I'll hack you before they do",
-    status: "Finding vulnerabilities",
-    stat: "ROI: Saved users €2.4M from breaches",
-    image: toxicImg,
-    color: "pink" as const,
-    video: "/toxic-hover.mp4",
-  },
-  {
-    name: "Virgil",
-    role: "Design Director",
-    tagline: "Make it beautiful or don't ship",
-    status: "Perfecting pixels",
-    stat: "ROI: 374 brands elevated to premium tier",
-    image: virgilImg,
-    color: "purple" as const,
-    video: "/virgil-hover.mp4",
-  },
-  {
-    name: "Prisma",
-    role: "Product Strategist",
-    tagline: "Ship faster. Overthink less.",
-    status: "Reviewing roadmaps",
-    stat: "ROI: 12 features killed, 2 winners shipped",
-    image: prismaImg,
-    color: "cyan" as const,
-    video: "/prisma-hover.mp4",
-  },
-  {
-    name: "Tech Priest",
-    role: "Infrastructure Lead",
-    tagline: "Your architecture is showing",
-    status: "Optimizing systems",
-    stat: "ROI: 99.9% uptime, €40K saved on infra",
-    image: techPriestImg,
-    color: "cyan" as const,
-    video: "/tech-priest-hover.mp4",
-  },
-];
+import { TEAM_MEMBERS } from "@/lib/characterData";
 
 const AdvisorsGrid = () => {
   return (
@@ -104,7 +25,7 @@ const AdvisorsGrid = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
-          {advisors.map((advisor, index) => (
+          {TEAM_MEMBERS.map((advisor, index) => (
             <div
               key={advisor.name}
               className="animate-fade-in"
