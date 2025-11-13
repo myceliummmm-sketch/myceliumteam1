@@ -1,37 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import everGreenImg from "@/assets/advisor-ever-green.png";
-import phoenixImg from "@/assets/advisor-phoenix.png";
-import prismaImg from "@/assets/advisor-prisma.png";
-import techPriestImg from "@/assets/advisor-tech-priest.png";
-import toxicImg from "@/assets/advisor-toxic.png";
-import virgilImg from "@/assets/advisor-virgil.png";
-import zenImg from "@/assets/advisor-zen.png";
+import { TEAM_MEMBERS } from "@/lib/characterData";
+
 const Hero = () => {
   const navigate = useNavigate();
-  const advisorAvatars = [{
-    name: 'Ever Green',
-    image: everGreenImg
-  }, {
-    name: 'Prisma',
-    image: prismaImg
-  }, {
-    name: 'Phoenix',
-    image: phoenixImg
-  }, {
-    name: 'Toxic',
-    image: toxicImg
-  }, {
-    name: 'Tech Priest',
-    image: techPriestImg
-  }, {
-    name: 'Virgil',
-    image: virgilImg
-  }, {
-    name: 'Zen',
-    image: zenImg
-  }];
   return <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Video Background with enhanced overlay */}
       <div className="absolute inset-0 w-full h-full">
@@ -87,7 +60,7 @@ const Hero = () => {
             meet your executive team:
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            {advisorAvatars.map((advisor, i) => <div key={advisor.name} className="group relative w-20 h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-125 hover:z-10" style={{
+            {TEAM_MEMBERS.map((advisor, i) => <div key={advisor.name} className="group relative w-20 h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-125 hover:z-10" style={{
             animationDelay: `${i * 100}ms`,
             border: '2px solid hsl(var(--neon-cyan) / 0.3)',
             boxShadow: '0 0 20px hsl(var(--neon-cyan) / 0.2)'

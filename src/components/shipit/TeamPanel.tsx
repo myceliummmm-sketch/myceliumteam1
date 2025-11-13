@@ -2,23 +2,7 @@ import { useEffect } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import everGreenImg from '@/assets/advisor-ever-green.png';
-import phoenixImg from '@/assets/advisor-phoenix.png';
-import prismaImg from '@/assets/advisor-prisma.png';
-import techPriestImg from '@/assets/advisor-tech-priest.png';
-import toxicImg from '@/assets/advisor-toxic.png';
-import virgilImg from '@/assets/advisor-virgil.png';
-import zenImg from '@/assets/advisor-zen.png';
-
-const teamMembers = [
-  { id: 'ever', name: 'Ever Green', avatar: everGreenImg },
-  { id: 'prisma', name: 'Prisma', avatar: prismaImg },
-  { id: 'toxic', name: 'Toxic', avatar: toxicImg },
-  { id: 'phoenix', name: 'Phoenix', avatar: phoenixImg },
-  { id: 'techpriest', name: 'Tech Priest', avatar: techPriestImg },
-  { id: 'virgil', name: 'Virgil', avatar: virgilImg },
-  { id: 'zen', name: 'Zen', avatar: zenImg },
-];
+import { TEAM_MEMBERS } from '@/lib/characterData';
 
 const moodEmojis = {
   happy: '😊',
@@ -57,7 +41,7 @@ export function TeamPanel() {
     <Card className="p-4">
       <h3 className="text-sm font-mono text-muted-foreground mb-4">YOUR TEAM</h3>
       <div className="space-y-3">
-        {teamMembers.map((member) => {
+        {TEAM_MEMBERS.map((member) => {
           const isActive = activeSpeaker === member.id;
           const mood = teamMood[member.id as keyof typeof teamMood] || 'neutral';
           
@@ -77,7 +61,10 @@ export function TeamPanel() {
                   {moodEmojis[mood]}
                 </span>
               </div>
-              <span className="text-sm font-medium">{member.name}</span>
+              <div className="flex-1">
+                <div className="text-sm font-medium">{member.name}</div>
+                <div className="text-xs text-muted-foreground font-mono">{member.role}</div>
+              </div>
             </div>
           );
         })}
