@@ -10,7 +10,7 @@ import { useSound } from '@/hooks/useSound';
 import { generateQuickReplies } from '@/lib/quickReplies';
 import { LEGENDARY_ARTIFACTS } from '@/lib/artifacts';
 import { createArtifactFromDefinition, applyArtifactBonuses } from '@/lib/artifactSystem';
-import { ArtifactId, ConversationMode, Phase } from '@/types/game';
+import { ArtifactId, ConversationMode, Phase, TeamMember } from '@/types/game';
 import { MODE_CONFIGS, isModeUnlocked } from '@/lib/modeConfig';
 import { PROMPT_TEMPLATES } from '@/lib/promptTemplates';
 
@@ -429,10 +429,37 @@ export function useGameSession() {
       const processGameEvents = useGameStore.getState().processGameEvents;
       processGameEvents(data.gameEvents);
 
-      // Play sounds for key events
+      // Play sounds for key events and check for mode unlocks
       const levelUpEvent = data.gameEvents?.find((e: any) => e.type === 'LEVEL_UP');
       if (levelUpEvent) {
         playSound('levelUp');
+        
+        // Check for newly unlocked modes
+        const newLevel = levelUpEvent.data.newLevel;
+        const currentPhase = data.updatedState?.current_phase || store.currentPhase;
+        const unlockedModes = store.unlockedModes;
+        
+        const newlyUnlockedModes = Object.keys(MODE_CONFIGS).filter((mode) => {
+          const isNowUnlocked = isModeUnlocked(
+            mode as ConversationMode,
+            newLevel,
+            currentPhase as Phase,
+            []
+          );
+          const wasUnlocked = unlockedModes.includes(mode as ConversationMode);
+          return isNowUnlocked && !wasUnlocked;
+        });
+        
+        // Unlock and notify for each new mode
+        newlyUnlockedModes.forEach((mode) => {
+          const config = MODE_CONFIGS[mode as ConversationMode];
+          store.unlockMode(mode as ConversationMode);
+          
+          toast.success(`🎉 New Mode Unlocked: ${config.name}`, {
+            description: config.description,
+            duration: 5000,
+          });
+        });
       }
 
       // Show XP gain (level up modal handles level up celebration)
@@ -444,7 +471,7 @@ export function useGameSession() {
         });
       }
       
-      // Show phase change
+      // Show phase change and suggest prompts
       const phaseChangeEvent = data.gameEvents?.find((e: any) => e.type === 'PHASE_CHANGE');
       if (phaseChangeEvent) {
         playSound('phaseChange');
@@ -452,6 +479,10 @@ export function useGameSession() {
           description: 'New challenges await!',
           duration: 4000
         });
+        
+        // Auto-suggest relevant prompts for this phase
+        const newPhase = phaseChangeEvent.data.newPhase as Phase;
+        suggestPromptsForPhase(newPhase);
       }
       
       // Show task completion
@@ -482,6 +513,60 @@ export function useGameSession() {
       toast.error('Failed to send message. Please try again.');
     } finally {
       setGameLoading(false);
+    }
+  };
+
+  const suggestPromptsForPhase = async (phase: Phase) => {
+    if (!user) return;
+    
+    // Query for template prompts matching this phase
+    const { data: phasePrompts } = await supabase
+      .from('prompt_library')
+      .select('*')
+      .eq('phase', phase)
+      .eq('is_template', true)
+      .limit(3);
+    
+    if (phasePrompts && phasePrompts.length > 0) {
+      const getPhaseDescription = (p: Phase): string => {
+        const descriptions: Record<Phase, string> = {
+          'SPARK': 'define your vision and problem',
+          'EXPLORE': 'validate assumptions and understand users',
+          'CRAFT': 'plan your solution and user experience',
+          'FORGE': 'implement features with quality',
+          'POLISH': 'ensure everything works perfectly',
+          'LAUNCH': 'launch successfully and monitor',
+        };
+        return descriptions[p] || 'succeed';
+      };
+
+      const suggestionSegments = [
+        {
+          type: 'narration' as const,
+          content: `🎯 Welcome to ${phase} phase!`
+        },
+        {
+          type: 'speech' as const,
+          speaker: 'prisma' as TeamMember,
+          content: `I've prepared some helpful prompt templates for this phase. Check your Prompt Library for:\n${phasePrompts.map(p => `• ${p.title}`).join('\n')}\n\nThey'll help you ${getPhaseDescription(phase)}.`
+        }
+      ];
+      
+      // Add as system message
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: 'Phase suggestions',
+        segments: suggestionSegments,
+        gameEvents: [],
+        createdAt: new Date()
+      });
+      
+      // Show notification
+      toast.info(`📚 ${phasePrompts.length} prompts ready for ${phase}`, {
+        description: 'Check your Prompt Library',
+        duration: 5000
+      });
     }
   };
 
