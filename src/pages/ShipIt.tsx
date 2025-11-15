@@ -15,7 +15,8 @@ import { LevelUpModal } from '@/components/shipit/LevelUpModal';
 import { StreakCalendar } from '@/components/shipit/StreakCalendar';
 import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
 import { ArtifactUnlockModal } from '@/components/shipit/ArtifactUnlockModal';
-import { LogOut, Loader2, Users, BarChart3 } from 'lucide-react';
+import { LogOut, Loader2, Users, BarChart3, BookOpen } from 'lucide-react';
+import { PromptLibrary } from '@/components/shipit/PromptLibrary';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ export default function ShipIt() {
   const showArtifactUnlockModal = useGameStore((state) => state.showArtifactUnlockModal);
   const unlockedArtifact = useGameStore((state) => state.unlockedArtifact);
   const setShowArtifactUnlockModal = useGameStore((state) => state.setShowArtifactUnlockModal);
+  const setShowPromptLibrary = useGameStore((state) => state.setShowPromptLibrary);
+  const promptCount = 0;
 
   if (loading) {
     return (
@@ -41,6 +44,7 @@ export default function ShipIt() {
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4">
+      <PromptLibrary />
       <LevelUpModal />
       {showArtifactUnlockModal && unlockedArtifact && (
         <ArtifactUnlockModal 
@@ -66,8 +70,17 @@ export default function ShipIt() {
           </SheetContent>
         </Sheet>
 
-        {/* Analytics and Logout Buttons */}
+        {/* Prompt Library, Analytics and Logout Buttons */}
         <div className="flex gap-2 ml-auto">
+          <Button variant="outline" onClick={() => setShowPromptLibrary(true)} size="sm" className="relative">
+            <BookOpen className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Prompts</span>
+            {promptCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] flex items-center justify-center">
+                {promptCount}
+              </span>
+            )}
+          </Button>
           <Button variant="outline" onClick={() => navigate('/analytics')} size="sm">
             <BarChart3 className="h-4 w-4 md:mr-2" />
             <span className="hidden md:inline">Analytics</span>

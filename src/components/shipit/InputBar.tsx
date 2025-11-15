@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 import { useGameSession } from '@/hooks/useGameSession';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,14 +8,30 @@ import { Send, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TEAM_MEMBERS } from '@/lib/characterData';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { MODE_CONFIGS, isModeUnlocked, getUnlockMessage } from '@/lib/modeConfig';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Lock } from 'lucide-react';
 
 export function InputBar() {
   const [input, setInput] = useState('');
   const { sendMessage } = useGameSession();
   const isLoading = useGameStore((state) => state.isLoading);
   const energy = useGameStore((state) => state.energy);
+  const level = useGameStore((state) => state.level);
+  const currentPhase = useGameStore((state) => state.currentPhase);
   const preferredSpeaker = useGameStore((state) => state.preferredSpeaker);
   const setPreferredSpeaker = useGameStore((state) => state.setPreferredSpeaker);
+  const conversationMode = useGameStore((state) => state.conversationMode);
+  const unlockedModes = useGameStore((state) => state.unlockedModes);
+  const setConversationMode = useGameStore((state) => state.setConversationMode);
+  
+  useEffect(() => {
+    const handleInsertPrompt = (e: CustomEvent) => {
+      setInput(e.detail.text);
+    };
+    window.addEventListener('insertPromptToChat' as any, handleInsertPrompt as any);
+    return () => window.removeEventListener('insertPromptToChat' as any, handleInsertPrompt as any);
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading || energy < 1) return;
@@ -37,8 +53,31 @@ export function InputBar() {
   return (
     <Card className="p-2 sm:p-4 border-t-2">
       <div className="space-y-2">
-        {/* Character Selector */}
+        {/* Mode and Character Selectors */}
         <div className="flex items-center gap-2 px-1">
+          <span className="text-xs text-muted-foreground font-mono">Mode:</span>
+          <TooltipProvider>
+            <Select value={conversationMode} onValueChange={(val: any) => setConversationMode(val)}>
+              <SelectTrigger className="h-8 w-[160px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(MODE_CONFIGS).map((config) => {
+                  const unlocked = unlockedModes.includes(config.id);
+                  return (
+                    <SelectItem key={config.id} value={config.id} disabled={!unlocked}>
+                      <div className="flex items-center gap-2">
+                        <span>{config.icon}</span>
+                        <span>{config.name}</span>
+                        {!unlocked && <Lock className="h-3 w-3 ml-1" />}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </TooltipProvider>
+          
           <span className="text-xs text-muted-foreground font-mono">Direct to:</span>
           <Select value={preferredSpeaker || 'auto'} onValueChange={(val) => setPreferredSpeaker(val === 'auto' ? null : val)}>
             <SelectTrigger className="h-8 w-[200px] text-xs">
