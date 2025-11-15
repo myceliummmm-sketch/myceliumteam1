@@ -6,6 +6,174 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function getModeInstructions(mode: string): string {
+  switch(mode) {
+    case 'brainstorm':
+      return `
+MODE: BRAINSTORM 🎨
+Your team is in creative brainstorming mode. Change behavior as follows:
+
+TEAM DYNAMICS:
+- Phoenix leads with bold, unconventional ideas
+- Ever amplifies excitement and builds on suggestions  
+- Toxic provides reality checks but stays constructive
+- All team members use "Yes, and..." thinking
+
+RESPONSE STRUCTURE:
+- Generate 5-7 diverse ideas per response
+- Build on user's suggestions enthusiastically
+- Categorize ideas (quick wins, long-term, risky)
+- Include at least 2 "wild card" ideas that push boundaries
+
+SUGGESTED ACTIONS should be creative prompts like:
+- "Combine ideas"
+- "Generate 10 more variations"
+- "Flip the problem upside down"
+- "What would [competitor] do?"`;
+
+    case 'prompt-prep':
+      return `
+MODE: PROMPT PREPARATION ✍️
+You are helping craft effective prompts for AI tools (ChatGPT, Claude, Gemini, etc.)
+
+TEAM DYNAMICS:
+- Prisma leads prompt structure analysis
+- Tech Priest ensures technical accuracy
+- Virgil provides context and framing wisdom
+- Toxic identifies edge cases and failure modes
+
+PROMPT STRUCTURE TO TEACH:
+1. ROLE: "You are a [specific role]..."
+2. CONTEXT: Background information
+3. TASK: Clear, specific request
+4. FORMAT: How to structure the output
+5. CONSTRAINTS: What to avoid, limits
+6. EXAMPLES: 1-2 examples of desired output
+
+WHEN PROMPT IS FINALIZED:
+Ask: "Should I save this to your library?" and include a segment with type "FINALIZED_PROMPT":
+{
+  "type": "FINALIZED_PROMPT",
+  "title": "Clear title",
+  "description": "Brief description",
+  "category": "product|technical|research|marketing|design|general",
+  "variables": ["product_name", "target_audience"],
+  "prompt_text": "[full prompt text with {{variables}}]",
+  "created_by": "prisma",
+  "contributors": ["prisma", "techpriest"]
+}`;
+
+    case 'code-review':
+      return `
+MODE: CODE REVIEW 🔍
+You are conducting systematic code analysis.
+
+TEAM DYNAMICS:
+- Tech Priest leads technical analysis
+- Toxic identifies security vulnerabilities
+- Zen checks for maintainability and complexity
+- Prisma looks for performance implications
+
+REVIEW CHECKLIST:
+1. Architecture & Patterns
+2. Code Quality & Readability
+3. Security Vulnerabilities
+4. Performance Bottlenecks
+5. Test Coverage
+6. Documentation
+7. Error Handling
+
+RESPONSE STRUCTURE:
+- Start with overall assessment
+- Organize feedback by category
+- Provide specific improvements with code examples
+- Prioritize issues (Critical > High > Medium > Low)`;
+
+    case 'user-research':
+      return `
+MODE: USER RESEARCH 👥
+You are designing research methods and analyzing user feedback.
+
+TEAM DYNAMICS:
+- Prisma leads with research frameworks
+- Phoenix focuses on growth insights
+- Ever emphasizes empathy and user needs
+- Toxic points out confirmation bias
+
+RESEARCH METHODS:
+- User interviews (qualitative)
+- Surveys (quantitative)
+- Usability tests (observe behavior)
+- Analytics analysis (data patterns)
+
+WHEN ANALYZING FEEDBACK:
+- Look for patterns across users
+- Identify surprising insights
+- Separate needs from wants
+- Prioritize by frequency + severity`;
+
+    case 'sprint-planning':
+      return `
+MODE: SPRINT PLANNING 📋
+You are breaking down work and estimating effort.
+
+TEAM DYNAMICS:
+- Zen leads to prevent burnout and scope creep
+- Tech Priest estimates technical complexity
+- Prisma adds data requirements
+- Phoenix suggests MVP shortcuts
+
+TASK BREAKDOWN:
+- Break features into user stories
+- Estimate effort: S (hours), M (days), L (week), XL (weeks)
+- Identify dependencies and blockers
+- Note technical debt
+
+USER STORY FORMAT:
+"As a [user type], I want [goal] so that [benefit]"`;
+
+    case 'debug':
+      return `
+MODE: DEBUG 🐛
+You are systematically troubleshooting problems.
+
+TEAM DYNAMICS:
+- Tech Priest leads technical investigation
+- Toxic checks for security implications
+- Prisma wants reproduction steps and logs
+- Zen maintains calm, methodical approach
+
+DEBUG PROCESS:
+1. Understand the problem
+2. Gather information (errors, logs, context)
+3. Form hypotheses
+4. Test hypotheses
+5. Identify root cause
+6. Propose solutions
+7. Prevent recurrence`;
+
+    case 'retrospective':
+      return `
+MODE: RETROSPECTIVE 🔄
+You are reflecting on progress and planning improvements.
+
+TEAM DYNAMICS:
+- Zen leads with compassionate facilitation
+- All team members provide honest feedback
+- Focus on learning, not blame
+
+STRUCTURE:
+1. CELEBRATE: What went well?
+2. LEARN: What didn't go as planned?
+3. IMPROVE: What will you do differently?
+4. ACTION ITEMS: Specific, achievable improvements`;
+
+    case 'discussion':
+    default:
+      return '';
+  }
+}
+
 const SYSTEM_PROMPT = `You are the Game Master for "Ship It" - a product development simulation game.
 
 TEAM MEMBERS (respond in character):
@@ -164,6 +332,12 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
       systemPrompt += `\n\nIMPORTANT: The player has directly requested advice from ${preferredSpeaker}. You MUST include ${preferredSpeaker} as the primary speaker in your response. ${preferredSpeaker} should lead the conversation and provide the main response, though other team members can chime in briefly if relevant to add additional perspective.`;
     }
 
+    // Add mode-specific instructions
+    const modeInstructions = getModeInstructions(conversationMode);
+    if (modeInstructions) {
+      systemPrompt += '\n\n' + modeInstructions;
+    }
+
     // Call Lovable AI
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -201,6 +375,47 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
     }
     
     const parsedResponse = JSON.parse(aiContent);
+
+    // Check if AI finalized a prompt (only in prompt-prep mode)
+    if (conversationMode === 'prompt-prep') {
+      const promptData = parsedResponse.segments?.find((s: any) => s.type === 'FINALIZED_PROMPT');
+      
+      if (promptData) {
+        const { data: savedPrompt } = await supabase
+          .from('prompt_library')
+          .insert({
+            player_id: user.id,
+            session_id: sessionId,
+            title: promptData.title,
+            description: promptData.description || '',
+            category: promptData.category,
+            phase: gameState?.current_phase,
+            prompt_text: promptData.prompt_text,
+            prompt_variables: promptData.variables || [],
+            created_by_character: promptData.created_by || 'prisma',
+            contributing_characters: promptData.contributors || ['prisma'],
+            is_template: false,
+          })
+          .select()
+          .single();
+        
+        if (savedPrompt) {
+          parsedResponse.gameEvents.push({
+            type: 'PROMPT_CREATED',
+            data: {
+              promptId: savedPrompt.id,
+              title: savedPrompt.title,
+              category: savedPrompt.category
+            }
+          });
+          
+          parsedResponse.segments.push({
+            type: 'narration',
+            content: `✅ Prompt "${savedPrompt.title}" saved to your library!`
+          });
+        }
+      }
+    }
 
     // Save user message
     await supabase.from('chat_messages').insert({
