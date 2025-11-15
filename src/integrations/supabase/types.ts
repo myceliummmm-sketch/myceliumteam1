@@ -363,6 +363,145 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_library: {
+        Row: {
+          category: string
+          contributing_characters: string[] | null
+          created_at: string | null
+          created_by_character: string | null
+          description: string | null
+          effectiveness_rating: number | null
+          id: string
+          is_favorite: boolean | null
+          is_template: boolean | null
+          last_used_at: string | null
+          parent_prompt_id: string | null
+          phase: Database["public"]["Enums"]["game_phase"] | null
+          player_id: string
+          prompt_text: string
+          prompt_variables: Json | null
+          session_id: string | null
+          tags: string[] | null
+          times_used: number | null
+          title: string
+          updated_at: string | null
+          version: number
+        }
+        Insert: {
+          category: string
+          contributing_characters?: string[] | null
+          created_at?: string | null
+          created_by_character?: string | null
+          description?: string | null
+          effectiveness_rating?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          is_template?: boolean | null
+          last_used_at?: string | null
+          parent_prompt_id?: string | null
+          phase?: Database["public"]["Enums"]["game_phase"] | null
+          player_id: string
+          prompt_text: string
+          prompt_variables?: Json | null
+          session_id?: string | null
+          tags?: string[] | null
+          times_used?: number | null
+          title: string
+          updated_at?: string | null
+          version?: number
+        }
+        Update: {
+          category?: string
+          contributing_characters?: string[] | null
+          created_at?: string | null
+          created_by_character?: string | null
+          description?: string | null
+          effectiveness_rating?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          is_template?: boolean | null
+          last_used_at?: string | null
+          parent_prompt_id?: string | null
+          phase?: Database["public"]["Enums"]["game_phase"] | null
+          player_id?: string
+          prompt_text?: string
+          prompt_variables?: Json | null
+          session_id?: string | null
+          tags?: string[] | null
+          times_used?: number | null
+          title?: string
+          updated_at?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_library_parent_prompt_id_fkey"
+            columns: ["parent_prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_library"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prompt_library_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prompt_library_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompt_usage_history: {
+        Row: {
+          context: string | null
+          feedback_notes: string | null
+          id: string
+          player_id: string
+          prompt_id: string
+          used_at: string | null
+          was_helpful: boolean | null
+        }
+        Insert: {
+          context?: string | null
+          feedback_notes?: string | null
+          id?: string
+          player_id: string
+          prompt_id: string
+          used_at?: string | null
+          was_helpful?: boolean | null
+        }
+        Update: {
+          context?: string | null
+          feedback_notes?: string | null
+          id?: string
+          player_id?: string
+          prompt_id?: string
+          used_at?: string | null
+          was_helpful?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_usage_history_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prompt_usage_history_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_events: {
         Row: {
           created_at: string | null
@@ -422,13 +561,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      game_phase:
-        | "INCEPTION"
-        | "RESEARCH"
-        | "DESIGN"
-        | "BUILD"
-        | "TEST"
-        | "SHIP"
+      game_phase: "SPARK" | "EXPLORE" | "CRAFT" | "FORGE" | "POLISH" | "LAUNCH"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -556,7 +689,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      game_phase: ["INCEPTION", "RESEARCH", "DESIGN", "BUILD", "TEST", "SHIP"],
+      game_phase: ["SPARK", "EXPLORE", "CRAFT", "FORGE", "POLISH", "LAUNCH"],
     },
   },
 } as const

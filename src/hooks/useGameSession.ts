@@ -10,7 +10,9 @@ import { useSound } from '@/hooks/useSound';
 import { generateQuickReplies } from '@/lib/quickReplies';
 import { LEGENDARY_ARTIFACTS } from '@/lib/artifacts';
 import { createArtifactFromDefinition, applyArtifactBonuses } from '@/lib/artifactSystem';
-import { ArtifactId } from '@/types/game';
+import { ArtifactId, ConversationMode, Phase } from '@/types/game';
+import { MODE_CONFIGS, isModeUnlocked } from '@/lib/modeConfig';
+import { PROMPT_TEMPLATES } from '@/lib/promptTemplates';
 
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export function useGameSession() {
             .from('game_sessions')
             .insert({
               player_id: user.id,
-              current_phase: 'INCEPTION',
+              current_phase: 'SPARK',
               is_active: true
             })
             .select()
@@ -65,28 +67,28 @@ export function useGameSession() {
             energy: 10,
             streak: 0,
             code_health: 100,
-            current_phase: 'INCEPTION',
+            current_phase: 'SPARK',
             completed_tasks: [],
             current_tasks: [
               {
                 id: crypto.randomUUID(),
                 description: 'Define your product vision and target user',
                 xpReward: 25,
-                phase: 'INCEPTION',
+                phase: 'SPARK',
                 completed: false
               },
               {
                 id: crypto.randomUUID(),
                 description: 'Identify the core problem you\'re solving',
                 xpReward: 25,
-                phase: 'INCEPTION',
+                phase: 'SPARK',
                 completed: false
               },
               {
                 id: crypto.randomUUID(),
                 description: 'Brainstorm solution approaches with the team',
                 xpReward: 30,
-                phase: 'INCEPTION',
+                phase: 'SPARK',
                 completed: false
               }
             ],
@@ -103,15 +105,57 @@ export function useGameSession() {
             }
           });
 
+          // Seed prompt templates if not already seeded
+          const { data: existingTemplates } = await supabase
+            .from('prompt_library')
+            .select('id')
+            .eq('is_template', true)
+            .limit(1);
+
+          if (!existingTemplates || existingTemplates.length === 0) {
+            const templatesWithMetadata = PROMPT_TEMPLATES.map(template => ({
+              ...template,
+              player_id: user.id,
+              is_template: true,
+              version: 1,
+            }));
+            
+            await supabase
+              .from('prompt_library')
+              .insert(templatesWithMetadata);
+            
+            console.log('Seeded', PROMPT_TEMPLATES.length, 'prompt templates');
+          }
+
           // Add welcome message
           await supabase.from('chat_messages').insert({
             session_id: sessionId,
             role: 'assistant',
             content: 'Welcome to Ship It!',
             segments: [
-              { type: 'speech', speaker: 'zen', content: 'Welcome, builder. I am Zen, and these are your teammates. Together, we will ship something amazing.' },
-              { type: 'narration', content: 'The team gathers around. Ever Green grins optimistically, while Toxic crosses their arms skeptically. This is the beginning of your journey.' },
-              { type: 'speech', speaker: 'ever', content: 'So exciting! I\'ve added some starter tasks to get us going. What are we building today?' }
+              {
+                type: 'narration',
+                content: '🚀 Welcome to Ship It - where you build products with your AI team!'
+              },
+              {
+                type: 'speech',
+                speaker: 'ever',
+                content: "Hi! I'm Ever, and I believe in the power of your idea! This team is here to help you go from vision to launch."
+              },
+              {
+                type: 'speech',
+                speaker: 'prisma',
+                content: "I'm Prisma. I'll keep us focused on data and validation. Let's start with the basics: what problem are you solving?"
+              },
+              {
+                type: 'speech',
+                speaker: 'zen',
+                content: "And I'm Zen. I'll make sure we build sustainably and don't burn out. Take your time, this is your journey."
+              },
+              {
+                type: 'narration',
+                content: '💡 You\'re in the SPARK phase. Your first quest: define your product vision and identify the core problem you\'re solving.'
+              }
             ],
             game_events: []
           });
