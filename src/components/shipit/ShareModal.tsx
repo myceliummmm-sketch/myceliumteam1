@@ -53,10 +53,10 @@ export function ShareModal({ open, onOpenChange, sessionId, collaborators, pendi
       if (insertError) throw insertError;
 
       // Send invite email via edge function
-      const { error: emailError } = await supabase.functions.invoke('send-invite-email', {
+      const { data: emailResp, error: emailError } = await supabase.functions.invoke('send-invite-email', {
         body: {
           inviteToken,
-          invitedEmail: email,
+          invitedEmail: email.trim(),
           invitedBy: currentUser.id,
           accessLevel,
           sessionId,
@@ -65,14 +65,16 @@ export function ShareModal({ open, onOpenChange, sessionId, collaborators, pendi
 
       if (emailError) {
         console.error('Failed to send email:', emailError);
+        const backendMsg = (emailError as any)?.context?.body?.error || (emailError as any)?.message || 'Email failed to send';
         toast({
-          title: 'Invite created',
-          description: `Invite saved but email failed to send. Share link manually.`,
+          title: 'Invite created — email not sent',
+          description: backendMsg,
+          variant: 'destructive',
         });
       } else {
         toast({
           title: 'Invite sent!',
-          description: `${email} will receive an invitation email`,
+          description: `${email.trim()} will receive an invitation email`,
         });
       }
 

@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@4.0.0";
+import { Resend } from "https://esm.sh/resend@4.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.77.0';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -25,6 +25,8 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { inviteToken, invitedEmail, invitedBy, accessLevel, sessionId }: InviteEmailRequest = await req.json();
 
+    console.log('send-invite-email payload', { invitedEmail, invitedBy, accessLevel, sessionId });
+
     // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -43,7 +45,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "ShipIt <onboarding@resend.dev>",
-      to: [invitedEmail],
+      to: [invitedEmail.trim()],
       subject: `${inviterName} invited you to collaborate on ShipIt`,
       html: `
         <!DOCTYPE html>
@@ -94,9 +96,21 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
+    if (emailResponse && (emailResponse as any).error) {
+      const err = (emailResponse as any).error;
+      console.error("Resend error while sending invite:", err);
+      return new Response(
+        JSON.stringify({ success: false, error: err.message || 'Email send failed', details: emailResponse }),
+        {
+          status: err.statusCode || 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     console.log("Invite email sent successfully:", emailResponse);
 
-    return new Response(JSON.stringify({ success: true, emailResponse }), {
+    return new Response(JSON.stringify({ success: true, data: (emailResponse as any).data }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
