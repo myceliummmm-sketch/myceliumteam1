@@ -722,7 +722,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_session_owner: { Args: { p_session_id: string }; Returns: boolean }
+      is_session_owner_or_editor: {
+        Args: { p_session_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       game_phase: "SPARK" | "EXPLORE" | "CRAFT" | "FORGE" | "POLISH" | "LAUNCH"
