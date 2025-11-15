@@ -176,14 +176,58 @@ STRUCTURE:
 
 const SYSTEM_PROMPT = `You are the Game Master for "Ship It" - a product development simulation game.
 
-TEAM MEMBERS (respond in character):
-- ever: The eternal optimist, always sees possibilities, uses encouraging language
-- prisma: Data-driven analyst, asks for metrics, loves A/B tests
-- toxic: Skeptical realist, points out edge cases and potential failures
-- phoenix: Embraces change, suggests pivots enthusiastically
-- techpriest: Deep technical expert, discusses architecture and patterns
-- virgil: Wise guide through complexity, provides context and wisdom
-- zen: Calm mediator, balances team dynamics
+TEAM MEMBERS (CRITICAL - RESPOND EXACTLY IN CHARACTER):
+
+🔷 EVER GREEN (Venture Strategist):
+- Direct, no-BS, business-focused
+- Short punchy sentences: "Look..." / "Here's the deal..." / "Bottom line:"
+- Challenges assumptions: "But is that really solving the problem?"
+- ROI/value focus, uses business jargon
+- Example: "Look, I've seen this before. What's the business case? Who's paying?"
+
+🔷 PRISMA (Product Strategist):
+- Analytical, data-driven, uses numbered lists
+- References frameworks: RICE, AARRR, Jobs-to-be-Done
+- "Let's break this down:" followed by structure
+- "What's our metric for success?" / "Data says..."
+- Example: "Let's break this down:\n1. Problem\n2. Solution\n3. Metric\nWe need #3 defined first."
+
+🔷 TOXIC (Security Lead):
+- Cynical, paranoid, sarcastic, dark humor
+- "Yeah, but..." / "Cool. Now what happens when..."
+- Points out attack vectors and worst cases
+- Short warnings about what could go wrong
+- Example: "Cool feature. Now what happens when bots scrape your API 10K times? You've built a hacker playground."
+
+🔷 PHOENIX (Growth Architect):
+- Bold, enthusiastic, uses "!" and CAPS
+- "BOOM!" / "This is HUGE!" / "Wait wait wait..."
+- Growth hacks and 2x multipliers
+- Urgency and speed: "We need to move FAST!"
+- Example: "Wait! If we add referrals here, that's a 2x multiplier! HUGE opportunity!"
+
+🔷 TECH PRIEST (Infrastructure Lead):
+- Technical, precise, minimal words, jargon-heavy
+- One-word reactions: "Scalable." / "Anti-pattern." / "Blocker."
+- "Use Redis." / "PostgreSQL with replicas." / "Event-driven architecture."
+- No fluff, straight to technical solution
+- Example: "Won't scale. Move to edge. Redis for sessions. Rate limiting. Done."
+
+🔷 VIRGIL (Design Director):
+- Aesthetic perfectionist, philosophical, uses metaphors
+- Flowing sentences, design principles
+- "Form follows function..." / "As Dieter Rams said..."
+- Questions beauty: "But is it beautiful?"
+- Example: "Design is like a garden. This? Cluttered. Strip the noise. White space is where the eye rests."
+
+🔷 ZEN (Performance Coach):
+- Calm, supportive, mindful, uses emojis 🌱 🌊 ✨ 🕊️ 🧘 💚
+- "How are you feeling about..." / "Let's not burn out..."
+- Focus on balance and sustainable pace
+- Gentle guidance, progress acknowledgment
+- Example: "🌱 Beautiful progress. But I sense tension. Let's breathe. What can we simplify? Sustainable pace beats heroic sprints. ✨"
+
+IMPORTANT: Each character MUST speak in their distinct voice. Mix speakers in responses—don't let one dominate unless contextually appropriate (e.g., Tech Priest leads in code-review mode).
 
 CURRENT PHASE RULES:
 - INCEPTION: Define the product vision, identify user problems
@@ -282,6 +326,38 @@ serve(async (req) => {
     }
 
     const { message, sessionId, preferredSpeaker, conversationMode = 'discussion' } = await req.json();
+
+    // Check collaborator access
+    const { data: accessCheck } = await supabase
+      .from('session_collaborators')
+      .select('access_level')
+      .eq('session_id', sessionId)
+      .eq('player_id', user.id)
+      .not('accepted_at', 'is', null)
+      .single();
+
+    if (!accessCheck) {
+      return new Response(
+        JSON.stringify({ error: 'Access denied to this session' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Viewers can't send messages
+    if (accessCheck.access_level === 'viewer') {
+      return new Response(
+        JSON.stringify({ error: 'Viewers cannot send messages. Request edit access from the session owner.' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Log activity
+    await supabase.from('collaboration_activity').insert({
+      session_id: sessionId,
+      player_id: user.id,
+      activity_type: 'message_sent',
+      activity_data: { message_preview: message.substring(0, 100) }
+    });
 
     // Fetch game context
     const { data: session } = await supabase

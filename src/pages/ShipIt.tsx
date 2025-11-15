@@ -17,19 +17,52 @@ import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
 import { ArtifactUnlockModal } from '@/components/shipit/ArtifactUnlockModal';
 import { LogOut, Loader2, Users, BarChart3, BookOpen } from 'lucide-react';
 import { PromptLibrary } from '@/components/shipit/PromptLibrary';
+import { SessionShareButton } from '@/components/shipit/SessionShareButton';
+import { CollaboratorsList } from '@/components/shipit/CollaboratorsList';
+import { ActivityFeed } from '@/components/shipit/ActivityFeed';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 export default function ShipIt() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { loading, sendMessage } = useGameSession();
   const quickReplies = useGameStore((state) => state.quickReplies);
   const isLoading = useGameStore((state) => state.isLoading);
   const energy = useGameStore((state) => state.energy);
+  const sessionId = useGameStore((state) => state.sessionId);
   const showArtifactUnlockModal = useGameStore((state) => state.showArtifactUnlockModal);
   const unlockedArtifact = useGameStore((state) => state.unlockedArtifact);
   const setShowArtifactUnlockModal = useGameStore((state) => state.setShowArtifactUnlockModal);
   const setShowPromptLibrary = useGameStore((state) => state.setShowPromptLibrary);
   const promptCount = 0;
+
+  // Real-time presence tracking
+  const [onlineCollaborators, setOnlineCollaborators] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!sessionId || !user) return;
+
+    const channel = supabase.channel(`session:${sessionId}`)
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const collaborators = Object.values(state).flat();
+        setOnlineCollaborators(collaborators as any[]);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            user_id: user.id,
+            username: user.email?.split('@')[0],
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [sessionId, user]);
 
   if (loading) {
     return (
@@ -70,8 +103,15 @@ export default function ShipIt() {
           </SheetContent>
         </Sheet>
 
-        {/* Prompt Library, Analytics and Logout Buttons */}
-        <div className="flex gap-2 ml-auto">
+        {/* Collaborators, Prompt Library, Analytics and Logout Buttons */}
+        <div className="flex gap-2 ml-auto items-center">
+          {onlineCollaborators.length > 0 && user && (
+            <CollaboratorsList 
+              collaborators={onlineCollaborators} 
+              currentUserId={user.id}
+            />
+          )}
+          {sessionId && <SessionShareButton sessionId={sessionId} />}
           <Button variant="outline" onClick={() => setShowPromptLibrary(true)} size="sm" className="relative">
             <BookOpen className="h-4 w-4 md:mr-2" />
             <span className="hidden md:inline">Prompts</span>
@@ -115,12 +155,20 @@ export default function ShipIt() {
           </div>
         </div>
         
-        {/* Right: Stats & Quest Log - Below chat on mobile, sidebar on desktop */}
+        {/* Right: Stats, Activity Feed & Quest Log - Below chat on mobile, sidebar on desktop */}
         <div className="flex flex-col gap-4 lg:col-span-3 overflow-y-auto">
           <div data-tutorial-target="stats-panel">
             <StatsPanel />
           </div>
           <StreakCalendar />
+          {sessionId && onlineCollaborators.length > 1 && (
+            <div className="bg-card rounded-lg border">
+              <div className="p-3 border-b">
+                <h3 className="text-sm font-semibold">Activity Feed</h3>
+              </div>
+              <ActivityFeed sessionId={sessionId} />
+            </div>
+          )}
           <div data-tutorial-target="quest-log">
             <QuestLog />
           </div>

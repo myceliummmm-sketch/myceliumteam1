@@ -141,6 +141,48 @@ export type Database = {
           },
         ]
       }
+      collaboration_activity: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string | null
+          id: string
+          player_id: string
+          session_id: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string | null
+          id?: string
+          player_id: string
+          session_id: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string | null
+          id?: string
+          player_id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_activity_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaboration_activity_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_logins: {
         Row: {
           created_at: string | null
@@ -502,6 +544,128 @@ export type Database = {
           },
         ]
       }
+      session_collaborators: {
+        Row: {
+          accepted_at: string | null
+          access_level: Database["public"]["Enums"]["session_access_level"]
+          created_at: string | null
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          last_active_at: string | null
+          player_id: string
+          session_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          access_level?: Database["public"]["Enums"]["session_access_level"]
+          created_at?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          last_active_at?: string | null
+          player_id: string
+          session_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          access_level?: Database["public"]["Enums"]["session_access_level"]
+          created_at?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          last_active_at?: string | null
+          player_id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_collaborators_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_collaborators_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_collaborators_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_invites: {
+        Row: {
+          access_level: Database["public"]["Enums"]["session_access_level"]
+          created_at: string | null
+          expires_at: string
+          id: string
+          invite_token: string
+          invited_by: string
+          invited_email: string
+          invited_player_id: string | null
+          responded_at: string | null
+          session_id: string
+          status: string
+        }
+        Insert: {
+          access_level?: Database["public"]["Enums"]["session_access_level"]
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          invite_token: string
+          invited_by: string
+          invited_email: string
+          invited_player_id?: string | null
+          responded_at?: string | null
+          session_id: string
+          status?: string
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["session_access_level"]
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          invite_token?: string
+          invited_by?: string
+          invited_email?: string
+          invited_player_id?: string | null
+          responded_at?: string | null
+          session_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_invites_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_invites_invited_player_id_fkey"
+            columns: ["invited_player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_invites_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_events: {
         Row: {
           created_at: string | null
@@ -562,6 +726,7 @@ export type Database = {
     }
     Enums: {
       game_phase: "SPARK" | "EXPLORE" | "CRAFT" | "FORGE" | "POLISH" | "LAUNCH"
+      session_access_level: "owner" | "editor" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -690,6 +855,7 @@ export const Constants = {
   public: {
     Enums: {
       game_phase: ["SPARK", "EXPLORE", "CRAFT", "FORGE", "POLISH", "LAUNCH"],
+      session_access_level: ["owner", "editor", "viewer"],
     },
   },
 } as const
