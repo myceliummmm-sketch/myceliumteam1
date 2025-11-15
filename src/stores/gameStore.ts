@@ -7,6 +7,7 @@ interface GameActions {
   updateStats: (stats: Partial<GameState>) => void;
   processGameEvents: (events: GameEvent[]) => void;
   setActiveSpeaker: (speaker: TeamMember | null) => void;
+  setPreferredSpeaker: (speaker: string | null) => void;
   setLoading: (isLoading: boolean) => void;
   setSessionId: (sessionId: string) => void;
   resetGame: () => void;
@@ -43,6 +44,7 @@ const initialState: GameState = {
     sporeMultiplier: 1,
   },
   activeSpeaker: null,
+  preferredSpeaker: null,
   teamMood: {
     ever: 'neutral',
     prisma: 'neutral',
@@ -235,6 +237,8 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   },
   
   setActiveSpeaker: (speaker) => set({ activeSpeaker: speaker }),
+  
+  setPreferredSpeaker: (speaker) => set({ preferredSpeaker: speaker }),
   
   setLoading: (isLoading) => set({ isLoading }),
   

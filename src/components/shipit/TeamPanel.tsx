@@ -14,6 +14,8 @@ const moodEmojis = {
 export function TeamPanel() {
   const teamMood = useGameStore((state) => state.teamMood);
   const activeSpeaker = useGameStore((state) => state.activeSpeaker);
+  const preferredSpeaker = useGameStore((state) => state.preferredSpeaker);
+  const setPreferredSpeaker = useGameStore((state) => state.setPreferredSpeaker);
   const messages = useGameStore((state) => state.messages);
   const setActiveSpeaker = useGameStore((state) => state.setActiveSpeaker);
 
@@ -43,14 +45,19 @@ export function TeamPanel() {
       <div className="space-y-3">
         {TEAM_MEMBERS.map((member) => {
           const isActive = activeSpeaker === member.id;
+          const isPreferred = preferredSpeaker === member.id;
           const mood = teamMood[member.id as keyof typeof teamMood] || 'neutral';
           
           return (
             <div
               key={member.id}
-              className={`flex items-center gap-3 p-2 rounded-lg transition-all ${
-                isActive ? 'bg-primary/20 ring-2 ring-primary animate-pulse' : 'hover:bg-muted/50'
+              onClick={() => setPreferredSpeaker(isPreferred ? null : member.id)}
+              className={`flex items-center gap-3 p-2 rounded-lg transition-all cursor-pointer ${
+                isActive ? 'bg-primary/20 ring-2 ring-primary animate-pulse' : 
+                isPreferred ? 'bg-primary/10 ring-2 ring-primary/50' :
+                'hover:bg-muted/50'
               }`}
+              title={isPreferred ? 'Click to deselect' : 'Click to direct messages to this advisor'}
             >
               <div className="relative">
                 <Avatar className="h-12 w-12">
@@ -62,7 +69,10 @@ export function TeamPanel() {
                 </span>
               </div>
               <div className="flex-1">
-                <div className="text-sm font-medium">{member.name}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-medium">{member.name}</div>
+                  {isPreferred && <span className="text-xs text-primary">🎯</span>}
+                </div>
                 <div className="text-xs text-muted-foreground font-mono">{member.role}</div>
               </div>
             </div>

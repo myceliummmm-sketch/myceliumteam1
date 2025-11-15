@@ -113,7 +113,7 @@ serve(async (req) => {
       });
     }
 
-    const { message, sessionId } = await req.json();
+    const { message, sessionId, preferredSpeaker } = await req.json();
 
     // Fetch game context
     const { data: session } = await supabase
@@ -158,6 +158,12 @@ RECENT CONVERSATION:
 ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
 `;
 
+    // Add preferred speaker instruction if specified
+    let systemPrompt = SYSTEM_PROMPT;
+    if (preferredSpeaker && preferredSpeaker !== 'auto') {
+      systemPrompt += `\n\nIMPORTANT: The player has directly requested advice from ${preferredSpeaker}. You MUST include ${preferredSpeaker} as the primary speaker in your response. ${preferredSpeaker} should lead the conversation and provide the main response, though other team members can chime in briefly if relevant to add additional perspective.`;
+    }
+
     // Call Lovable AI
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -168,7 +174,7 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPrompt },
           { role: 'system', content: gameContext },
           { role: 'user', content: message }
         ],

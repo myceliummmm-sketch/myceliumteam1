@@ -322,7 +322,7 @@ export function useGameSession() {
     initSession();
   }, [user]);
 
-  const sendMessage = async (message: string) => {
+  const sendMessage = async (message: string, preferredSpeaker?: string | null) => {
     const store = useGameStore.getState();
     const sessionId = store.sessionId;
     if (!sessionId) return;
@@ -349,7 +349,8 @@ export function useGameSession() {
         event_data: {
           message_length: message.length,
           current_phase: store.currentPhase,
-          energy_remaining: store.energy - 1
+          energy_remaining: store.energy - 1,
+          preferred_speaker: preferredSpeaker || 'auto'
         },
         page_url: window.location.pathname
       });
@@ -357,7 +358,7 @@ export function useGameSession() {
 
     try {
       const { data, error } = await supabase.functions.invoke('game-turn', {
-        body: { message, sessionId }
+        body: { message, sessionId, preferredSpeaker }
       });
 
       if (error) throw error;
