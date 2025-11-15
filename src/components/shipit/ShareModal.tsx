@@ -33,23 +33,48 @@ export function ShareModal({ open, onOpenChange, sessionId, collaborators, pendi
     setIsInviting(true);
     try {
       const inviteToken = crypto.randomUUID();
+      const currentUser = (await supabase.auth.getUser()).data.user;
       
-      const { error } = await supabase
+      if (!currentUser) {
+        throw new Error('Not authenticated');
+      }
+
+      // Insert invite into database
+      const { error: insertError } = await supabase
         .from('session_invites')
         .insert({
           session_id: sessionId,
           invited_email: email,
           invite_token: inviteToken,
           access_level: accessLevel,
-          invited_by: (await supabase.auth.getUser()).data.user?.id,
+          invited_by: currentUser.id,
         });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      toast({
-        title: 'Invite sent!',
-        description: `${email} will receive an invitation email`,
+      // Send invite email via edge function
+      const { error: emailError } = await supabase.functions.invoke('send-invite-email', {
+        body: {
+          inviteToken,
+          invitedEmail: email,
+          invitedBy: currentUser.id,
+          accessLevel,
+          sessionId,
+        },
       });
+
+      if (emailError) {
+        console.error('Failed to send email:', emailError);
+        toast({
+          title: 'Invite created',
+          description: `Invite saved but email failed to send. Share link manually.`,
+        });
+      } else {
+        toast({
+          title: 'Invite sent!',
+          description: `${email} will receive an invitation email`,
+        });
+      }
 
       setEmail('');
       onUpdate();

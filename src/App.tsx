@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ShipIt from "./pages/ShipIt";
 import Analytics from "./pages/Analytics";
+import AcceptInvite from "./pages/AcceptInvite";
 import { Inventory } from "./components/shipit/Inventory";
 import RedirectToV2 from "./pages/RedirectToV2";
 import RedirectToV3 from "./pages/RedirectToV3";
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route path="/shipit" element={<ProtectedRoute><ShipIt /></ProtectedRoute>} />
             <Route path="/shipit2" element={<RedirectToV2 />} />
             <Route path="/shipit3" element={<RedirectToV3 />} />
