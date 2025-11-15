@@ -17,10 +17,15 @@ export function SessionShareButton({ sessionId }: SessionShareButtonProps) {
   const [isOwner, setIsOwner] = useState(false);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('SessionShareButton: No user found');
+      return;
+    }
+
+    console.log('SessionShareButton: Loading data for session:', sessionId, 'user:', user.id);
 
     // Load collaborators
-    const { data: collabData } = await supabase
+    const { data: collabData, error: collabError } = await supabase
       .from('session_collaborators')
       .select(`
         id,
@@ -30,6 +35,12 @@ export function SessionShareButton({ sessionId }: SessionShareButtonProps) {
         players!inner(email)
       `)
       .eq('session_id', sessionId);
+
+    if (collabError) {
+      console.error('SessionShareButton: Error loading collaborators:', collabError);
+    }
+
+    console.log('SessionShareButton: Collaborators data:', collabData);
 
     if (collabData) {
       setCollaborators(
@@ -41,15 +52,21 @@ export function SessionShareButton({ sessionId }: SessionShareButtonProps) {
 
       // Check if current user is owner
       const userCollab = collabData.find((c: any) => c.player_id === user.id);
-      setIsOwner(userCollab?.access_level === 'owner');
+      const isOwnerUser = userCollab?.access_level === 'owner';
+      console.log('SessionShareButton: User collab:', userCollab, 'isOwner:', isOwnerUser);
+      setIsOwner(isOwnerUser);
     }
 
     // Load pending invites
-    const { data: inviteData } = await supabase
+    const { data: inviteData, error: inviteError } = await supabase
       .from('session_invites')
       .select('*')
       .eq('session_id', sessionId)
       .eq('status', 'pending');
+
+    if (inviteError) {
+      console.error('SessionShareButton: Error loading invites:', inviteError);
+    }
 
     if (inviteData) {
       setPendingInvites(inviteData);
@@ -60,7 +77,11 @@ export function SessionShareButton({ sessionId }: SessionShareButtonProps) {
     loadData();
   }, [sessionId, user]);
 
-  if (!isOwner) return null;
+  // Show button while loading to prevent flicker
+  console.log('SessionShareButton: Render - isOwner:', isOwner, 'sessionId:', sessionId);
+
+  // Only hide if we've finished loading and user is not owner
+  if (user && !isOwner && collaborators.length > 0) return null;
 
   return (
     <>
