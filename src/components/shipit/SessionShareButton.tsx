@@ -32,7 +32,7 @@ export function SessionShareButton({ sessionId }: SessionShareButtonProps) {
         access_level,
         accepted_at,
         player_id,
-        players!inner(email)
+        players!session_collaborators_player_id_fkey(email)
       `)
       .eq('session_id', sessionId);
 
