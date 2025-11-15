@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId, QuickReplyButton } from '@/types/game';
+import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId, QuickReplyButton, ConversationMode } from '@/types/game';
 import { supabase } from '@/integrations/supabase/client';
 
 interface GameActions {
@@ -22,6 +22,9 @@ interface GameActions {
   setShowTutorial: (show: boolean) => void;
   setQuickReplies: (replies: QuickReplyButton[]) => void;
   setAiSuggestedActions: (actions: string[]) => void;
+  setConversationMode: (mode: ConversationMode) => void;
+  unlockMode: (mode: ConversationMode) => void;
+  setShowPromptLibrary: (show: boolean) => void;
 }
 
 const initialState: GameState = {
@@ -68,6 +71,9 @@ const initialState: GameState = {
   levelUpRewards: { spores: 0 },
   showArtifactUnlockModal: false,
   unlockedArtifact: null,
+  conversationMode: 'discussion' as ConversationMode,
+  unlockedModes: ['discussion'] as ConversationMode[],
+  showPromptLibrary: false,
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -332,4 +338,13 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   setShowArtifactUnlockModal: (show) => set({ showArtifactUnlockModal: show }),
   
   setUnlockedArtifact: (artifact) => set({ unlockedArtifact: artifact }),
+  
+  setConversationMode: (mode: ConversationMode) => set({ conversationMode: mode }),
+  
+  unlockMode: (mode: ConversationMode) => 
+    set((state) => ({
+      unlockedModes: [...new Set([...state.unlockedModes, mode])]
+    })),
+  
+  setShowPromptLibrary: (show: boolean) => set({ showPromptLibrary: show }),
 }));

@@ -6,6 +6,17 @@ export type ArtifactId = 'deepresearch' | 'product' | 'marketing';
 export type BlockerType = 'normal' | 'boss';
 export type QuickReplyCategory = 'ai-suggested' | 'task' | 'blocker' | 'phase' | 'energy' | 'general';
 export type QuickReplyUrgency = 'low' | 'medium' | 'high';
+export type ConversationMode = 'discussion' | 'brainstorm' | 'prompt-prep' | 'code-review' | 'user-research' | 'sprint-planning' | 'debug' | 'retrospective';
+export type PromptCategory = 'product' | 'technical' | 'research' | 'marketing' | 'design' | 'general';
+
+export interface ModeConfig {
+  id: ConversationMode;
+  name: string;
+  icon: string;
+  description: string;
+  unlockLevel?: number;
+  unlockPhase?: Phase;
+}
 
 export interface QuickReplyButton {
   text: string;
@@ -101,8 +112,32 @@ export interface GameEvent {
   type: 'XP_GAIN' | 'SPORES_GAIN' | 'ENERGY_UPDATE' | 'LEVEL_UP' | 
         'PHASE_CHANGE' | 'TASK_COMPLETE' | 'TASK_ADDED' | 'STREAK_UPDATE' | 
         'CODE_HEALTH_UPDATE' | 'BLOCKER_ADDED' | 'BLOCKER_RESOLVED' | 
-        'MILESTONE_UNLOCKED' | 'ARTIFACT_UNLOCKED';
+        'MILESTONE_UNLOCKED' | 'ARTIFACT_UNLOCKED' | 'MODE_UNLOCKED' | 
+        'PROMPT_CREATED' | 'PROMPT_UPDATED';
   data: any;
+}
+
+export interface Prompt {
+  id: string;
+  player_id: string;
+  title: string;
+  description?: string;
+  category: PromptCategory;
+  phase?: Phase;
+  version: number;
+  parent_prompt_id?: string;
+  is_template: boolean;
+  prompt_text: string;
+  prompt_variables: string[];
+  created_by_character?: string;
+  contributing_characters?: string[];
+  times_used: number;
+  last_used_at?: string;
+  effectiveness_rating?: number;
+  tags?: string[];
+  is_favorite: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ChatMessage {
@@ -170,4 +205,11 @@ export interface GameState {
   };
   showArtifactUnlockModal: boolean;
   unlockedArtifact: Artifact | null;
+  
+  // Conversation modes
+  conversationMode: ConversationMode;
+  unlockedModes: ConversationMode[];
+  
+  // Prompt library
+  showPromptLibrary: boolean;
 }

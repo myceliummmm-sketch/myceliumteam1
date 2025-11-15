@@ -113,7 +113,7 @@ serve(async (req) => {
       });
     }
 
-    const { message, sessionId, preferredSpeaker } = await req.json();
+    const { message, sessionId, preferredSpeaker, conversationMode = 'discussion' } = await req.json();
 
     // Fetch game context
     const { data: session } = await supabase
