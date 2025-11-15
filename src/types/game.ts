@@ -141,6 +141,7 @@ export interface GameState {
   
   // Team state
   activeSpeaker: TeamMember | null;
+  preferredSpeaker: string | null;
   teamMood: Record<TeamMember, Mood>;
   
   // Chat
