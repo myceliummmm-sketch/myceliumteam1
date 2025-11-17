@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGameStore } from '@/stores/gameStore';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { calculateEnergyRegeneration } from '@/lib/energySystem';
 import { calculateStreak, getStreakMilestone } from '@/lib/streakSystem';
 import { format } from 'date-fns';
@@ -26,24 +26,237 @@ export function useGameSession() {
     // Make user available globally for analytics tracking
     (window as any).supabaseUser = user;
 
+    const loadSessionData = async (sessionId: string) => {
+      try {
+        // Load latest game state
+        const { data: latestState } = await supabase
+          .from('game_states')
+          .select('*')
+          .eq('session_id', sessionId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (latestState) {
+          // Check for energy regeneration
+          let currentEnergy = latestState.energy;
+          let energyGained = 0;
+          
+          if (latestState.last_energy_update) {
+            const { newEnergy, energyGained: gained } = calculateEnergyRegeneration(
+              new Date(latestState.last_energy_update),
+              latestState.energy
+            );
+            currentEnergy = newEnergy;
+            energyGained = gained;
+          }
+
+          // Load player artifacts
+          const { data: playerArtifacts } = await supabase
+            .from('player_artifacts')
+            .select('artifact_id, unlocked_at')
+            .eq('player_id', user.id);
+
+          // Create full artifact objects
+          const artifacts = Object.keys(LEGENDARY_ARTIFACTS).map((artifactId) => {
+            const unlockedArtifact = playerArtifacts?.find(
+              (pa) => pa.artifact_id === artifactId
+            );
+            return createArtifactFromDefinition(
+              artifactId as ArtifactId,
+              !!unlockedArtifact
+            );
+          });
+
+          // Calculate artifact bonuses
+          const artifactBonuses = applyArtifactBonuses(artifacts);
+
+          updateStats({
+            xp: latestState.xp,
+            level: latestState.level,
+            spores: latestState.spores,
+            energy: currentEnergy,
+            streak: latestState.streak,
+            codeHealth: latestState.code_health,
+            currentPhase: latestState.current_phase as Phase,
+            completedTasks: (latestState.completed_tasks as any) || [],
+            currentTasks: (latestState.current_tasks as any) || [],
+            blockers: (latestState.blockers as any) || [],
+            bossBlockersDefeated: (latestState.boss_blockers_defeated as any) || [],
+            milestones: (latestState.milestones as any) || [],
+            teamMood: (latestState.team_mood as any) || {},
+            artifacts: artifacts,
+            artifactBonuses: artifactBonuses,
+            lastSaved: new Date(),
+            lastEnergyUpdate: new Date()
+          });
+
+          if (energyGained > 0) {
+            toast.success(`Regenerated ${energyGained} energy while you were away!`);
+          }
+
+          // Check and update daily login streak
+          const today = format(new Date(), 'yyyy-MM-dd');
+          const { data: todayLogin } = await supabase
+            .from('daily_logins')
+            .select('*')
+            .eq('player_id', user.id)
+            .eq('login_date', today)
+            .maybeSingle();
+
+          if (!todayLogin) {
+            // First login today - update streak
+            const { data: recentLogins } = await supabase
+              .from('daily_logins')
+              .select('login_date')
+              .eq('player_id', user.id)
+              .order('login_date', { ascending: false })
+              .limit(30);
+
+            const loginDates = recentLogins?.map(l => l.login_date) || [];
+            const newStreak = calculateStreak(loginDates, today);
+            const milestone = getStreakMilestone(newStreak);
+
+            // Record today's login
+            await supabase
+              .from('daily_logins')
+              .insert({
+                player_id: user.id,
+                login_date: today
+              });
+
+            updateStats({ streak: newStreak });
+
+            if (milestone) {
+              toast.success(`🔥 ${newStreak} Day Streak!`);
+              playSound('levelUp');
+            }
+          }
+        }
+
+        // Load message history
+        const { data: messages } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .eq('session_id', sessionId)
+          .order('created_at', { ascending: true });
+
+        if (messages) {
+          messages.forEach(msg => {
+            addMessage({
+              id: msg.id,
+              role: msg.role as 'user' | 'assistant',
+              content: msg.content,
+              timestamp: new Date(msg.created_at),
+              createdAt: new Date(msg.created_at),
+              segments: (msg.segments as any) || [],
+              gameEvents: (msg.game_events as any) || [],
+              suggestedActions: msg.suggested_actions || undefined
+            });
+          });
+        }
+
+        // Check tutorial progress
+        const { data: progress } = await supabase
+          .from('player_progress')
+          .select('*')
+          .eq('player_id', user.id)
+          .maybeSingle();
+
+        if (progress) {
+          useGameStore.setState({
+            tutorialStep: progress.tutorial_step,
+            hasCompletedTutorial: progress.has_completed_tutorial,
+            showTutorial: !progress.has_completed_tutorial
+          });
+        } else {
+          // Create initial progress record
+          await supabase
+            .from('player_progress')
+            .insert({
+              player_id: user.id,
+              tutorial_step: 0,
+              has_completed_tutorial: false
+            });
+
+          useGameStore.setState({
+            tutorialStep: 0,
+            hasCompletedTutorial: false,
+            showTutorial: true
+          });
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading session data:', error);
+        setLoading(false);
+      }
+    };
+
     const initSession = async () => {
       try {
         // Clear any existing messages from initial state
         useGameStore.getState().clearMessages();
         
-        // Check for active session
-        const { data: existingSession } = await supabase
+        // Check for URL parameter for shared session
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedSessionId = urlParams.get('session');
+        
+        if (requestedSessionId) {
+          // Verify user has access to this session
+          const { data: requestedSession, error: sessionError } = await supabase
+            .from('game_sessions')
+            .select(`
+              *,
+              session_collaborators!inner(
+                player_id,
+                access_level,
+                accepted_at
+              )
+            `)
+            .eq('id', requestedSessionId)
+            .eq('session_collaborators.player_id', user.id)
+            .not('session_collaborators.accepted_at', 'is', null)
+            .maybeSingle();
+
+          if (sessionError || !requestedSession) {
+            toast.error('Session not found - You do not have access to this session');
+            // Remove invalid session parameter
+            window.history.replaceState({}, '', '/shipit');
+          } else {
+            // User has access to requested session
+            setSessionId(requestedSession.id);
+            await loadSessionData(requestedSession.id);
+            return;
+          }
+        }
+        
+        // No URL parameter or invalid session - load user's sessions
+        // Query for BOTH owned AND shared sessions
+        const { data: sessions } = await supabase
           .from('game_sessions')
-          .select('*')
-          .eq('player_id', user.id)
+          .select(`
+            *,
+            session_collaborators!inner(
+              player_id,
+              access_level,
+              accepted_at
+            )
+          `)
+          .eq('session_collaborators.player_id', user.id)
           .eq('is_active', true)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+          .not('session_collaborators.accepted_at', 'is', null)
+          .order('created_at', { ascending: false });
 
-        let sessionId = existingSession?.id;
+        let sessionId: string | undefined;
 
-        if (!existingSession) {
+        if (sessions && sessions.length > 0) {
+          // Prioritize owned sessions
+          const ownedSession = sessions.find(s => s.player_id === user.id);
+          sessionId = ownedSession?.id || sessions[0].id;
+        }
+
+        if (!sessionId) {
           // Create new session
           const { data: newSession, error } = await supabase
             .from('game_sessions')
@@ -161,204 +374,13 @@ export function useGameSession() {
           });
         }
 
-        setSessionId(sessionId!);
-
-        // Load latest game state
-        const { data: latestState } = await supabase
-          .from('game_states')
-          .select('*')
-          .eq('session_id', sessionId)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (latestState) {
-          // Check for energy regeneration
-          let currentEnergy = latestState.energy;
-          let energyGained = 0;
-          
-          if (latestState.last_energy_update) {
-            const { newEnergy, energyGained: gained } = calculateEnergyRegeneration(
-              new Date(latestState.last_energy_update),
-              latestState.energy
-            );
-            currentEnergy = newEnergy;
-            energyGained = gained;
-          }
-
-          // Load player artifacts
-          const { data: playerArtifacts } = await supabase
-            .from('player_artifacts')
-            .select('artifact_id, unlocked_at')
-            .eq('player_id', user.id);
-
-          // Create full artifact objects
-          const artifacts = Object.keys(LEGENDARY_ARTIFACTS).map((artifactId) => {
-            const unlockedArtifact = playerArtifacts?.find(
-              (pa) => pa.artifact_id === artifactId
-            );
-            return createArtifactFromDefinition(
-              artifactId as ArtifactId,
-              !!unlockedArtifact
-            );
-          });
-
-          // Calculate artifact bonuses
-          const artifactBonuses = applyArtifactBonuses(artifacts);
-
-          updateStats({
-            xp: latestState.xp,
-            level: latestState.level,
-            spores: latestState.spores,
-            energy: currentEnergy,
-            streak: latestState.streak,
-            codeHealth: latestState.code_health,
-            currentPhase: latestState.current_phase as any,
-            completedTasks: latestState.completed_tasks as any,
-            currentTasks: latestState.current_tasks as any,
-            blockers: latestState.blockers as any,
-            milestones: latestState.milestones as any,
-            teamMood: latestState.team_mood as any,
-            bossBlockersDefeated: (latestState.boss_blockers_defeated as any) || [],
-            artifacts,
-            artifactBonuses,
-            lastEnergyUpdate: latestState.last_energy_update ? new Date(latestState.last_energy_update) : new Date()
-          });
-
-          // Show welcome back message if energy regenerated
-          if (energyGained > 0) {
-            toast.success(`Welcome back! +${energyGained} energy restored`, {
-              description: 'Your team is recharged and ready!',
-              duration: 4000
-            });
-          }
-
-          // Update energy in database if it changed
-          if (energyGained > 0) {
-            await supabase
-              .from('game_states')
-              .insert({
-                session_id: sessionId,
-                ...latestState,
-                energy: currentEnergy,
-                last_energy_update: new Date().toISOString()
-              });
-          }
+        if (sessionId) {
+          setSessionId(sessionId);
+          await loadSessionData(sessionId);
         }
-
-        // Handle daily login for streaks
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const { data: todayLogin } = await supabase
-          .from('daily_logins')
-          .select('*')
-          .eq('player_id', user.id)
-          .eq('login_date', today)
-          .maybeSingle();
-
-        if (!todayLogin) {
-          // Record today's login
-          await supabase.from('daily_logins').insert({
-            player_id: user.id,
-            login_date: today
-          });
-
-          // Fetch recent logins to calculate streak
-          const { data: recentLogins } = await supabase
-            .from('daily_logins')
-            .select('login_date')
-            .eq('player_id', user.id)
-            .order('login_date', { ascending: false })
-            .limit(100);
-
-          if (recentLogins) {
-            const loginDates = recentLogins.map(l => l.login_date);
-            const currentStreak = calculateStreak(loginDates);
-            
-            updateStats({ streak: currentStreak });
-
-            // Check for milestone
-            const milestone = getStreakMilestone(currentStreak);
-            if (milestone) {
-              toast.success(`${milestone.emoji} ${milestone.title}!`, {
-                description: `+${milestone.reward} Spores earned!`,
-                duration: 5000
-              });
-              
-              // Update spores
-              const currentSpores = useGameStore.getState().spores;
-              updateStats({ spores: currentSpores + milestone.reward });
-            }
-          }
-        }
-
-        // Check tutorial status
-        const { data: playerProgress } = await supabase
-          .from('player_progress')
-          .select('*')
-          .eq('player_id', user.id)
-          .maybeSingle();
-
-        if (!playerProgress) {
-          // First time player - create progress and show tutorial
-          await supabase.from('player_progress').insert({
-            player_id: user.id,
-            has_completed_tutorial: false,
-            tutorial_step: 0
-          });
-
-          updateStats({
-            showTutorial: true,
-            tutorialStep: 0,
-            hasCompletedTutorial: false
-          });
-        } else if (!playerProgress.has_completed_tutorial) {
-          // Resume tutorial
-          updateStats({
-            showTutorial: true,
-            tutorialStep: playerProgress.tutorial_step,
-            hasCompletedTutorial: false
-          });
-        } else {
-          updateStats({
-            hasCompletedTutorial: true
-          });
-        }
-
-        // Load message history
-        const { data: messages } = await supabase
-          .from('chat_messages')
-          .select('*')
-          .eq('session_id', sessionId)
-          .order('created_at', { ascending: true });
-
-        if (messages) {
-          messages.forEach(msg => {
-            // Ensure segments is always an array
-            let segments = msg.segments;
-            if (!Array.isArray(segments)) {
-              segments = segments ? [segments] : [];
-            }
-            
-            addMessage({
-              id: msg.id,
-              role: msg.role as any,
-              content: msg.content,
-              segments: segments as any,
-              gameEvents: msg.game_events as any,
-              createdAt: new Date(msg.created_at)
-            });
-          });
-        }
-
-        // Generate initial quick replies (no AI suggestions yet)
-        const currentState = useGameStore.getState();
-        const initialReplies = generateQuickReplies(currentState, []);
-        setQuickReplies(initialReplies);
-
       } catch (error) {
-        console.error('Failed to initialize session:', error);
-        toast.error('Failed to load game session');
-      } finally {
+        console.error('Error initializing session:', error);
+        toast.error('Failed to load session - Please refresh the page to try again');
         setLoading(false);
       }
     };
@@ -367,151 +389,109 @@ export function useGameSession() {
   }, [user]);
 
   const sendMessage = async (message: string) => {
-    const conversationMode = useGameStore.getState().conversationMode;
-    const responseDepth = useGameStore.getState().responseDepth;
-    const selectedSpeakers = useGameStore.getState().selectedSpeakers;
-    const store = useGameStore.getState();
-    const sessionId = store.sessionId;
-    if (!sessionId) return;
-
-    // Add user message immediately
-    addMessage({
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: message,
-      segments: [{ type: 'speech', content: message }],
-      gameEvents: [],
-      createdAt: new Date()
-    });
+    if (!message.trim()) return;
+    
+    const state = useGameStore.getState();
+    const sessionId = state.sessionId;
+    
+    if (!sessionId) {
+      toast.error('No active session');
+      return;
+    }
 
     setGameLoading(true);
 
-    // Track message sent event (fire and forget)
-    if (user) {
-      void supabase.from('user_events').insert({
-        player_id: user.id,
-        session_id: sessionId,
-        event_type: 'message_sent',
-        event_category: 'gameplay',
-        event_data: {
-          message_length: message.length,
-          current_phase: store.currentPhase,
-          energy_remaining: store.energy - 1,
-          selected_speakers: selectedSpeakers.length > 0 ? selectedSpeakers : 'auto'
-        },
-        page_url: window.location.pathname
-      });
-    }
-
     try {
+      // Add user message
+      const userMessage = {
+        id: crypto.randomUUID(),
+        role: 'user' as const,
+        content: message,
+        timestamp: new Date(),
+        createdAt: new Date(),
+        segments: [],
+        gameEvents: [],
+      };
+      addMessage(userMessage);
+
+      // Save user message to database
+      await supabase.from('chat_messages').insert({
+        session_id: sessionId,
+        role: 'user',
+        content: message,
+      });
+
+      // Generate quick replies from user message
+      const quickReplies = generateQuickReplies(message, state.currentPhase as Phase);
+      setQuickReplies(quickReplies);
+
+      // Call game-turn function
       const { data, error } = await supabase.functions.invoke('game-turn', {
-        body: { message, sessionId, selectedSpeakers, conversationMode, responseDepth }
+        body: {
+          sessionId,
+          message,
+          selectedSpeakers: state.selectedSpeakers,
+          conversationMode: state.conversationMode,
+          responseDepth: state.responseDepth,
+        },
       });
 
       if (error) throw error;
 
-      // Add AI response to store
-      addMessage({
+      // Add assistant response
+      const assistantMessage = {
         id: crypto.randomUUID(),
-        role: 'assistant',
-        content: JSON.stringify(data.segments),
-        segments: data.segments,
-        gameEvents: data.gameEvents,
-        createdAt: new Date()
-      });
+        role: 'assistant' as const,
+        content: data.response,
+        timestamp: new Date(),
+        createdAt: new Date(),
+        segments: data.segments || [],
+        gameEvents: data.gameEvents || [],
+        suggestedActions: data.suggestedActions,
+      };
+      addMessage(assistantMessage);
 
-      // Store AI-suggested actions
-      const aiActions = data.suggestedActions || [];
-      setAiSuggestedActions(aiActions);
+      // Process any game events
+      if (data.gameEvents && data.gameEvents.length > 0) {
+        useGameStore.getState().processGameEvents(data.gameEvents);
+      }
 
-      // Update game state
-      updateStats(data.updatedState);
-      
-      // Process game events for toasts and sounds
-      const processGameEvents = useGameStore.getState().processGameEvents;
-      processGameEvents(data.gameEvents);
+      // Update stats if provided
+      if (data.updatedStats) {
+        updateStats(data.updatedStats);
+      }
 
-      // Play sounds for key events and check for mode unlocks
-      const levelUpEvent = data.gameEvents?.find((e: any) => e.type === 'LEVEL_UP');
-      if (levelUpEvent) {
+      // Set AI suggested actions
+      if (data.suggestedActions) {
+        setAiSuggestedActions(data.suggestedActions);
+      }
+
+      // Show level up modal if triggered
+      if (data.gameEvents?.some((e: any) => e.type === 'LEVEL_UP')) {
         playSound('levelUp');
-        
-        // Check for newly unlocked modes
-        const newLevel = levelUpEvent.data.newLevel;
-        const currentPhase = data.updatedState?.current_phase || store.currentPhase;
-        const unlockedModes = store.unlockedModes;
-        
-        const newlyUnlockedModes = Object.keys(MODE_CONFIGS).filter((mode) => {
-          const isNowUnlocked = isModeUnlocked(
-            mode as ConversationMode,
-            newLevel,
-            currentPhase as Phase,
-            []
-          );
-          const wasUnlocked = unlockedModes.includes(mode as ConversationMode);
-          return isNowUnlocked && !wasUnlocked;
-        });
-        
-        // Unlock and notify for each new mode
-        newlyUnlockedModes.forEach((mode) => {
-          const config = MODE_CONFIGS[mode as ConversationMode];
-          store.unlockMode(mode as ConversationMode);
-          
-          toast.success(`🎉 New Mode Unlocked: ${config.name}`, {
-            description: config.description,
-            duration: 5000,
-          });
+        const levelUpEvent = data.gameEvents.find((e: any) => e.type === 'LEVEL_UP');
+        useGameStore.getState().setShowLevelUpModal(true);
+        useGameStore.getState().setLevelUpRewards({
+          spores: levelUpEvent.sporesEarned || 0,
+          milestone: levelUpEvent.milestone
         });
       }
 
-      // Show XP gain (level up modal handles level up celebration)
-      const xpGainEvent = data.gameEvents?.find((e: any) => e.type === 'XP_GAIN');
-      if (xpGainEvent && xpGainEvent.data.amount > 0) {
-        toast.success(`⭐ +${xpGainEvent.data.amount} XP`, {
-          description: xpGainEvent.data.reason || 'Great progress!',
-          duration: 3000
-        });
-      }
-      
-      // Show phase change and suggest prompts
-      const phaseChangeEvent = data.gameEvents?.find((e: any) => e.type === 'PHASE_CHANGE');
-      if (phaseChangeEvent) {
-        playSound('phaseChange');
-        toast.success(`🚀 Phase Change: ${phaseChangeEvent.data.newPhase}`, {
-          description: 'New challenges await!',
-          duration: 4000
-        });
-        
-        // Auto-suggest relevant prompts for this phase
-        const newPhase = phaseChangeEvent.data.newPhase as Phase;
-        suggestPromptsForPhase(newPhase);
-      }
-      
-      // Show task completion
-      const taskCompleteEvent = data.gameEvents?.find((e: any) => e.type === 'TASK_COMPLETE');
-      if (taskCompleteEvent) {
-        playSound('taskComplete');
-        toast.success(`✅ Task Complete!`, {
-          description: 'Keep up the great work!',
-          duration: 3000
-        });
-      }
-      
-      // Show energy warning
-      if (data.updatedState?.energy !== undefined && data.updatedState.energy < 3) {
-        toast.warning(`⚡ Low Energy: ${data.updatedState.energy}/10`, {
-          description: 'Take a break soon!',
-          duration: 4000
-        });
+      // Show phase change toast
+      if (data.gameEvents?.some((e: any) => e.type === 'PHASE_CHANGE')) {
+        const phaseEvent = data.gameEvents.find((e: any) => e.type === 'PHASE_CHANGE');
+        toast.success(`🎉 Advanced to ${phaseEvent.newPhase} phase!`);
+        playSound('levelUp');
       }
 
-      // Generate quick replies based on updated game state and AI suggestions
-      const currentState = useGameStore.getState();
-      const replies = generateQuickReplies(currentState, aiActions);
-      setQuickReplies(replies);
+      // Handle task completion
+      if (data.gameEvents?.some((e: any) => e.type === 'TASK_COMPLETED')) {
+        toast.success('Task completed! +XP');
+        playSound('levelUp');
+      }
 
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('Error sending message:', error);
       toast.error('Failed to send message. Please try again.');
     } finally {
       setGameLoading(false);
@@ -520,55 +500,33 @@ export function useGameSession() {
 
   const suggestPromptsForPhase = async (phase: Phase) => {
     if (!user) return;
-    
-    // Query for template prompts matching this phase
-    const { data: phasePrompts } = await supabase
-      .from('prompt_library')
-      .select('*')
-      .eq('phase', phase)
-      .eq('is_template', true)
-      .limit(3);
-    
-    if (phasePrompts && phasePrompts.length > 0) {
-      const getPhaseDescription = (p: Phase): string => {
-        const descriptions: Record<Phase, string> = {
-          'SPARK': 'define your vision and problem',
-          'EXPLORE': 'validate assumptions and understand users',
-          'CRAFT': 'plan your solution and user experience',
-          'FORGE': 'implement features with quality',
-          'POLISH': 'ensure everything works perfectly',
-          'LAUNCH': 'launch successfully and monitor',
-        };
-        return descriptions[p] || 'succeed';
-      };
 
-      const suggestionSegments = [
-        {
-          type: 'narration' as const,
-          content: `🎯 Welcome to ${phase} phase!`
-        },
-        {
-          type: 'speech' as const,
-          speaker: 'prisma' as TeamMember,
-          content: `I've prepared some helpful prompt templates for this phase. Check your Prompt Library for:\n${phasePrompts.map(p => `• ${p.title}`).join('\n')}\n\nThey'll help you ${getPhaseDescription(phase)}.`
-        }
-      ];
-      
-      // Add as system message
-      addMessage({
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: 'Phase suggestions',
-        segments: suggestionSegments,
-        gameEvents: [],
-        createdAt: new Date()
-      });
-      
-      // Show notification
-      toast.info(`📚 ${phasePrompts.length} prompts ready for ${phase}`, {
-        description: 'Check your Prompt Library',
-        duration: 5000
-      });
+    try {
+      const { data: prompts } = await supabase
+        .from('prompt_library')
+        .select('*')
+        .eq('phase', phase)
+        .eq('is_template', true)
+        .limit(3);
+
+      if (prompts && prompts.length > 0) {
+        const promptTitles = prompts.map(p => p.title).join(', ');
+        
+        const suggestionMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant' as const,
+          content: `💡 Suggested prompts for ${phase} phase: ${promptTitles}`,
+          timestamp: new Date(),
+          createdAt: new Date(),
+          segments: [],
+          gameEvents: [],
+        };
+        
+        addMessage(suggestionMessage);
+        toast.info(`Check out ${prompts.length} prompts for the ${phase} phase!`);
+      }
+    } catch (error) {
+      console.error('Error suggesting prompts:', error);
     }
   };
 

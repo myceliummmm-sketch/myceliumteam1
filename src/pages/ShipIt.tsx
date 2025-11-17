@@ -21,6 +21,8 @@ import { PromptLibrary } from '@/components/shipit/PromptLibrary';
 import { SessionShareButton } from '@/components/shipit/SessionShareButton';
 import { CollaboratorsList } from '@/components/shipit/CollaboratorsList';
 import { ActivityFeed } from '@/components/shipit/ActivityFeed';
+import { SessionSwitcher } from '@/components/shipit/SessionSwitcher';
+import { SessionContext } from '@/components/shipit/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 
@@ -91,34 +93,39 @@ export default function ShipIt() {
         />
       )}
       
-      {/* Header with Team button on mobile and Logout */}
-      <div className="flex justify-between items-center mb-4">
-        {/* Mobile Team Sheet - only visible on mobile */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="md:hidden">
-              <Users className="h-4 w-4 mr-2" />
-              Team
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[280px]">
-            <div className="pt-6" data-tutorial-target="team-panel">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4 px-2">
+        <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="lg:hidden">
+                <Users className="w-4 h-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80">
               <TeamPanel />
-            </div>
-          </SheetContent>
-        </Sheet>
-
-        {/* Collaborators, Prompt Library, Analytics and Logout Buttons */}
-        <div className="flex gap-2 ml-auto items-center">
+            </SheetContent>
+          </Sheet>
+          <PhaseProgress />
+          <SessionContext />
+        </div>
+        
+        <div className="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap">
           {onlineCollaborators.length > 0 && user && (
             <CollaboratorsList 
-              collaborators={onlineCollaborators} 
+              collaborators={onlineCollaborators}
               currentUserId={user.id}
             />
           )}
+          <SessionSwitcher />
           {sessionId && <SessionShareButton sessionId={sessionId} />}
-          <Button variant="outline" onClick={() => setShowPromptLibrary(true)} size="sm" className="relative">
-            <BookOpen className="h-4 w-4 md:mr-2" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPromptLibrary(true)}
+            className="relative"
+          >
+            <BookOpen className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">Prompts</span>
             {promptCount > 0 && (
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] flex items-center justify-center">
@@ -126,12 +133,23 @@ export default function ShipIt() {
               </span>
             )}
           </Button>
-          <Button variant="outline" onClick={() => navigate('/analytics')} size="sm">
-            <BarChart3 className="h-4 w-4 md:mr-2" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/analytics')}
+          >
+            <BarChart3 className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">Analytics</span>
           </Button>
-          <Button variant="outline" onClick={signOut} size="sm">
-            <LogOut className="h-4 w-4 md:mr-2" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await signOut();
+              navigate('/login');
+            }}
+          >
+            <LogOut className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">Logout</span>
           </Button>
         </div>
