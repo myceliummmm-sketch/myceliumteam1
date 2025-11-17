@@ -174,6 +174,33 @@ STRUCTURE:
   }
 }
 
+function getDepthInstructions(depth: string): string {
+  switch(depth) {
+    case 'brief':
+      return `
+RESPONSE LENGTH: BRIEF MODE
+- Each character speaks 1-2 SHORT sentences maximum
+- Get straight to the point, no elaboration
+- Prioritize actionable advice over context`;
+
+    case 'detailed':
+      return `
+RESPONSE LENGTH: DETAILED MODE  
+- Each character can speak 4-6 sentences
+- Provide thorough analysis and reasoning
+- Include examples, edge cases, and nuances
+- Connect ideas to broader patterns and principles`;
+
+    case 'normal':
+    default:
+      return `
+RESPONSE LENGTH: NORMAL MODE
+- Each character speaks 2-3 sentences (current default)
+- Balance brevity with substance
+- Provide context but stay focused`;
+  }
+}
+
 const SYSTEM_PROMPT = `You are the Game Master for "Ship It" - a product development simulation game.
 
 TEAM MEMBERS (CRITICAL - RESPOND EXACTLY IN CHARACTER):
@@ -325,7 +352,7 @@ serve(async (req) => {
       });
     }
 
-    const { message, sessionId, preferredSpeaker, conversationMode = 'discussion' } = await req.json();
+    const { message, sessionId, preferredSpeaker, conversationMode = 'discussion', responseDepth = 'normal' } = await req.json();
 
     // Check collaborator access
     const { data: accessCheck } = await supabase
@@ -413,6 +440,10 @@ ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
     if (modeInstructions) {
       systemPrompt += '\n\n' + modeInstructions;
     }
+    
+    // Add response depth instructions
+    const depthInstructions = getDepthInstructions(responseDepth);
+    systemPrompt += '\n\n' + depthInstructions;
 
     // Call Lovable AI
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {

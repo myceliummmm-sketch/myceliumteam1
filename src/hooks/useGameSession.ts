@@ -368,6 +368,7 @@ export function useGameSession() {
 
   const sendMessage = async (message: string, preferredSpeaker?: string | null) => {
     const conversationMode = useGameStore.getState().conversationMode;
+    const responseDepth = useGameStore.getState().responseDepth;
     const store = useGameStore.getState();
     const sessionId = store.sessionId;
     if (!sessionId) return;
@@ -403,7 +404,7 @@ export function useGameSession() {
 
     try {
       const { data, error } = await supabase.functions.invoke('game-turn', {
-        body: { message, sessionId, preferredSpeaker, conversationMode }
+        body: { message, sessionId, preferredSpeaker, conversationMode, responseDepth }
       });
 
       if (error) throw error;

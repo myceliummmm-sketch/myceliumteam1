@@ -24,6 +24,8 @@ export function InputBar() {
   const conversationMode = useGameStore((state) => state.conversationMode);
   const unlockedModes = useGameStore((state) => state.unlockedModes);
   const setConversationMode = useGameStore((state) => state.setConversationMode);
+  const responseDepth = useGameStore((state) => state.responseDepth);
+  const setResponseDepth = useGameStore((state) => state.setResponseDepth);
   
   useEffect(() => {
     const handleInsertPrompt = (e: CustomEvent) => {
@@ -54,7 +56,7 @@ export function InputBar() {
     <Card className="p-2 sm:p-4 border-t-2">
       <div className="space-y-2">
         {/* Mode and Character Selectors */}
-        <div className="flex items-center gap-2 px-1">
+        <div className="flex items-center gap-2 px-1 flex-wrap">
           <span className="text-xs text-muted-foreground font-mono">Mode:</span>
           <TooltipProvider>
             <Select value={conversationMode} onValueChange={(val: any) => setConversationMode(val)}>
@@ -110,6 +112,48 @@ export function InputBar() {
               <X className="h-3 w-3" />
             </Button>
           )}
+          
+          <span className="text-xs text-muted-foreground font-mono">Depth:</span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Select value={responseDepth} onValueChange={(val: any) => setResponseDepth(val)}>
+                    <SelectTrigger className="h-8 w-[140px] text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="brief">
+                        <div className="flex items-center gap-2">
+                          <span>💬</span>
+                          <span>Brief</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="normal">
+                        <div className="flex items-center gap-2">
+                          <span>📝</span>
+                          <span>Normal</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="detailed">
+                        <div className="flex items-center gap-2">
+                          <span>📚</span>
+                          <span>Detailed</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="text-xs space-y-1">
+                  <p><strong>Brief:</strong> Quick, concise answers (1-2 sentences)</p>
+                  <p><strong>Normal:</strong> Balanced responses (2-3 sentences)</p>
+                  <p><strong>Detailed:</strong> In-depth analysis (4-6 sentences)</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Input Area */}

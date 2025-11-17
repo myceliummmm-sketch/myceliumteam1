@@ -8,6 +8,7 @@ export type QuickReplyCategory = 'ai-suggested' | 'task' | 'blocker' | 'phase' |
 export type QuickReplyUrgency = 'low' | 'medium' | 'high';
 export type ConversationMode = 'discussion' | 'brainstorm' | 'prompt-prep' | 'code-review' | 'user-research' | 'sprint-planning' | 'debug' | 'retrospective';
 export type PromptCategory = 'product' | 'technical' | 'research' | 'marketing' | 'design' | 'general';
+export type ResponseDepth = 'brief' | 'normal' | 'detailed';
 
 export interface ModeConfig {
   id: ConversationMode;
@@ -216,4 +217,8 @@ export interface GameState {
   // Panel collapse state
   leftPanelCollapsed: boolean;
   rightPanelCollapsed: boolean;
+  
+  // Dev mode
+  devMode: boolean;
+  responseDepth: ResponseDepth;
 }
