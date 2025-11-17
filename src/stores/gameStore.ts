@@ -357,4 +357,26 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     })),
   
   setShowPromptLibrary: (show: boolean) => set({ showPromptLibrary: show }),
+  
+  toggleLeftPanel: () => set((state) => {
+    const newValue = !state.leftPanelCollapsed;
+    localStorage.setItem('leftPanelCollapsed', String(newValue));
+    return { leftPanelCollapsed: newValue };
+  }),
+  
+  toggleRightPanel: () => set((state) => {
+    const newValue = !state.rightPanelCollapsed;
+    localStorage.setItem('rightPanelCollapsed', String(newValue));
+    return { rightPanelCollapsed: newValue };
+  }),
+  
+  setLeftPanelCollapsed: (collapsed: boolean) => {
+    localStorage.setItem('leftPanelCollapsed', String(collapsed));
+    set({ leftPanelCollapsed: collapsed });
+  },
+  
+  setRightPanelCollapsed: (collapsed: boolean) => {
+    localStorage.setItem('rightPanelCollapsed', String(collapsed));
+    set({ rightPanelCollapsed: collapsed });
+  },
 }));

@@ -6,7 +6,11 @@ import { CheckCircle2, Circle, AlertTriangle } from 'lucide-react';
 import { useRef, useEffect } from 'react';
 import { BossBlockerCard } from './BossBlockerCard';
 
-export function QuestLog() {
+interface QuestLogProps {
+  collapsed?: boolean;
+}
+
+export function QuestLog({ collapsed = false }: QuestLogProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const currentTasks = useGameStore((state) => state.currentTasks);
   const blockers = useGameStore((state) => state.blockers);
@@ -20,6 +24,18 @@ export function QuestLog() {
       }
     }
   }, [currentTasks, blockers]);
+
+  if (collapsed) {
+    const totalActive = currentTasks.length + blockers.length;
+    return (
+      <Card className="p-4">
+        <div className="flex flex-col items-center gap-2">
+          <Circle className="h-6 w-6 text-primary" />
+          <span className="text-lg font-bold">{totalActive}</span>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-4">
