@@ -28,8 +28,13 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
   const messages = useGameStore((state) => state.messages);
   const setActiveSpeaker = useGameStore((state) => state.setActiveSpeaker);
   
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(!collapsed);
   const [selectedMember, setSelectedMember] = useState<CharacterData | null>(null);
+
+  // Sync internal state with collapsed prop
+  useEffect(() => {
+    setIsExpanded(!collapsed);
+  }, [collapsed]);
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
@@ -66,11 +71,14 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-mono text-muted-foreground">YOUR TEAM</h3>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? '' : 'rotate-180'}`} />
-              </Button>
-            </CollapsibleTrigger>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+              onClick={onToggle}
+            >
+              <ChevronDown className={`h-4 w-4 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
+            </Button>
           </div>
 
           {/* Collapsed view - just circles */}

@@ -31,7 +31,12 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
   const [showXpGain, setShowXpGain] = useState(false);
   const [xpGainAmount, setXpGainAmount] = useState(0);
   const [timeUntilNext, setTimeUntilNext] = useState({ hours: 0, minutes: 0 });
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(!collapsed);
+
+  // Sync internal state with collapsed prop
+  useEffect(() => {
+    setIsExpanded(!collapsed);
+  }, [collapsed]);
 
   const xpToNextLevel = level * 100;
   const xpProgress = (xp / xpToNextLevel) * 100;
@@ -68,11 +73,14 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-mono text-muted-foreground">STATS</h3>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? '' : 'rotate-180'}`} />
-            </Button>
-          </CollapsibleTrigger>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 w-8 p-0"
+            onClick={onToggle}
+          >
+            <ChevronDown className={`h-4 w-4 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
+          </Button>
         </div>
 
         {/* Collapsed view - compact essentials */}
