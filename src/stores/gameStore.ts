@@ -7,7 +7,9 @@ interface GameActions {
   updateStats: (stats: Partial<GameState>) => void;
   processGameEvents: (events: GameEvent[]) => void;
   setActiveSpeaker: (speaker: TeamMember | null) => void;
-  setPreferredSpeaker: (speaker: string | null) => void;
+  setSelectedSpeakers: (speakers: string[]) => void;
+  toggleSpeaker: (speaker: string) => void;
+  setTeamPanelMode: (mode: 'info' | 'select') => void;
   setLoading: (isLoading: boolean) => void;
   setSessionId: (sessionId: string) => void;
   resetGame: () => void;
@@ -53,7 +55,8 @@ const initialState: GameState = {
     sporeMultiplier: 1,
   },
   activeSpeaker: null,
-  preferredSpeaker: null,
+  selectedSpeakers: [],
+  teamPanelMode: 'info' as 'info' | 'select',
   teamMood: {
     ever: 'neutral',
     prisma: 'neutral',
@@ -262,7 +265,18 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   
   setActiveSpeaker: (speaker) => set({ activeSpeaker: speaker }),
   
-  setPreferredSpeaker: (speaker) => set({ preferredSpeaker: speaker }),
+  setSelectedSpeakers: (speakers) => set({ selectedSpeakers: speakers }),
+  
+  toggleSpeaker: (speaker) => set((state) => {
+    const current = state.selectedSpeakers;
+    if (current.includes(speaker)) {
+      return { selectedSpeakers: current.filter(id => id !== speaker) };
+    } else {
+      return { selectedSpeakers: [...current, speaker] };
+    }
+  }),
+  
+  setTeamPanelMode: (mode) => set({ teamPanelMode: mode }),
   
   setLoading: (isLoading) => set({ isLoading }),
   

@@ -26,8 +26,11 @@ interface TeamPanelProps {
 export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) {
   const teamMood = useGameStore((state) => state.teamMood);
   const activeSpeaker = useGameStore((state) => state.activeSpeaker);
-  const preferredSpeaker = useGameStore((state) => state.preferredSpeaker);
-  const setPreferredSpeaker = useGameStore((state) => state.setPreferredSpeaker);
+  const selectedSpeakers = useGameStore((state) => state.selectedSpeakers);
+  const teamPanelMode = useGameStore((state) => state.teamPanelMode);
+  const toggleSpeaker = useGameStore((state) => state.toggleSpeaker);
+  const setTeamPanelMode = useGameStore((state) => state.setTeamPanelMode);
+  const setSelectedSpeakers = useGameStore((state) => state.setSelectedSpeakers);
   const messages = useGameStore((state) => state.messages);
   const setActiveSpeaker = useGameStore((state) => state.setActiveSpeaker);
   
@@ -60,11 +63,12 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
   }, [messages, setActiveSpeaker]);
 
   const handleMemberClick = (member: typeof TEAM_MEMBERS[0], e: React.MouseEvent) => {
-    // Shift key to set preferred speaker, normal click to open modal
-    if (e.shiftKey) {
-      setPreferredSpeaker(preferredSpeaker === member.id ? null : member.id);
-    } else {
+    if (teamPanelMode === 'info') {
+      // Info mode: open modal
       setSelectedMember(member);
+    } else if (teamPanelMode === 'select') {
+      // Select mode: toggle selection
+      toggleSpeaker(member.id);
     }
   };
 
@@ -72,32 +76,119 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
     <TooltipProvider>
       <Card className="p-4">
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-mono text-muted-foreground">YOUR TEAM</h3>
-            <motion.div
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
-              variants={collapseIconAnimation}
-            >
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-8 w-8 p-0"
-                onClick={onToggle}
-                aria-label={isExpanded ? "Collapse panel" : "Expand panel"}
+            
+            <div className="flex items-center gap-2">
+              {/* Mode Toggle Buttons */}
+              <div className="flex border rounded-md">
+                <Button
+                  variant={teamPanelMode === 'info' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-7 px-2 text-xs rounded-r-none"
+                  onClick={() => setTeamPanelMode('info')}
+                >
+                  📖 Info
+                </Button>
+                <Button
+                  variant={teamPanelMode === 'select' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-7 px-2 text-xs rounded-l-none"
+                  onClick={() => setTeamPanelMode('select')}
+                >
+                  ✅ Select
+                </Button>
+              </div>
+              
+              {/* Collapse Button */}
+              <motion.div
+                initial="rest"
+                whileHover="hover"
+                whileTap="tap"
+                variants={collapseIconAnimation}
               >
-                {isExpanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
-              </Button>
-            </motion.div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0"
+                  onClick={onToggle}
+                  aria-label={isExpanded ? "Collapse panel" : "Expand panel"}
+                >
+                  {isExpanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+                </Button>
+              </motion.div>
+            </div>
           </div>
+
+          {/* Mode description / status */}
+          <div className="text-xs text-muted-foreground mb-3 px-1">
+            {teamPanelMode === 'info' ? (
+              <span>Click to view profiles</span>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span>
+                  Selected: {selectedSpeakers.length}/7
+                  {selectedSpeakers.length === 0 && ' (Auto mode)'}
+                  {selectedSpeakers.length === 7 && ' (All)'}
+                </span>
+                {selectedSpeakers.length > 0 && selectedSpeakers.length < 7 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 text-xs px-2"
+                    onClick={() => setSelectedSpeakers([])}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Quick presets in select mode */}
+          {teamPanelMode === 'select' && isExpanded && (
+            <div className="flex flex-wrap gap-1 mb-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={() => setSelectedSpeakers([])}
+              >
+                🎯 Auto
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={() => setSelectedSpeakers(['ever', 'phoenix', 'prisma'])}
+              >
+                💼 Business
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={() => setSelectedSpeakers(['techpriest', 'toxic'])}
+              >
+                ⚙️ Tech
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={() => setSelectedSpeakers(TEAM_MEMBERS.map(m => m.id))}
+              >
+                👥 All
+              </Button>
+            </div>
+          )}
 
           {/* Collapsed view - vertical stack */}
           {!isExpanded && (
             <div className="flex flex-col items-center gap-2.5">
               {TEAM_MEMBERS.map((member) => {
                 const isActive = activeSpeaker === member.id;
-                const isPreferred = preferredSpeaker === member.id;
+                const isSelected = selectedSpeakers.includes(member.id);
                 const mood = teamMood[member.id as keyof typeof teamMood] || 'neutral';
                 
                 return (
@@ -106,9 +197,13 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
                       <div
                         onClick={(e) => handleMemberClick(member, e)}
                         className={`relative cursor-pointer transition-all ${
-                          isActive ? 'ring-2 ring-primary animate-pulse scale-110' : 
-                          isPreferred ? 'ring-2 ring-primary/50 scale-105' :
-                          'hover:scale-110 hover:ring-2 hover:ring-muted'
+                          teamPanelMode === 'select'
+                            ? isSelected
+                              ? 'ring-2 ring-primary scale-105'
+                              : 'opacity-50 hover:opacity-100 hover:ring-2 hover:ring-muted'
+                            : isActive 
+                              ? 'ring-2 ring-primary animate-pulse scale-110'
+                              : 'hover:scale-110 hover:ring-2 hover:ring-muted'
                         }`}
                         aria-label={`${member.name} - ${member.role}`}
                       >
@@ -119,20 +214,25 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
                         <span className="absolute -bottom-1 -right-1 text-xs bg-background rounded-full border px-0.5">
                           {moodEmojis[mood]}
                         </span>
-                        {isPreferred && (
-                          <span className="absolute -top-1 -right-1 text-xs">🎯</span>
+                        {teamPanelMode === 'select' && isSelected && (
+                          <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
+                            ✓
+                          </span>
                         )}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="right">
                       <p className="font-semibold">{member.name}</p>
                       <p className="text-sm text-muted-foreground">{member.role}</p>
-                      {isPreferred && (
-                        <p className="text-xs text-primary mt-1">🎯 Preferred speaker</p>
+                      {teamPanelMode === 'info' ? (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Click to view profile
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Click to {isSelected ? 'remove from' : 'add to'} selection
+                        </p>
                       )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Click: Profile • Shift+Click: Direct messages
-                      </p>
                     </TooltipContent>
                   </Tooltip>
                 );
@@ -145,7 +245,7 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
             <div className="space-y-3">
               {TEAM_MEMBERS.map((member) => {
                 const isActive = activeSpeaker === member.id;
-                const isPreferred = preferredSpeaker === member.id;
+                const isSelected = selectedSpeakers.includes(member.id);
                 const mood = teamMood[member.id as keyof typeof teamMood] || 'neutral';
                 
                 return (
@@ -153,11 +253,15 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
                     key={member.id}
                     onClick={(e) => handleMemberClick(member, e)}
                     className={`flex items-center gap-3 p-2 rounded-lg transition-all cursor-pointer ${
-                      isActive ? 'bg-primary/20 ring-2 ring-primary animate-pulse' : 
-                      isPreferred ? 'bg-primary/10 ring-2 ring-primary/50' :
-                      'hover:bg-muted/50'
+                      teamPanelMode === 'select'
+                        ? isSelected
+                          ? 'bg-primary/20 ring-2 ring-primary'
+                          : 'opacity-60 hover:opacity-100 hover:bg-muted/50'
+                        : isActive 
+                          ? 'bg-primary/20 ring-2 ring-primary animate-pulse'
+                          : 'hover:bg-muted/50'
                     }`}
-                    title={`${isPreferred ? 'Shift+click to deselect' : 'Click for profile, Shift+click to direct messages'}`}
+                    title={teamPanelMode === 'info' ? 'Click for profile' : `Click to ${isSelected ? 'deselect' : 'select'}`}
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12">
@@ -167,11 +271,15 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
                       <span className="absolute -bottom-1 -right-1 text-xs bg-background rounded-full border">
                         {moodEmojis[mood]}
                       </span>
+                      {teamPanelMode === 'select' && isSelected && (
+                        <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
+                          ✓
+                        </span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <div className="text-sm font-medium">{member.name}</div>
-                        {isPreferred && <span className="text-xs text-primary">🎯</span>}
                       </div>
                       <div className="text-xs text-muted-foreground font-mono">{member.role}</div>
                     </div>
