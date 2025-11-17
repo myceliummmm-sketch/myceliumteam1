@@ -141,7 +141,7 @@ export default function ShipIt() {
         {/* Left: Team Panel - Hidden on mobile, collapsible sidebar on desktop */}
         <div 
           className={`hidden lg:block transition-all duration-300 overflow-y-auto ${
-            leftPanelCollapsed ? 'w-16' : 'w-64'
+            leftPanelCollapsed ? 'w-20' : 'w-64'
           }`}
           data-tutorial-target="team-panel"
         >
@@ -167,7 +167,7 @@ export default function ShipIt() {
         {/* Right: Stats, Activity Feed & Quest Log - Below chat on mobile, collapsible sidebar on desktop */}
         <div 
           className={`flex flex-col gap-4 overflow-y-auto transition-all duration-300 ${
-            rightPanelCollapsed ? 'lg:w-16' : 'lg:w-80'
+            rightPanelCollapsed ? 'lg:w-20' : 'lg:w-80'
           }`}
         >
           <div data-tutorial-target="stats-panel">

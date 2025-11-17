@@ -5,11 +5,12 @@ import { Card } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { floatingTextAnimation, floatingTextTransition } from '@/lib/animations';
-import { AlertTriangle, Zap, Clock, Package, ChevronDown } from 'lucide-react';
+import { AlertTriangle, Zap, Clock, Package, ChevronDown, Heart, Sparkles, Flame, Trophy } from 'lucide-react';
 import { getTimeUntilNextEnergy, getMaxEnergy } from '@/lib/energySystem';
 import { useNavigate } from 'react-router-dom';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface StatsPanelProps {
   collapsed?: boolean;
@@ -42,6 +43,7 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
   const xpProgress = (xp / xpToNextLevel) * 100;
   const maxEnergy = getMaxEnergy();
   const energyProgress = (energy / maxEnergy) * 100;
+  const unlockedArtifacts = Object.values(artifacts).filter(a => a.unlocked);
 
   useEffect(() => {
     if (xp > prevXp) {
@@ -69,8 +71,9 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
   }, [lastEnergyUpdate, energy, maxEnergy]);
 
   return (
-    <Card className="p-4">
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+    <TooltipProvider>
+      <Card className="p-4">
+        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-mono text-muted-foreground">STATS</h3>
           <Button 
@@ -83,32 +86,104 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
           </Button>
         </div>
 
-        {/* Collapsed view - compact essentials */}
+        {/* Collapsed view - icon-only cards */}
         {!isExpanded && (
-          <div className="space-y-3">
-            {/* Level badge */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">LVL</span>
-              <Badge variant="default" className="text-sm font-bold">{level}</Badge>
-            </div>
+          <div className="flex flex-col items-center gap-2.5">
+            {/* Level Card */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-default w-full">
+                  <Trophy className="h-5 w-5 text-primary mb-1" />
+                  <span className="text-xl font-bold text-primary">{level}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">Level {level}</p>
+              </TooltipContent>
+            </Tooltip>
 
-            {/* Mini XP bar */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">XP</span>
-                <span className="font-mono text-xs">{xp}/{xpToNextLevel}</span>
-              </div>
-              <Progress value={xpProgress} className="h-1.5" />
-            </div>
+            {/* XP Card */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-default w-full relative">
+                  <Sparkles className="h-5 w-5 text-primary mb-1" />
+                  <span className="text-lg font-bold">{Math.round(xpProgress)}%</span>
+                  <div className="absolute bottom-1 left-1 right-1 h-1 bg-background rounded-full overflow-hidden">
+                    <div className="h-full bg-primary transition-all duration-300" style={{ width: `${xpProgress}%` }} />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">XP Progress</p>
+                <p className="text-sm text-muted-foreground">{xp} / {xpToNextLevel}</p>
+              </TooltipContent>
+            </Tooltip>
 
-            {/* Energy indicator */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Energy</span>
-              <div className="flex items-center gap-1">
-                <Zap className={`h-3 w-3 ${energy <= 2 ? 'text-destructive animate-pulse' : 'text-primary'}`} />
-                <span className="text-sm font-mono">{energy}/{maxEnergy}</span>
-              </div>
-            </div>
+            {/* Energy, Health, Spores, Streak, Artifacts cards */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={`flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-default w-full ${energy <= 2 ? 'animate-pulse ring-2 ring-red-500/50' : ''}`}>
+                  <Zap className={`h-5 w-5 mb-1 ${energy <= 2 ? 'text-red-500' : energy <= 5 ? 'text-yellow-500' : 'text-green-500'}`} />
+                  <span className={`text-lg font-bold ${energy <= 2 ? 'text-red-500' : ''}`}>{energy}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">Energy</p>
+                <p className="text-sm text-muted-foreground">{energy} / {maxEnergy}</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-default w-full">
+                  <Heart className={`h-5 w-5 mb-1 ${codeHealth < 70 ? 'text-red-500' : 'text-green-500'}`} />
+                  <span className={`text-lg font-bold ${codeHealth < 70 ? 'text-red-500' : ''}`}>{codeHealth}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">Code Health</p>
+                <p className="text-sm text-muted-foreground">{codeHealth}%</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-default w-full">
+                  <Sparkles className="h-5 w-5 text-purple-500 mb-1" />
+                  <span className="text-lg font-bold">{spores}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">Spores</p>
+                <p className="text-sm text-muted-foreground">{spores} collected</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-default w-full">
+                  <Flame className="h-5 w-5 text-orange-500 mb-1" />
+                  <span className="text-lg font-bold">{streak}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">Streak</p>
+                <p className="text-sm text-muted-foreground">{streak} days</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-pointer w-full" onClick={() => navigate('/shipit?view=inventory')}>
+                  <Package className="h-5 w-5 text-cyan-500 mb-1" />
+                  <span className="text-lg font-bold">{unlockedArtifacts.length}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">Artifacts</p>
+                <p className="text-sm text-muted-foreground">{unlockedArtifacts.length} unlocked</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         )}
 
@@ -277,5 +352,6 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
         </CollapsibleContent>
       </Collapsible>
     </Card>
+    </TooltipProvider>
   );
 }
