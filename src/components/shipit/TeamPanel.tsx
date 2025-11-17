@@ -15,7 +15,12 @@ const moodEmojis = {
   excited: '🤩',
 };
 
-export function TeamPanel() {
+interface TeamPanelProps {
+  collapsed?: boolean;
+  onToggle?: () => void;
+}
+
+export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) {
   const teamMood = useGameStore((state) => state.teamMood);
   const activeSpeaker = useGameStore((state) => state.activeSpeaker);
   const preferredSpeaker = useGameStore((state) => state.preferredSpeaker);

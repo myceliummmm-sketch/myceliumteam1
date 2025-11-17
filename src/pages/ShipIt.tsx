@@ -35,6 +35,10 @@ export default function ShipIt() {
   const unlockedArtifact = useGameStore((state) => state.unlockedArtifact);
   const setShowArtifactUnlockModal = useGameStore((state) => state.setShowArtifactUnlockModal);
   const setShowPromptLibrary = useGameStore((state) => state.setShowPromptLibrary);
+  const leftPanelCollapsed = useGameStore((state) => state.leftPanelCollapsed);
+  const rightPanelCollapsed = useGameStore((state) => state.rightPanelCollapsed);
+  const toggleLeftPanel = useGameStore((state) => state.toggleLeftPanel);
+  const toggleRightPanel = useGameStore((state) => state.toggleRightPanel);
   const promptCount = 0;
 
   // Real-time presence tracking
@@ -132,15 +136,20 @@ export default function ShipIt() {
         </div>
       </div>
       
-      {/* Responsive Grid Layout */}
-      <div className="h-auto lg:h-[calc(100vh-6rem)] flex flex-col lg:grid lg:grid-cols-12 gap-4">
-        {/* Left: Team Panel - Hidden on mobile, visible on tablet/desktop */}
-        <div className="hidden md:block md:col-span-3 lg:col-span-2 overflow-y-auto" data-tutorial-target="team-panel">
-          <TeamPanel />
+      {/* Responsive Flex Layout */}
+      <div className="h-auto lg:h-[calc(100vh-6rem)] flex flex-col lg:flex-row gap-4">
+        {/* Left: Team Panel - Hidden on mobile, collapsible sidebar on desktop */}
+        <div 
+          className={`hidden lg:block transition-all duration-300 overflow-y-auto ${
+            leftPanelCollapsed ? 'w-16' : 'w-64'
+          }`}
+          data-tutorial-target="team-panel"
+        >
+          <TeamPanel collapsed={leftPanelCollapsed} onToggle={toggleLeftPanel} />
         </div>
         
-        {/* Center: Chat & Terminal - Full width on mobile, main area on desktop */}
-        <div className="flex flex-col gap-4 md:col-span-9 lg:col-span-7 min-h-[60vh] lg:min-h-0">
+        {/* Center: Chat & Terminal - Full width on mobile, grows to fill space on desktop */}
+        <div className="flex flex-col gap-4 flex-1 min-w-0 min-h-[60vh] lg:min-h-0">
           <PhaseProgress />
           <div className="flex-1 min-h-[400px] lg:min-h-0" data-tutorial-target="chat-terminal">
             <ChatTerminal />
@@ -155,22 +164,21 @@ export default function ShipIt() {
           </div>
         </div>
         
-        {/* Right: Stats, Activity Feed & Quest Log - Below chat on mobile, sidebar on desktop */}
-        <div className="flex flex-col gap-4 lg:col-span-3 overflow-y-auto">
+        {/* Right: Stats, Activity Feed & Quest Log - Below chat on mobile, collapsible sidebar on desktop */}
+        <div 
+          className={`flex flex-col gap-4 overflow-y-auto transition-all duration-300 ${
+            rightPanelCollapsed ? 'lg:w-16' : 'lg:w-80'
+          }`}
+        >
           <div data-tutorial-target="stats-panel">
-            <StatsPanel />
+            <StatsPanel collapsed={rightPanelCollapsed} onToggle={toggleRightPanel} />
           </div>
-          <StreakCalendar />
+          <StreakCalendar collapsed={rightPanelCollapsed} />
           {sessionId && onlineCollaborators.length > 1 && (
-            <div className="bg-card rounded-lg border">
-              <div className="p-3 border-b">
-                <h3 className="text-sm font-semibold">Activity Feed</h3>
-              </div>
-              <ActivityFeed sessionId={sessionId} />
-            </div>
+            <ActivityFeed sessionId={sessionId} collapsed={rightPanelCollapsed} />
           )}
           <div data-tutorial-target="quest-log">
-            <QuestLog />
+            <QuestLog collapsed={rightPanelCollapsed} />
           </div>
         </div>
       </div>

@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare, CheckCircle2, Shield, Sparkles } from 'lucide-react';
+import { MessageSquare, CheckCircle2, Shield, Sparkles, Activity } from 'lucide-react';
 
 interface ActivityFeedProps {
   sessionId: string;
+  collapsed?: boolean;
 }
 
 interface Activity {
@@ -18,7 +21,7 @@ interface Activity {
   player_username?: string;
 }
 
-export function ActivityFeed({ sessionId }: ActivityFeedProps) {
+export function ActivityFeed({ sessionId, collapsed = false }: ActivityFeedProps) {
   const [activities, setActivities] = useState<Activity[]>([]);
 
   useEffect(() => {
@@ -101,34 +104,73 @@ export function ActivityFeed({ sessionId }: ActivityFeedProps) {
     }
   };
 
+  if (collapsed) {
+    // Collapsed icon-only mode
+    return (
+      <TooltipProvider>
+        <Card className="p-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex flex-col items-center gap-1">
+                <Activity className="w-5 h-5 text-primary" />
+                <Badge variant="secondary" className="text-xs px-1">
+                  {activities.length}
+                </Badge>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <div className="text-xs">
+                <div className="font-semibold">Activity Feed</div>
+                <div className="text-muted-foreground">
+                  {activities.length} recent activities
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </Card>
+      </TooltipProvider>
+    );
+  }
+
+  // Expanded mode
   if (activities.length === 0) {
     return (
-      <div className="text-center py-8 text-sm text-muted-foreground">
-        No recent activity
-      </div>
+      <Card>
+        <div className="p-3 border-b">
+          <h3 className="text-sm font-semibold">Activity Feed</h3>
+        </div>
+        <div className="text-center py-8 text-sm text-muted-foreground">
+          No recent activity
+        </div>
+      </Card>
     );
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="space-y-2 p-4">
-        {activities.map((activity) => (
-          <div
-            key={activity.id}
-            className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-          >
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              {getActivityIcon(activity.activity_type)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm">{getActivityText(activity)}</p>
-              <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
-              </p>
-            </div>
-          </div>
-        ))}
+    <Card>
+      <div className="p-3 border-b">
+        <h3 className="text-sm font-semibold">Activity Feed</h3>
       </div>
-    </ScrollArea>
+      <ScrollArea className="h-[300px]">
+        <div className="space-y-2 p-4">
+          {activities.map((activity) => (
+            <div
+              key={activity.id}
+              className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                {getActivityIcon(activity.activity_type)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm">{getActivityText(activity)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    </Card>
   );
 }

@@ -11,7 +11,12 @@ import { useNavigate } from 'react-router-dom';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 
-export function StatsPanel() {
+interface StatsPanelProps {
+  collapsed?: boolean;
+  onToggle?: () => void;
+}
+
+export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}) {
   const navigate = useNavigate();
   const xp = useGameStore((state) => state.xp);
   const level = useGameStore((state) => state.level);

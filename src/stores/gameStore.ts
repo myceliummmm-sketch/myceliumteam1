@@ -25,6 +25,10 @@ interface GameActions {
   setConversationMode: (mode: ConversationMode) => void;
   unlockMode: (mode: ConversationMode) => void;
   setShowPromptLibrary: (show: boolean) => void;
+  toggleLeftPanel: () => void;
+  toggleRightPanel: () => void;
+  setLeftPanelCollapsed: (collapsed: boolean) => void;
+  setRightPanelCollapsed: (collapsed: boolean) => void;
 }
 
 const initialState: GameState = {
@@ -74,6 +78,12 @@ const initialState: GameState = {
   conversationMode: 'discussion' as ConversationMode,
   unlockedModes: ['discussion'] as ConversationMode[],
   showPromptLibrary: false,
+  leftPanelCollapsed: typeof window !== 'undefined' 
+    ? localStorage.getItem('leftPanelCollapsed') === 'true' 
+    : false,
+  rightPanelCollapsed: typeof window !== 'undefined' 
+    ? localStorage.getItem('rightPanelCollapsed') === 'true' 
+    : false,
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
