@@ -5,9 +5,11 @@ import { Card } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { floatingTextAnimation, floatingTextTransition } from '@/lib/animations';
-import { AlertTriangle, Zap, Clock, Package } from 'lucide-react';
+import { AlertTriangle, Zap, Clock, Package, ChevronDown } from 'lucide-react';
 import { getTimeUntilNextEnergy, getMaxEnergy } from '@/lib/energySystem';
 import { useNavigate } from 'react-router-dom';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Button } from '@/components/ui/button';
 
 export function StatsPanel() {
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ export function StatsPanel() {
   const [showXpGain, setShowXpGain] = useState(false);
   const [xpGainAmount, setXpGainAmount] = useState(0);
   const [timeUntilNext, setTimeUntilNext] = useState({ hours: 0, minutes: 0 });
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const xpToNextLevel = level * 100;
   const xpProgress = (xp / xpToNextLevel) * 100;
@@ -57,188 +60,209 @@ export function StatsPanel() {
 
   return (
     <Card className="p-4">
-      <h3 className="text-sm font-mono text-muted-foreground mb-4">STATS</h3>
-      
-      <div className="space-y-4">
-        {/* Level */}
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">LEVEL</span>
-          <Badge variant="default" className="text-lg font-bold">
-            {level}
-          </Badge>
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-mono text-muted-foreground">STATS</h3>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? '' : 'rotate-180'}`} />
+            </Button>
+          </CollapsibleTrigger>
         </div>
 
-        {/* XP */}
-        <div className="relative">
-          <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground">XP</span>
-            <motion.span 
-              key={xp}
-              initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 0.3 }}
-              className="font-mono"
-            >
-              {xp}/{xpToNextLevel}
-            </motion.span>
-          </div>
-          <div className="relative">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 0.5 }}
-            >
-              <Progress 
-                value={xpProgress} 
-                className={`h-2 transition-all duration-300 ${
-                  xpProgress > 90 
-                    ? 'shadow-[0_0_15px_hsl(var(--primary)/0.8)]' 
-                    : ''
-                }`}
-                style={{
-                  background: xpProgress > 90 
-                    ? 'hsl(var(--chart-1))' 
-                    : xpProgress > 50 
-                    ? 'hsl(var(--chart-5))' 
-                    : 'hsl(var(--secondary))'
-                }}
-              />
-            </motion.div>
-            <AnimatePresence>
-              {showXpGain && (
-                <motion.div
-                  variants={floatingTextAnimation}
-                  initial="initial"
-                  animate="animate"
-                  exit="initial"
-                  transition={floatingTextTransition}
-                  className="absolute -top-6 right-0 text-primary font-bold text-sm"
-                >
-                  +{xpGainAmount} XP
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Spores */}
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">SPORES 🍄</span>
-          <span className="font-mono font-bold text-primary">{spores}</span>
-        </div>
-
-        {/* Energy */}
-        <div>
-          <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground flex items-center gap-1">
-              ENERGY 
-              {energy < 3 && (
-                <motion.span
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  <Zap className="h-3 w-3 text-destructive" />
-                </motion.span>
-              )}
-            </span>
-            <span className="font-mono">{energy}/{maxEnergy}</span>
-          </div>
-          <motion.div
-            animate={energy < 3 ? { 
-              boxShadow: [
-                "0 0 0px transparent",
-                "0 0 10px hsl(var(--destructive)/0.5)",
-                "0 0 0px transparent"
-              ]
-            } : {}}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            <Progress 
-              value={energyProgress} 
-              className="h-2"
-              style={{ background: 'hsl(var(--chart-1) / 0.2)' }}
-            />
-          </motion.div>
-          {/* Energy Timer */}
-          {energy < maxEnergy && lastEnergyUpdate && (
-            <div className="flex items-center gap-1 mt-1 text-[10px] sm:text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span className="text-[10px] sm:text-xs">
-                {energy === maxEnergy - 1 
-                  ? 'Full Energy!' 
-                  : `Next: ${timeUntilNext.hours}h ${timeUntilNext.minutes}m`}
-              </span>
+        {/* Collapsed view - compact essentials */}
+        {!isExpanded && (
+          <div className="space-y-3">
+            {/* Level badge */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">LVL</span>
+              <Badge variant="default" className="text-sm font-bold">{level}</Badge>
             </div>
-          )}
-        </div>
 
-        {/* Streak */}
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">STREAK 🔥</span>
-          <span className="font-mono font-bold">{streak}</span>
-        </div>
+            {/* Mini XP bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">XP</span>
+                <span className="font-mono text-xs">{xp}/{xpToNextLevel}</span>
+              </div>
+              <Progress value={xpProgress} className="h-1.5" />
+            </div>
 
-        {/* Code Health */}
-        <div>
-          <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground flex items-center gap-1">
-              CODE HEALTH
-              {codeHealth < 30 && (
-                <motion.span
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 0.8, repeat: Infinity }}
-                >
-                  <AlertTriangle className="h-3 w-3 text-destructive" />
-                </motion.span>
-              )}
-            </span>
-            <motion.span 
-              key={codeHealth}
-              initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.1, 1] }}
-              className="font-mono"
-            >
-              {codeHealth}%
-            </motion.span>
+            {/* Energy indicator */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Energy</span>
+              <div className="flex items-center gap-1">
+                <Zap className={`h-3 w-3 ${energy <= 2 ? 'text-destructive animate-pulse' : 'text-primary'}`} />
+                <span className="text-sm font-mono">{energy}/{maxEnergy}</span>
+              </div>
+            </div>
           </div>
-          <motion.div
-            animate={codeHealth < 30 ? { 
-              boxShadow: [
-                "0 0 0px transparent",
-                "0 0 10px hsl(var(--destructive)/0.5)",
-                "0 0 0px transparent"
-              ]
-            } : {}}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            <Progress 
-              value={codeHealth} 
-              style={{
-                background: codeHealth > 70 
-                  ? 'hsl(var(--chart-2) / 0.2)' 
-                  : codeHealth > 30 
-                  ? 'hsl(var(--chart-1) / 0.2)' 
-                  : 'hsl(var(--destructive) / 0.2)'
-              }}
-              className="h-2"
-            />
-          </motion.div>
-        </div>
+        )}
 
-        {/* Artifacts */}
-        <div 
-          className="flex items-center justify-between cursor-pointer hover:bg-muted/50 p-2 -m-2 rounded transition-colors"
-          onClick={() => navigate('/inventory')}
-        >
-          <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <Package className="h-3 w-3" />
-            ARTIFACTS
-          </span>
-          <Badge variant={artifacts.filter(a => a.unlocked).length > 0 ? "default" : "secondary"}>
-            {artifacts.filter(a => a.unlocked).length}/{artifacts.length}
-          </Badge>
-        </div>
-      </div>
+        {/* Expanded view - full stats */}
+        <CollapsibleContent>
+          <div className="space-y-4">
+            {/* Level */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">LEVEL</span>
+              <Badge variant="default" className="text-lg font-bold">
+                {level}
+              </Badge>
+            </div>
+
+            {/* XP */}
+            <div className="relative">
+              <div className="flex justify-between text-xs mb-1">
+                <span className="text-muted-foreground">XP</span>
+                <motion.span 
+                  key={xp}
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 0.3 }}
+                  className="font-mono"
+                >
+                  {xp}/{xpToNextLevel}
+                </motion.span>
+              </div>
+              <div className="relative">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Progress 
+                    value={xpProgress} 
+                    className={`h-2 transition-all duration-300 ${
+                      xpProgress > 90 
+                        ? 'shadow-[0_0_15px_hsl(var(--primary)/0.8)]' 
+                        : ''
+                    }`}
+                    style={{
+                      background: xpProgress > 90 
+                        ? 'hsl(var(--chart-1))' 
+                        : xpProgress > 50 
+                        ? 'hsl(var(--chart-5))' 
+                        : 'hsl(var(--secondary))'
+                    }}
+                  />
+                </motion.div>
+                <AnimatePresence>
+                  {showXpGain && (
+                    <motion.div
+                      className="absolute -top-6 right-0 text-xs font-bold text-primary"
+                      initial={floatingTextAnimation.initial}
+                      animate={floatingTextAnimation.animate}
+                      exit={floatingTextAnimation.initial}
+                      transition={floatingTextTransition}
+                    >
+                      +{xpGainAmount} XP
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Spores */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">SPORES</span>
+              <motion.div 
+                key={spores}
+                initial={{ scale: 1 }}
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ duration: 0.3 }}
+                className="text-xl font-bold"
+              >
+                🍄 {spores}
+              </motion.div>
+            </div>
+
+            {/* Energy */}
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <div className="flex items-center gap-1">
+                  <Zap className={`h-3 w-3 ${energy <= 2 ? 'text-destructive' : 'text-primary'}`} />
+                  <span className="text-muted-foreground">ENERGY</span>
+                </div>
+                <span className="font-mono">{energy}/{maxEnergy}</span>
+              </div>
+              <motion.div
+                animate={energy <= 2 ? {
+                  boxShadow: [
+                    '0 0 0 0 hsl(var(--destructive) / 0)',
+                    '0 0 10px 2px hsl(var(--destructive) / 0.3)',
+                    '0 0 0 0 hsl(var(--destructive) / 0)',
+                  ]
+                } : {}}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Progress 
+                  value={energyProgress} 
+                  className={`h-2 ${energy <= 2 ? 'bg-destructive/20' : ''}`}
+                />
+              </motion.div>
+              {energy < maxEnergy && (
+                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>Next in {timeUntilNext.hours}h {timeUntilNext.minutes}m</span>
+                </div>
+              )}
+            </div>
+
+            {/* Streak */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">STREAK</span>
+              <div className="text-xl">
+                🔥 <span className="font-bold">{streak}</span>
+              </div>
+            </div>
+
+            {/* Code Health */}
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <div className="flex items-center gap-1">
+                  {codeHealth < 50 && <AlertTriangle className="h-3 w-3 text-destructive" />}
+                  <span className="text-muted-foreground">CODE HEALTH</span>
+                </div>
+                <span className="font-mono">{codeHealth}%</span>
+              </div>
+              <motion.div
+                animate={codeHealth < 50 ? {
+                  boxShadow: [
+                    '0 0 0 0 hsl(var(--destructive) / 0)',
+                    '0 0 10px 2px hsl(var(--destructive) / 0.3)',
+                    '0 0 0 0 hsl(var(--destructive) / 0)',
+                  ]
+                } : {}}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Progress 
+                  value={codeHealth} 
+                  className={`h-2 ${codeHealth < 50 ? 'bg-destructive/20' : ''}`}
+                  style={{
+                    background: codeHealth >= 80 
+                      ? 'hsl(var(--chart-2))' 
+                      : codeHealth >= 50 
+                      ? 'hsl(var(--chart-3))' 
+                      : 'hsl(var(--destructive))'
+                  }}
+                />
+              </motion.div>
+            </div>
+
+            {/* Artifacts */}
+            <div 
+              className="flex items-center justify-between p-2 rounded-lg bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => navigate('/inventory')}
+            >
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground">ARTIFACTS</span>
+              </div>
+              <Badge variant="secondary">{artifacts.length}</Badge>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 }
