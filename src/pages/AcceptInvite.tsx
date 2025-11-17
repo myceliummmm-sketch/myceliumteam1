@@ -76,6 +76,27 @@ export default function AcceptInvite() {
         return;
       }
 
+      // Check if user is already a collaborator
+      const { data: existingCollab, error: checkError } = await supabase
+        .from('session_collaborators')
+        .select('id')
+        .eq('session_id', invite.session_id)
+        .eq('player_id', user.id)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Error checking existing collaboration:', checkError);
+      }
+
+      if (existingCollab) {
+        toast({
+          title: 'Already a collaborator',
+          description: 'You already have access to this session',
+        });
+        navigate(`/shipit?session=${invite.session_id}`);
+        return;
+      }
+
       // Update invite status
       const { error: updateError } = await supabase
         .from('session_invites')
@@ -86,7 +107,10 @@ export default function AcceptInvite() {
         })
         .eq('invite_token', token);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Error updating invite:', updateError);
+        throw new Error('Failed to update invitation status. Please try again.');
+      }
 
       // Add user as collaborator
       const { error: collabError } = await supabase
@@ -99,7 +123,10 @@ export default function AcceptInvite() {
           invited_by: invite.invited_by,
         });
 
-      if (collabError) throw collabError;
+      if (collabError) {
+        console.error('Error adding collaborator:', collabError);
+        throw new Error('Failed to add you as a collaborator. Please contact the session owner.');
+      }
 
       toast({
         title: 'Invitation accepted!',
@@ -113,7 +140,7 @@ export default function AcceptInvite() {
       console.error('Error accepting invite:', err);
       toast({
         title: 'Failed to accept invitation',
-        description: err.message,
+        description: err.message || 'An unexpected error occurred',
         variant: 'destructive',
       });
       setAccepting(false);
