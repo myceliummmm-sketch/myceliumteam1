@@ -4,9 +4,10 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { TEAM_MEMBERS, CharacterData } from '@/lib/characterData';
 import { TeamMemberModal } from './TeamMemberModal';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const moodEmojis = {
   happy: '😊',
@@ -66,7 +67,7 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
   };
 
   return (
-    <>
+    <TooltipProvider>
       <Card className="p-4">
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <div className="flex items-center justify-between mb-4">
@@ -81,36 +82,49 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
             </Button>
           </div>
 
-          {/* Collapsed view - just circles */}
+          {/* Collapsed view - vertical stack */}
           {!isExpanded && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col items-center gap-2.5">
               {TEAM_MEMBERS.map((member) => {
                 const isActive = activeSpeaker === member.id;
                 const isPreferred = preferredSpeaker === member.id;
                 const mood = teamMood[member.id as keyof typeof teamMood] || 'neutral';
                 
                 return (
-                  <div
-                    key={member.id}
-                    onClick={(e) => handleMemberClick(member, e)}
-                    className={`relative cursor-pointer transition-all ${
-                      isActive ? 'ring-2 ring-primary animate-pulse scale-110' : 
-                      isPreferred ? 'ring-2 ring-primary/50 scale-105' :
-                      'hover:scale-110'
-                    }`}
-                    title={`${member.name} - ${isPreferred ? 'Shift+click to deselect' : 'Click for profile, Shift+click to direct messages'}`}
-                  >
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={member.avatar} alt={member.name} />
-                      <AvatarFallback>{member.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <span className="absolute -bottom-1 -right-1 text-xs bg-background rounded-full border">
-                      {moodEmojis[mood]}
-                    </span>
-                    {isPreferred && (
-                      <span className="absolute -top-1 -right-1 text-xs">🎯</span>
-                    )}
-                  </div>
+                  <Tooltip key={member.id}>
+                    <TooltipTrigger asChild>
+                      <div
+                        onClick={(e) => handleMemberClick(member, e)}
+                        className={`relative cursor-pointer transition-all ${
+                          isActive ? 'ring-2 ring-primary animate-pulse scale-110' : 
+                          isPreferred ? 'ring-2 ring-primary/50 scale-105' :
+                          'hover:scale-110 hover:ring-2 hover:ring-muted'
+                        }`}
+                        aria-label={`${member.name} - ${member.role}`}
+                      >
+                        <Avatar className="h-11 w-11">
+                          <AvatarImage src={member.avatar} alt={member.name} />
+                          <AvatarFallback>{member.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <span className="absolute -bottom-1 -right-1 text-xs bg-background rounded-full border px-0.5">
+                          {moodEmojis[mood]}
+                        </span>
+                        {isPreferred && (
+                          <span className="absolute -top-1 -right-1 text-xs">🎯</span>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p className="font-semibold">{member.name}</p>
+                      <p className="text-sm text-muted-foreground">{member.role}</p>
+                      {isPreferred && (
+                        <p className="text-xs text-primary mt-1">🎯 Preferred speaker</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Click: Profile • Shift+Click: Direct messages
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                 );
               })}
             </div>
@@ -164,6 +178,6 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
         open={!!selectedMember}
         onOpenChange={(open) => !open && setSelectedMember(null)}
       />
-    </>
+    </TooltipProvider>
   );
 }
