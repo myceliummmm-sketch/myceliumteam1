@@ -16,7 +16,7 @@ export function Inventory() {
 
   // Check if artifact is ready to unlock (meets all requirements but not yet unlocked)
   const isReadyToUnlock = (artifact: Artifact) => {
-    if (artifact.unlocked) return false;
+    if (artifact.unlocked || !artifact?.requirements) return false;
     const meetsLevel = level >= artifact.requirements.minLevel;
     const meetsBossBlockers = bossBlockersDefeated.length >= artifact.requirements.bossBlockersDefeated;
     return meetsLevel && meetsBossBlockers;
