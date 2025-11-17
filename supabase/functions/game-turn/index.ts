@@ -352,7 +352,7 @@ serve(async (req) => {
       });
     }
 
-    const { message, sessionId, preferredSpeaker, conversationMode = 'discussion', responseDepth = 'normal' } = await req.json();
+    const { message, sessionId, selectedSpeakers = [], conversationMode = 'discussion', responseDepth = 'normal' } = await req.json();
 
     // Check collaborator access
     const { data: accessCheck } = await supabase
@@ -429,10 +429,30 @@ RECENT CONVERSATION:
 ${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}
 `;
 
-    // Add preferred speaker instruction if specified
+    // Add selected speakers restriction if specified
     let systemPrompt = SYSTEM_PROMPT;
-    if (preferredSpeaker && preferredSpeaker !== 'auto') {
-      systemPrompt += `\n\nIMPORTANT: The player has directly requested advice from ${preferredSpeaker}. You MUST include ${preferredSpeaker} as the primary speaker in your response. ${preferredSpeaker} should lead the conversation and provide the main response, though other team members can chime in briefly if relevant to add additional perspective.`;
+    if (selectedSpeakers.length > 0 && selectedSpeakers.length < 7) {
+      const nameMap: { [key: string]: string } = {
+        'ever': 'Ever Green',
+        'prisma': 'Prisma',
+        'toxic': 'Toxic',
+        'phoenix': 'Phoenix',
+        'techpriest': 'Tech Priest',
+        'virgil': 'Virgil',
+        'zen': 'Zen'
+      };
+      
+      const speakerNames = selectedSpeakers
+        .map((id: string) => nameMap[id])
+        .filter(Boolean)
+        .join(', ');
+      
+      systemPrompt += `\n\nCRITICAL INSTRUCTION - SPEAKER RESTRICTION:
+ONLY these team members are available to respond: ${speakerNames}
+DO NOT include responses from any other characters. They are not participating in this conversation.
+If the user's question requires expertise from unavailable members, have the available members acknowledge this limitation.`;
+    } else {
+      systemPrompt += `\n\nSelect the most relevant 2-3 team members to respond based on the user's question (Auto mode).`;
     }
 
     // Add mode-specific instructions

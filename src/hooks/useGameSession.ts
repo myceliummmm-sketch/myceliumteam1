@@ -397,7 +397,7 @@ export function useGameSession() {
           message_length: message.length,
           current_phase: store.currentPhase,
           energy_remaining: store.energy - 1,
-          preferred_speaker: preferredSpeaker || 'auto'
+          selected_speakers: selectedSpeakers.length > 0 ? selectedSpeakers : 'auto'
         },
         page_url: window.location.pathname
       });
@@ -405,7 +405,7 @@ export function useGameSession() {
 
     try {
       const { data, error } = await supabase.functions.invoke('game-turn', {
-        body: { message, sessionId, preferredSpeaker, conversationMode, responseDepth }
+        body: { message, sessionId, selectedSpeakers, conversationMode, responseDepth }
       });
 
       if (error) throw error;
