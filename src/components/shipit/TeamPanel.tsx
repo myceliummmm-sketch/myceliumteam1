@@ -77,73 +77,100 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
       <Card className="p-4">
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-mono text-muted-foreground">YOUR TEAM</h3>
-            
-            <div className="flex items-center gap-2">
-              {/* Mode Toggle Buttons */}
-              <div className="flex border rounded-md">
-                <Button
-                  variant={teamPanelMode === 'info' ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className="h-7 px-2 text-xs rounded-r-none"
-                  onClick={() => setTeamPanelMode('info')}
-                >
-                  📖 Info
-                </Button>
-                <Button
-                  variant={teamPanelMode === 'select' ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className="h-7 px-2 text-xs rounded-l-none"
-                  onClick={() => setTeamPanelMode('select')}
-                >
-                  ✅ Select
-                </Button>
-              </div>
-              
-              {/* Collapse Button */}
-              <motion.div
-                initial="rest"
-                whileHover="hover"
-                whileTap="tap"
-                variants={collapseIconAnimation}
-              >
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 w-8 p-0"
-                  onClick={onToggle}
-                  aria-label={isExpanded ? "Collapse panel" : "Expand panel"}
-                >
-                  {isExpanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
-                </Button>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Mode description / status */}
-          <div className="text-xs text-muted-foreground mb-3 px-1">
-            {teamPanelMode === 'info' ? (
-              <span>Click to view profiles</span>
-            ) : (
-              <div className="flex items-center justify-between">
-                <span>
-                  Selected: {selectedSpeakers.length}/7
-                  {selectedSpeakers.length === 0 && ' (Auto mode)'}
-                  {selectedSpeakers.length === 7 && ' (All)'}
-                </span>
-                {selectedSpeakers.length > 0 && selectedSpeakers.length < 7 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-5 text-xs px-2"
-                    onClick={() => setSelectedSpeakers([])}
+            {!collapsed ? (
+              // ===== EXPANDED STATE: Full header =====
+              <>
+                <h3 className="text-sm font-mono text-muted-foreground">YOUR TEAM</h3>
+                
+                <div className="flex items-center gap-2">
+                  {/* Mode Toggle Buttons */}
+                  <div className="flex border rounded-md">
+                    <Button
+                      variant={teamPanelMode === 'info' ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="h-7 px-2 text-xs rounded-r-none"
+                      onClick={() => setTeamPanelMode('info')}
+                    >
+                      📖 Info
+                    </Button>
+                    <Button
+                      variant={teamPanelMode === 'select' ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="h-7 px-2 text-xs rounded-l-none"
+                      onClick={() => setTeamPanelMode('select')}
+                    >
+                      ✅ Select
+                    </Button>
+                  </div>
+                  
+                  {/* Collapse Button */}
+                  <motion.div
+                    initial="rest"
+                    whileHover="hover"
+                    whileTap="tap"
+                    variants={collapseIconAnimation}
                   >
-                    Clear
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={onToggle}
+                      aria-label="Collapse panel"
+                    >
+                      <PanelLeftClose className="h-4 w-4" />
+                    </Button>
+                  </motion.div>
+                </div>
+              </>
+            ) : (
+              // ===== COLLAPSED STATE: Only collapse button =====
+              <div className="w-full flex justify-center">
+                <motion.div
+                  initial="rest"
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={collapseIconAnimation}
+                >
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0"
+                    onClick={onToggle}
+                    aria-label="Expand panel"
+                  >
+                    <PanelLeftOpen className="h-4 w-4" />
                   </Button>
-                )}
+                </motion.div>
               </div>
             )}
           </div>
+
+          {/* Mode description / status - only show when expanded */}
+          {!collapsed && (
+            <div className="text-xs text-muted-foreground mb-3 px-1">
+              {teamPanelMode === 'info' ? (
+                <span>Click to view profiles</span>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span>
+                    Selected: {selectedSpeakers.length}/7
+                    {selectedSpeakers.length === 0 && ' (Auto mode)'}
+                    {selectedSpeakers.length === 7 && ' (All)'}
+                  </span>
+                  {selectedSpeakers.length > 0 && selectedSpeakers.length < 7 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-5 text-xs px-2"
+                      onClick={() => setSelectedSpeakers([])}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Quick presets in select mode */}
           {teamPanelMode === 'select' && isExpanded && (
