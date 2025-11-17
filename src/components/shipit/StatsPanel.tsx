@@ -208,8 +208,9 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
                 <p className="text-sm text-muted-foreground">{unlockedArtifacts.length} unlocked</p>
               </TooltipContent>
             </Tooltip>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Expanded view - full stats */}
         <CollapsibleContent>
