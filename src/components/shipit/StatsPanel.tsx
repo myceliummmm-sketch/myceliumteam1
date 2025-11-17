@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { floatingTextAnimation, floatingTextTransition } from '@/lib/animations';
-import { AlertTriangle, Zap, Clock, Package, ChevronDown, Heart, Sparkles, Flame, Trophy } from 'lucide-react';
+import { floatingTextAnimation, floatingTextTransition, collapseIconAnimation } from '@/lib/animations';
+import { AlertTriangle, Zap, Clock, Package, PanelRightClose, PanelRightOpen, Heart, Sparkles, Flame, Trophy } from 'lucide-react';
 import { getTimeUntilNextEnergy, getMaxEnergy } from '@/lib/energySystem';
 import { useNavigate } from 'react-router-dom';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
@@ -76,31 +76,55 @@ export function StatsPanel({ collapsed = false, onToggle }: StatsPanelProps = {}
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-mono text-muted-foreground">STATS</h3>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0"
-            onClick={onToggle}
+          <motion.div
+            initial="rest"
+            whileHover="hover"
+            whileTap="tap"
+            variants={collapseIconAnimation}
           >
-            <ChevronDown className={`h-4 w-4 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
-          </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+              onClick={onToggle}
+              aria-label={isExpanded ? "Collapse panel" : "Expand panel"}
+            >
+              {isExpanded ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+            </Button>
+          </motion.div>
         </div>
 
         {/* Collapsed view - icon-only cards */}
-        {!isExpanded && (
-          <div className="flex flex-col items-center gap-2.5">
-            {/* Level Card */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 hover:scale-105 transition-all cursor-default w-full">
-                  <Trophy className="h-5 w-5 text-primary mb-1" />
-                  <span className="text-xl font-bold text-primary">{level}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p className="font-semibold">Level {level}</p>
-              </TooltipContent>
-            </Tooltip>
+        <AnimatePresence mode="wait">
+          {!isExpanded && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="flex flex-col items-center gap-2.5"
+            >
+              {/* Level Card */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0 }}
+                whileHover={{ scale: 1.05, y: -2, transition: { type: "spring", stiffness: 400, damping: 17 } }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex flex-col items-center justify-center p-2.5 bg-muted/30 border border-border rounded-lg cursor-default w-full">
+                      <Trophy className="h-5 w-5 text-primary mb-1" />
+                      <span className="text-xl font-bold text-primary">{level}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p className="font-semibold">Level {level}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </motion.div>
 
             {/* XP Card */}
             <Tooltip>

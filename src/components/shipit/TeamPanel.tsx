@@ -5,7 +5,9 @@ import { Card } from '@/components/ui/card';
 import { TEAM_MEMBERS, CharacterData } from '@/lib/characterData';
 import { TeamMemberModal } from './TeamMemberModal';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Target } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { collapseIconAnimation } from '@/lib/animations';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -72,14 +74,22 @@ export function TeamPanel({ collapsed = false, onToggle }: TeamPanelProps = {}) 
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-mono text-muted-foreground">YOUR TEAM</h3>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 w-8 p-0"
-              onClick={onToggle}
+            <motion.div
+              initial="rest"
+              whileHover="hover"
+              whileTap="tap"
+              variants={collapseIconAnimation}
             >
-              <ChevronDown className={`h-4 w-4 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
-            </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0"
+                onClick={onToggle}
+                aria-label={isExpanded ? "Collapse panel" : "Expand panel"}
+              >
+                {isExpanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+              </Button>
+            </motion.div>
           </div>
 
           {/* Collapsed view - vertical stack */}
