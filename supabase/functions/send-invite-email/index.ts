@@ -44,7 +44,7 @@ const handler = async (req: Request): Promise<Response> => {
     const acceptUrl = `${req.headers.get('origin') || 'http://localhost:5173'}/accept-invite?token=${inviteToken}`;
 
     const emailResponse = await resend.emails.send({
-      from: "ShipIt <onboarding@resend.dev>",
+      from: "ShipIt <invites@mycelium.gg>",
       to: [invitedEmail.trim()],
       subject: `${inviterName} invited you to collaborate on ShipIt`,
       html: `
