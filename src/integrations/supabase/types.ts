@@ -722,6 +722,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_valid_invitation: {
+        Args: { p_player_id: string; p_session_id: string }
+        Returns: boolean
+      }
       is_session_owner: { Args: { p_session_id: string }; Returns: boolean }
       is_session_owner_or_editor: {
         Args: { p_session_id: string }
