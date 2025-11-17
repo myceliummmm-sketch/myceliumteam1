@@ -366,9 +366,10 @@ export function useGameSession() {
     initSession();
   }, [user]);
 
-  const sendMessage = async (message: string, preferredSpeaker?: string | null) => {
+  const sendMessage = async (message: string) => {
     const conversationMode = useGameStore.getState().conversationMode;
     const responseDepth = useGameStore.getState().responseDepth;
+    const selectedSpeakers = useGameStore.getState().selectedSpeakers;
     const store = useGameStore.getState();
     const sessionId = store.sessionId;
     if (!sessionId) return;

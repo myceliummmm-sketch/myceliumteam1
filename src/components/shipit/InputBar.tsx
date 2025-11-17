@@ -19,8 +19,7 @@ export function InputBar() {
   const energy = useGameStore((state) => state.energy);
   const level = useGameStore((state) => state.level);
   const currentPhase = useGameStore((state) => state.currentPhase);
-  const preferredSpeaker = useGameStore((state) => state.preferredSpeaker);
-  const setPreferredSpeaker = useGameStore((state) => state.setPreferredSpeaker);
+  const selectedSpeakers = useGameStore((state) => state.selectedSpeakers);
   const conversationMode = useGameStore((state) => state.conversationMode);
   const unlockedModes = useGameStore((state) => state.unlockedModes);
   const setConversationMode = useGameStore((state) => state.setConversationMode);
@@ -40,7 +39,7 @@ export function InputBar() {
 
     const message = input.trim();
     setInput('');
-    await sendMessage(message, preferredSpeaker);
+    await sendMessage(message);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -50,12 +49,10 @@ export function InputBar() {
     }
   };
 
-  const selectedMember = TEAM_MEMBERS.find(m => m.id === preferredSpeaker);
-
   return (
     <Card className="p-2 sm:p-4 border-t-2">
       <div className="space-y-2">
-        {/* Mode and Character Selectors */}
+        {/* Mode and Depth Selectors */}
         <div className="flex items-center gap-2 px-1 flex-wrap">
           <span className="text-xs text-muted-foreground font-mono">Mode:</span>
           <TooltipProvider>
@@ -79,39 +76,6 @@ export function InputBar() {
               </SelectContent>
             </Select>
           </TooltipProvider>
-          
-          <span className="text-xs text-muted-foreground font-mono">Direct to:</span>
-          <Select value={preferredSpeaker || 'auto'} onValueChange={(val) => setPreferredSpeaker(val === 'auto' ? null : val)}>
-            <SelectTrigger className="h-8 w-[200px] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="auto">
-                <span className="font-mono">🎯 Auto (AI picks)</span>
-              </SelectItem>
-              {TEAM_MEMBERS.map((member) => (
-                <SelectItem key={member.id} value={member.id}>
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-5 w-5">
-                      <AvatarImage src={member.avatar} alt={member.name} />
-                      <AvatarFallback>{member.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-xs">{member.name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {preferredSpeaker && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0"
-              onClick={() => setPreferredSpeaker(null)}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          )}
           
           <span className="text-xs text-muted-foreground font-mono">Depth:</span>
           <TooltipProvider>
@@ -163,11 +127,7 @@ export function InputBar() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={
-                preferredSpeaker 
-                  ? `Ask ${selectedMember?.name}... (Shift+Enter for new line)`
-                  : "Type your message... (Shift+Enter for new line)"
-              }
+              placeholder="Type your message... (Shift+Enter for new line)"
               className="min-h-[60px] sm:min-h-[80px] pr-16"
               disabled={isLoading}
             />

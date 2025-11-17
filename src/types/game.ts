@@ -177,7 +177,8 @@ export interface GameState {
   
   // Team state
   activeSpeaker: TeamMember | null;
-  preferredSpeaker: string | null;
+  selectedSpeakers: string[];
+  teamPanelMode: 'info' | 'select';
   teamMood: Record<TeamMember, Mood>;
   
   // Chat
