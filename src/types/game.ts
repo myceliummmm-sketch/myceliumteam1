@@ -212,4 +212,8 @@ export interface GameState {
   
   // Prompt library
   showPromptLibrary: boolean;
+  
+  // Panel collapse state
+  leftPanelCollapsed: boolean;
+  rightPanelCollapsed: boolean;
 }

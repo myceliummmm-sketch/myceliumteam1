@@ -7,7 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { calculateStreak, getNextMilestone, getDaysUntilNextMilestone, STREAK_MILESTONES } from '@/lib/streakSystem';
 import { format, subDays, startOfDay } from 'date-fns';
 
-export function StreakCalendar() {
+interface StreakCalendarProps {
+  collapsed?: boolean;
+}
+
+export function StreakCalendar({ collapsed = false }: StreakCalendarProps) {
   const { user } = useAuth();
   const [streak, setStreak] = useState(0);
   const [loginDates, setLoginDates] = useState<string[]>([]);
@@ -50,6 +54,17 @@ export function StreakCalendar() {
 
   const nextMilestone = getNextMilestone(streak);
   const daysUntilNext = getDaysUntilNextMilestone(streak);
+
+  if (collapsed) {
+    return (
+      <Card className="p-4">
+        <div className="flex flex-col items-center gap-2">
+          <Flame className="h-6 w-6 text-orange-500" />
+          <span className="text-lg font-bold">{streak}</span>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-4">
