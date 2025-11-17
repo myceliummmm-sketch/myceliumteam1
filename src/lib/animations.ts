@@ -81,3 +81,56 @@ export const shimmerAnimation = {
     ease: "linear" as const
   }
 };
+
+// Panel collapse/expand animations
+export const panelCollapseAnimation = {
+  initial: { opacity: 0, x: -20 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -20 },
+  transition: {
+    type: "spring" as const,
+    stiffness: 300,
+    damping: 30,
+    mass: 0.8
+  }
+};
+
+export const panelExpandAnimation = {
+  initial: { opacity: 0, scale: 0.95 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.95 },
+  transition: {
+    type: "spring" as const,
+    stiffness: 300,
+    damping: 30
+  }
+};
+
+// Stat card hover animation
+export const statCardHoverAnimation = {
+  rest: { scale: 1, y: 0 },
+  hover: { 
+    scale: 1.05, 
+    y: -2,
+    transition: {
+      type: "spring" as const,
+      stiffness: 400,
+      damping: 17
+    }
+  },
+  tap: { scale: 0.98 }
+};
+
+// Icon bounce animation for collapse button
+export const collapseIconAnimation = {
+  rest: { rotate: 0, scale: 1 },
+  hover: { 
+    scale: 1.1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 400,
+      damping: 10
+    }
+  },
+  tap: { scale: 0.9 }
+};
