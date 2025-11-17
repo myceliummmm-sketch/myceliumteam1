@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId, QuickReplyButton, ConversationMode } from '@/types/game';
+import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId, QuickReplyButton, ConversationMode, ResponseDepth } from '@/types/game';
 import { supabase } from '@/integrations/supabase/client';
 
 interface GameActions {
@@ -29,6 +29,8 @@ interface GameActions {
   toggleRightPanel: () => void;
   setLeftPanelCollapsed: (collapsed: boolean) => void;
   setRightPanelCollapsed: (collapsed: boolean) => void;
+  toggleDevMode: () => void;
+  setResponseDepth: (depth: ResponseDepth) => void;
 }
 
 const initialState: GameState = {
@@ -84,6 +86,12 @@ const initialState: GameState = {
   rightPanelCollapsed: typeof window !== 'undefined' 
     ? localStorage.getItem('rightPanelCollapsed') === 'true' 
     : false,
+  devMode: typeof window !== 'undefined' 
+    ? localStorage.getItem('devMode') === 'true' 
+    : false,
+  responseDepth: (typeof window !== 'undefined' 
+    ? localStorage.getItem('responseDepth') 
+    : 'normal') as ResponseDepth || 'normal',
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -378,5 +386,16 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   setRightPanelCollapsed: (collapsed: boolean) => {
     localStorage.setItem('rightPanelCollapsed', String(collapsed));
     set({ rightPanelCollapsed: collapsed });
+  },
+  
+  toggleDevMode: () => set((state) => {
+    const newValue = !state.devMode;
+    localStorage.setItem('devMode', String(newValue));
+    return { devMode: newValue };
+  }),
+  
+  setResponseDepth: (depth: ResponseDepth) => {
+    localStorage.setItem('responseDepth', depth);
+    set({ responseDepth: depth });
   },
 }));
