@@ -16,7 +16,7 @@ import { StreakCalendar } from '@/components/shipit/StreakCalendar';
 import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
 import { ArtifactUnlockModal } from '@/components/shipit/ArtifactUnlockModal';
 import { DevModePanel } from '@/components/shipit/DevModePanel';
-import { LogOut, Loader2, Users, BarChart3, BookOpen } from 'lucide-react';
+import { LogOut, Loader2, Users, BarChart3, BookOpen, Folder } from 'lucide-react';
 import { PromptLibrary } from '@/components/shipit/PromptLibrary';
 import { SessionShareButton } from '@/components/shipit/SessionShareButton';
 import { CollaboratorsList } from '@/components/shipit/CollaboratorsList';
@@ -42,6 +42,7 @@ export default function ShipIt() {
   const rightPanelCollapsed = useGameStore((state) => state.rightPanelCollapsed);
   const toggleLeftPanel = useGameStore((state) => state.toggleLeftPanel);
   const toggleRightPanel = useGameStore((state) => state.toggleRightPanel);
+  const projectName = useGameStore((state) => state.projectName);
   const promptCount = 0;
 
   // Real-time presence tracking
@@ -94,29 +95,27 @@ export default function ShipIt() {
       )}
       
       {/* Header */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4 px-2">
-        <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="lg:hidden">
-                <Users className="w-4 h-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-80">
-              <TeamPanel />
-            </SheetContent>
-          </Sheet>
-          <PhaseProgress />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4 bg-card rounded-lg p-4 border">
+        <div className="flex items-center gap-4 flex-wrap">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/projects')}
+            className="gap-2"
+          >
+            <Folder className="h-4 w-4" />
+            <span className="hidden sm:inline">My Projects</span>
+          </Button>
+          <div className="h-6 w-px bg-border hidden sm:block" />
+          <SessionSwitcher />
           <SessionContext />
+          <CollaboratorsList 
+            collaborators={onlineCollaborators}
+            currentUserId={user?.id || ''}
+          />
         </div>
         
         <div className="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap">
-          {onlineCollaborators.length > 0 && user && (
-            <CollaboratorsList 
-              collaborators={onlineCollaborators}
-              currentUserId={user.id}
-            />
-          )}
           <SessionSwitcher />
           {sessionId && <SessionShareButton sessionId={sessionId} />}
           <Button

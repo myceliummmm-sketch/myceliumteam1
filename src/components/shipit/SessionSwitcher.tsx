@@ -19,6 +19,8 @@ interface Session {
   id: string;
   player_id: string;
   created_at: string;
+  project_name: string;
+  project_color: string;
   is_owner: boolean;
   access_level?: string;
 }
@@ -48,13 +50,15 @@ export function SessionSwitcher() {
             id,
             player_id,
             created_at,
+            project_name,
+            project_color,
             is_active
           )
         `)
         .eq('player_id', user.id)
         .not('accepted_at', 'is', null)
         .eq('game_sessions.is_active', true)
-        .order('game_sessions.created_at', { ascending: false });
+        .order('game_sessions.updated_at', { ascending: false });
 
       if (error) throw error;
 
@@ -62,6 +66,8 @@ export function SessionSwitcher() {
         id: item.game_sessions.id,
         player_id: item.game_sessions.player_id,
         created_at: item.game_sessions.created_at,
+        project_name: item.game_sessions.project_name || 'Untitled Project',
+        project_color: item.game_sessions.project_color || '#6366f1',
         is_owner: item.game_sessions.player_id === user.id,
         access_level: item.access_level,
       })) || [];
@@ -90,18 +96,17 @@ export function SessionSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          {currentSession?.is_owner ? (
-            <User className="w-4 h-4" />
-          ) : (
-            <Users className="w-4 h-4" />
-          )}
-          <span className="hidden sm:inline">
-            {currentSession?.is_owner ? 'Your Session' : 'Shared Session'}
+          <div 
+            className="w-3 h-3 rounded"
+            style={{ backgroundColor: currentSession?.project_color || '#6366f1' }}
+          />
+          <span className="hidden sm:inline max-w-[150px] truncate">
+            {currentSession?.project_name || 'Select Project'}
           </span>
           <ChevronDown className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-64">
         {ownedSessions.length > 0 && (
           <>
             <DropdownMenuLabel className="flex items-center gap-2">
@@ -115,15 +120,21 @@ export function SessionSwitcher() {
                   onClick={() => switchSession(session.id)}
                   className={sessionId === session.id ? 'bg-accent' : ''}
                 >
-                  <div className="flex flex-col">
-                    <span className="text-sm">
-                      {new Date(session.created_at).toLocaleDateString()}
-                    </span>
-                    {sessionId === session.id && (
-                      <span className="text-xs text-muted-foreground">
-                        Current
+                  <div className="flex items-center gap-2 flex-1">
+                    <div 
+                      className="w-3 h-3 rounded flex-shrink-0"
+                      style={{ backgroundColor: session.project_color }}
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="text-sm font-medium truncate">
+                        {session.project_name}
                       </span>
-                    )}
+                      {sessionId === session.id && (
+                        <span className="text-xs text-muted-foreground">
+                          Current
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </DropdownMenuItem>
               ))}
@@ -145,14 +156,20 @@ export function SessionSwitcher() {
                   onClick={() => switchSession(session.id)}
                   className={sessionId === session.id ? 'bg-accent' : ''}
                 >
-                  <div className="flex flex-col">
-                    <span className="text-sm">
-                      {new Date(session.created_at).toLocaleDateString()}
-                    </span>
-                    <span className="text-xs text-muted-foreground capitalize">
-                      {session.access_level}
-                      {sessionId === session.id && ' • Current'}
-                    </span>
+                  <div className="flex items-center gap-2 flex-1">
+                    <div 
+                      className="w-3 h-3 rounded flex-shrink-0"
+                      style={{ backgroundColor: session.project_color }}
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="text-sm font-medium truncate">
+                        {session.project_name}
+                      </span>
+                      <span className="text-xs text-muted-foreground capitalize">
+                        {session.access_level}
+                        {sessionId === session.id && ' • Current'}
+                      </span>
+                    </div>
                   </div>
                 </DropdownMenuItem>
               ))}

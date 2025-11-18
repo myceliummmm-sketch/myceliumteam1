@@ -33,6 +33,7 @@ interface GameActions {
   setRightPanelCollapsed: (collapsed: boolean) => void;
   toggleDevMode: () => void;
   setResponseDepth: (depth: ResponseDepth) => void;
+  setProjectMetadata: (metadata: { name?: string; description?: string; color?: string; icon?: string }) => void;
 }
 
 const initialState: GameState = {
@@ -70,6 +71,10 @@ const initialState: GameState = {
   quickReplies: [],
   aiSuggestedActions: [],
   sessionId: null,
+  projectName: null,
+  projectDescription: null,
+  projectColor: '#6366f1',
+  projectIcon: 'folder',
   isLoading: false,
   lastSaved: null,
   lastEnergyUpdate: null,
@@ -412,4 +417,12 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     localStorage.setItem('responseDepth', depth);
     set({ responseDepth: depth });
   },
+
+  setProjectMetadata: (metadata) => set((state) => ({
+    projectName: metadata.name ?? state.projectName,
+    projectDescription: metadata.description ?? state.projectDescription,
+    projectColor: metadata.color ?? state.projectColor,
+    projectIcon: metadata.icon ?? state.projectIcon,
+  })),
 }));
+

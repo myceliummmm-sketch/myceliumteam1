@@ -17,7 +17,7 @@ import { PROMPT_TEMPLATES } from '@/lib/promptTemplates';
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial, setQuickReplies, setAiSuggestedActions } = useGameStore();
+  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial, setQuickReplies, setAiSuggestedActions, setProjectMetadata } = useGameStore();
   const { playSound } = useSound();
 
   useEffect(() => {
