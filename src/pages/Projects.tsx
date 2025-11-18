@@ -44,41 +44,39 @@ export default function Projects() {
     try {
       setLoading(true);
       
-      // Get all sessions (owned + shared)
-      const { data, error } = await supabase
+      // Step 1: Get collaborator data
+      const { data: collabData, error: collabError } = await supabase
         .from('session_collaborators')
-        .select(`
-          session_id,
-          access_level,
-          game_sessions!inner(
-            id,
-            player_id,
-            project_name,
-            project_description,
-            project_color,
-            project_icon,
-            current_phase,
-            updated_at,
-            is_active
-          )
-        `)
+        .select('session_id, access_level')
         .eq('player_id', user.id)
-        .not('accepted_at', 'is', null)
-        .eq('game_sessions.is_active', true)
-        .order('game_sessions.updated_at', { ascending: false });
+        .not('accepted_at', 'is', null);
 
-      if (error) throw error;
+      if (collabError) throw collabError;
 
-      // Get collaborator counts for each session
+      const sessionIds = collabData?.map(c => c.session_id) || [];
+
+      if (sessionIds.length === 0) {
+        setProjects([]);
+        return;
+      }
+
+      // Step 2: Fetch game sessions with proper ordering
+      const { data: sessions, error: sessionsError } = await supabase
+        .from('game_sessions')
+        .select('*')
+        .in('id', sessionIds)
+        .eq('is_active', true)
+        .order('updated_at', { ascending: false });
+
+      if (sessionsError) throw sessionsError;
+
+      // Step 3: Combine data and get collaborator counts
       const projectsWithCounts = await Promise.all(
-        (data || []).map(async (item: any) => {
-          // Handle if game_sessions is an array or object
-          const session = Array.isArray(item.game_sessions) 
-            ? item.game_sessions[0] 
-            : item.game_sessions;
+        (sessions || []).map(async (session) => {
+          // Find the access level for this user
+          const collabInfo = collabData.find(c => c.session_id === session.id);
           
-          if (!session) return null;
-          
+          // Get collaborator count
           const { count } = await supabase
             .from('session_collaborators')
             .select('*', { count: 'exact', head: true })
@@ -95,13 +93,13 @@ export default function Projects() {
             updated_at: session.updated_at,
             player_id: session.player_id,
             is_owner: session.player_id === user.id,
-            access_level: item.access_level,
+            access_level: collabInfo?.access_level,
             collaborators_count: count || 0,
           };
         })
       );
 
-      setProjects(projectsWithCounts.filter(Boolean) as Project[]);
+      setProjects(projectsWithCounts);
 
     } catch (error) {
       console.error('Error loading projects:', error);
