@@ -215,7 +215,12 @@ export type Database = {
           is_active: boolean | null
           last_login: string | null
           player_id: string
+          project_color: string | null
+          project_description: string | null
+          project_icon: string | null
+          project_name: string | null
           started_at: string | null
+          updated_at: string | null
         }
         Insert: {
           completed_at?: string | null
@@ -227,7 +232,12 @@ export type Database = {
           is_active?: boolean | null
           last_login?: string | null
           player_id: string
+          project_color?: string | null
+          project_description?: string | null
+          project_icon?: string | null
+          project_name?: string | null
           started_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           completed_at?: string | null
@@ -239,7 +249,12 @@ export type Database = {
           is_active?: boolean | null
           last_login?: string | null
           player_id?: string
+          project_color?: string | null
+          project_description?: string | null
+          project_icon?: string | null
+          project_name?: string | null
           started_at?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {

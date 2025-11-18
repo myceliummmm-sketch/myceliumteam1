@@ -188,6 +188,10 @@ export interface GameState {
   
   // Session
   sessionId: string | null;
+  projectName: string | null;
+  projectDescription: string | null;
+  projectColor: string;
+  projectIcon: string;
   isLoading: boolean;
   lastSaved: Date | null;
   
