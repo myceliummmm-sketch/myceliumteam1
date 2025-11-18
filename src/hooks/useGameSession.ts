@@ -114,7 +114,7 @@ export function useGameSession() {
               .limit(30);
 
             const loginDates = recentLogins?.map(l => l.login_date) || [];
-            const newStreak = calculateStreak(loginDates, today);
+            const newStreak = calculateStreak(loginDates);
             const milestone = getStreakMilestone(newStreak);
 
             // Record today's login
@@ -147,11 +147,9 @@ export function useGameSession() {
               id: msg.id,
               role: msg.role as 'user' | 'assistant',
               content: msg.content,
-              timestamp: new Date(msg.created_at),
               createdAt: new Date(msg.created_at),
               segments: (msg.segments as any) || [],
-              gameEvents: (msg.game_events as any) || [],
-              suggestedActions: msg.suggested_actions || undefined
+              gameEvents: (msg.game_events as any) || []
             });
           });
         }
@@ -421,8 +419,8 @@ export function useGameSession() {
         content: message,
       });
 
-      // Generate quick replies from user message
-      const quickReplies = generateQuickReplies(message, state.currentPhase as Phase);
+      // Generate quick replies from current state
+      const quickReplies = generateQuickReplies(state);
       setQuickReplies(quickReplies);
 
       // Call game-turn function
