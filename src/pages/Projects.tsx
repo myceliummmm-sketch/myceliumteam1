@@ -72,31 +72,40 @@ export default function Projects() {
       // Get collaborator counts for each session
       const projectsWithCounts = await Promise.all(
         (data || []).map(async (item: any) => {
+          // Handle if game_sessions is an array or object
+          const session = Array.isArray(item.game_sessions) 
+            ? item.game_sessions[0] 
+            : item.game_sessions;
+          
+          if (!session) return null;
+          
           const { count } = await supabase
             .from('session_collaborators')
             .select('*', { count: 'exact', head: true })
-            .eq('session_id', item.game_sessions.id)
+            .eq('session_id', session.id)
             .not('accepted_at', 'is', null);
 
           return {
-            id: item.game_sessions.id,
-            project_name: item.game_sessions.project_name || 'Untitled Project',
-            project_description: item.game_sessions.project_description,
-            project_color: item.game_sessions.project_color || '#6366f1',
-            project_icon: item.game_sessions.project_icon || 'folder',
-            current_phase: item.game_sessions.current_phase || 'SPARK',
-            updated_at: item.game_sessions.updated_at,
-            player_id: item.game_sessions.player_id,
-            is_owner: item.game_sessions.player_id === user.id,
+            id: session.id,
+            project_name: session.project_name || 'Untitled Project',
+            project_description: session.project_description,
+            project_color: session.project_color || '#6366f1',
+            project_icon: session.project_icon || 'folder',
+            current_phase: session.current_phase || 'SPARK',
+            updated_at: session.updated_at,
+            player_id: session.player_id,
+            is_owner: session.player_id === user.id,
             access_level: item.access_level,
             collaborators_count: count || 0,
           };
         })
       );
 
-      setProjects(projectsWithCounts);
+      setProjects(projectsWithCounts.filter(Boolean) as Project[]);
+
     } catch (error) {
       console.error('Error loading projects:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       toast.error('Failed to load projects');
     } finally {
       setLoading(false);

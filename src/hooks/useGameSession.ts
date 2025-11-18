@@ -28,6 +28,22 @@ export function useGameSession() {
 
     const loadSessionData = async (sessionId: string) => {
       try {
+        // Load session metadata for project info
+        const { data: sessionData } = await supabase
+          .from('game_sessions')
+          .select('project_name, project_description, project_color, project_icon')
+          .eq('id', sessionId)
+          .single();
+        
+        if (sessionData) {
+          setProjectMetadata({
+            name: sessionData.project_name,
+            description: sessionData.project_description,
+            color: sessionData.project_color,
+            icon: sessionData.project_icon,
+          });
+        }
+
         // Load latest game state
         const { data: latestState } = await supabase
           .from('game_states')
@@ -224,6 +240,15 @@ export function useGameSession() {
           } else {
             // User has access to requested session
             setSessionId(requestedSession.id);
+            
+            // Set project metadata immediately
+            setProjectMetadata({
+              name: requestedSession.project_name,
+              description: requestedSession.project_description,
+              color: requestedSession.project_color,
+              icon: requestedSession.project_icon,
+            });
+            
             await loadSessionData(requestedSession.id);
             return;
           }
@@ -251,7 +276,16 @@ export function useGameSession() {
         if (sessions && sessions.length > 0) {
           // Prioritize owned sessions
           const ownedSession = sessions.find(s => s.player_id === user.id);
-          sessionId = ownedSession?.id || sessions[0].id;
+          const selectedSession = ownedSession || sessions[0];
+          sessionId = selectedSession.id;
+          
+          // Set project metadata for the selected session
+          setProjectMetadata({
+            name: selectedSession.project_name,
+            description: selectedSession.project_description,
+            color: selectedSession.project_color,
+            icon: selectedSession.project_icon,
+          });
         }
 
         if (!sessionId) {
