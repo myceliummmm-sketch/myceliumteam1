@@ -153,6 +153,14 @@ export function PersonalityAssessment({ open, onClose }: PersonalityAssessmentPr
 
   const handleAnswer = (value: string) => {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
+    
+    // Auto-advance to next question after a brief delay
+    setTimeout(() => {
+      if (currentStep < totalQuestions - 1) {
+        setCurrentStep(prev => prev + 1);
+      }
+      // On last question, don't auto-advance - let them click "Generate Card"
+    }, 400);
   };
 
   const handleNext = () => {
@@ -234,13 +242,25 @@ This is a comprehensive personality assessment covering Self-Awareness, Alignmen
 
       if (error) throw error;
 
+      // Dispatch the animation event so CardCollection shows confetti
+      window.dispatchEvent(new CustomEvent('cardGeneratedWithAnimation', { 
+        detail: { 
+          cardId: data.card_id,
+          rarity: data.rarity,
+          cardType: data.card_type
+        } 
+      }));
+
       toast.success('✨ Your Authenticity Card has been created!', {
-        description: 'Check your card collection to view it.'
+        description: `Created a ${data.rarity} ${data.card_type} card!`
       });
       
-      onClose();
-      setCurrentStep(0);
-      setAnswers({});
+      // Close modal after a brief delay to let user see the confetti
+      setTimeout(() => {
+        onClose();
+        setCurrentStep(0);
+        setAnswers({});
+      }, 500);
     } catch (error) {
       console.error('Error generating authenticity card:', error);
       toast.error('Failed to generate your authenticity card');
