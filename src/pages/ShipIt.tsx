@@ -27,6 +27,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 
 import { VersionTogglePanel } from '@/components/shipit/VersionTogglePanel';
+import { CardPackOpeningModal } from '@/components/shipit/CardPackOpeningModal';
+import { CardDetailModal } from '@/components/shipit/CardDetailModal';
 import { CardCollection } from '@/components/shipit/CardCollection';
 
 export default function ShipIt() {
@@ -95,6 +97,30 @@ export default function ShipIt() {
         <ArtifactUnlockModal 
           artifact={unlockedArtifact}
           onClose={() => setShowArtifactUnlockModal(false)}
+        />
+      )}
+
+      {showCardPackModal && cardPackToOpen && (
+        <CardPackOpeningModal
+          cards={cardPackToOpen}
+          open={showCardPackModal}
+          onClose={() => setShowCardPackModal(false)}
+          onCardClick={(card) => {
+            setShowCardPackModal(false);
+            setSelectedCardForDetail(card);
+            setShowCardDetailModal(true);
+          }}
+        />
+      )}
+
+      {showCardDetailModal && selectedCardForDetail && (
+        <CardDetailModal
+          card={selectedCardForDetail}
+          open={showCardDetailModal}
+          onClose={() => {
+            setShowCardDetailModal(false);
+            setSelectedCardForDetail(null);
+          }}
         />
       )}
       

@@ -90,7 +90,9 @@ const initialState: GameState = {
   conversationMode: 'discussion' as ConversationMode,
   unlockedModes: ['discussion'] as ConversationMode[],
   showPromptLibrary: false,
-  leftPanelCollapsed: typeof window !== 'undefined' 
+  showCardPackModal: false,
+  cardPackToOpen: null,
+  leftPanelCollapsed: typeof window !== 'undefined'
     ? localStorage.getItem('leftPanelCollapsed') === 'true' 
     : false,
   rightPanelCollapsed: typeof window !== 'undefined' 
@@ -440,5 +442,10 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     localStorage.setItem('proMode', String(enabled));
     set({ proMode: enabled });
   },
+  
+  setShowCardPackModal: (show: boolean, cards?: any[]) => set({ 
+    showCardPackModal: show, 
+    cardPackToOpen: cards || null 
+  }),
 }));
 

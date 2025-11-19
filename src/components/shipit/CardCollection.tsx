@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Filter, SortAsc } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CollectibleCard } from './CollectibleCard';
+import { CardDetailModal } from './CardDetailModal';
 
 interface DynamicCard {
   id: string;
@@ -32,6 +33,8 @@ export function CardCollection() {
   const [searchQuery, setSearchQuery] = useState('');
   const [rarityFilter, setRarityFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [selectedCard, setSelectedCard] = useState<DynamicCard | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -193,11 +196,29 @@ export function CardCollection() {
         ) : (
           <div className="p-4 grid grid-cols-1 gap-4">
             {filteredCards.map((card) => (
-              <CollectibleCard key={card.id} card={card} />
+              <CollectibleCard 
+                key={card.id} 
+                card={card}
+                onClick={() => {
+                  setSelectedCard(card);
+                  setShowDetailModal(true);
+                }}
+              />
             ))}
           </div>
         )}
       </ScrollArea>
+
+      {showDetailModal && selectedCard && (
+        <CardDetailModal
+          card={selectedCard}
+          open={showDetailModal}
+          onClose={() => {
+            setShowDetailModal(false);
+            setSelectedCard(null);
+          }}
+        />
+      )}
     </div>
   );
 }
