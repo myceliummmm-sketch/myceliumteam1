@@ -1,8 +1,11 @@
 import { useGameStore } from '@/stores/gameStore';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { getCurrentStage, calculateStageProgress, STAGE_DEFINITIONS } from '@/lib/stageSystem';
+import { calculatePhaseProgress } from '@/lib/quickReplies';
 
 const phases = ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE', 'POLISH', 'LAUNCH'];
 
@@ -17,8 +20,15 @@ const phaseEmojis: Record<string, string> = {
 
 export function PhaseProgress() {
   const currentPhase = useGameStore((state) => state.currentPhase);
+  const gameState = useGameStore((state) => state);
   const currentIndex = phases.indexOf(currentPhase);
   const progress = ((currentIndex + 1) / phases.length) * 100;
+  
+  // Calculate stage progress
+  const phaseProgress = calculatePhaseProgress(gameState);
+  const currentStage = getCurrentStage(currentPhase, phaseProgress);
+  const stageProgress = calculateStageProgress(currentPhase, phaseProgress);
+  const totalStages = STAGE_DEFINITIONS[currentPhase].length;
   const [prevPhase, setPrevPhase] = useState(currentPhase);
   const [showPhaseChange, setShowPhaseChange] = useState(false);
 
@@ -54,6 +64,22 @@ export function PhaseProgress() {
         >
           {currentPhase}
         </motion.span>
+      </div>
+      
+      {/* Stage Progress */}
+      <div className="flex items-center gap-2 mb-2">
+        <Badge variant="outline" className="text-xs font-mono">
+          Stage {currentStage.stageNumber}/{totalStages}
+        </Badge>
+        <span className="text-xs text-muted-foreground truncate">
+          {currentStage.label}
+        </span>
+        <div className="ml-auto flex items-center gap-1">
+          <Progress value={stageProgress} className="w-16 h-1" />
+          <span className="text-xs text-muted-foreground font-mono">
+            {Math.round(stageProgress)}%
+          </span>
+        </div>
       </div>
       
       <motion.div

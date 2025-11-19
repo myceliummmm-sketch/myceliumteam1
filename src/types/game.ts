@@ -150,6 +150,13 @@ export interface ChatMessage {
   createdAt: Date;
 }
 
+export interface PhaseStage {
+  phase: Phase;
+  stageNumber: number;
+  stageProgress: number;
+  stageLabel: string;
+}
+
 export interface GameState {
   // Player stats
   xp: number;
@@ -161,6 +168,7 @@ export interface GameState {
   
   // Progress
   currentPhase: Phase;
+  phaseStage?: PhaseStage;
   completedTasks: Task[];
   currentTasks: Task[];
   blockers: Blocker[];
