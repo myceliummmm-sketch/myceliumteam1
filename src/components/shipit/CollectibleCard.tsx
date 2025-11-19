@@ -2,6 +2,9 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Code, Lightbulb, Rocket, BarChart3 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cardRevealAnimation } from '@/lib/animations';
+import { useState, useEffect } from 'react';
 
 interface CollectibleCardProps {
   card: {
@@ -18,6 +21,7 @@ interface CollectibleCardProps {
     times_used: number;
     visual_theme: string;
   };
+  isNew?: boolean;
 }
 
 const cardTypeIcons = {
@@ -71,13 +75,29 @@ const rarityStyles = {
   },
 };
 
-export function CollectibleCard({ card, onClick }: CollectibleCardProps & { onClick?: () => void }) {
+export function CollectibleCard({ card, onClick, isNew = false }: CollectibleCardProps & { onClick?: () => void }) {
   const Icon = cardTypeIcons[card.card_type];
   const style = rarityStyles[card.rarity];
   const emoji = cardTypeEmoji[card.card_type];
+  const [showAnimation, setShowAnimation] = useState(isNew);
+
+  useEffect(() => {
+    if (isNew) {
+      const timer = setTimeout(() => setShowAnimation(false), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isNew]);
+
+  const CardComponent = showAnimation ? motion(Card) : Card;
+  const animationProps = showAnimation ? {
+    initial: cardRevealAnimation.initial,
+    animate: cardRevealAnimation.animate,
+    transition: cardRevealAnimation.transition
+  } : {};
 
   return (
-    <Card
+    <CardComponent
+      {...animationProps}
       onClick={onClick}
       className={`
         relative overflow-hidden border-2 ${style.border} ${style.bg} ${style.glow}
@@ -152,6 +172,6 @@ export function CollectibleCard({ card, onClick }: CollectibleCardProps & { onCl
 
       {/* Corner accent */}
       <div className={`absolute top-0 right-0 w-16 h-16 ${style.bg} opacity-50 blur-2xl pointer-events-none`} />
-    </Card>
+    </CardComponent>
   );
 }

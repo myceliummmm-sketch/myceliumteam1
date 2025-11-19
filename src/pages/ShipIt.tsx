@@ -266,7 +266,6 @@ export default function ShipIt() {
       </div>
       <TutorialOverlay />
       {proMode && <DevModePanel />}
-      <VersionTogglePanel showLogout={true} />
     </div>
   );
 }

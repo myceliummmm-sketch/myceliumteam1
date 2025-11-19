@@ -134,3 +134,20 @@ export const collapseIconAnimation = {
   },
   tap: { scale: 0.9 }
 };
+
+// Card reveal animation for new cards
+export const cardRevealAnimation = {
+  initial: { scale: 0, rotate: -180, opacity: 0, y: 20 },
+  animate: { 
+    scale: 1, 
+    rotate: 0, 
+    opacity: 1,
+    y: 0
+  },
+  transition: {
+    type: "spring" as const,
+    stiffness: 200,
+    damping: 15,
+    duration: 1
+  }
+};

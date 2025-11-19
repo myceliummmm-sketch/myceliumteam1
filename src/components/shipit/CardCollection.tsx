@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, SortAsc, ChevronLeft, Sparkles } from 'lucide-react';
+import { Search, Filter, SortAsc, ChevronLeft, Sparkles, LogOut } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CollectibleCard } from './CollectibleCard';
 import { CardDetailModal } from './CardDetailModal';
 import { useGameStore } from '@/stores/gameStore';
+import { ParticleEffect } from './ParticleEffect';
+import { VersionTogglePanel } from './VersionTogglePanel';
+import { motion } from 'framer-motion';
 
 interface DynamicCard {
   id: string;
@@ -33,8 +37,10 @@ interface CardCollectionProps {
 }
 
 export function CardCollection({ collapsed = false, onToggle }: CardCollectionProps) {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const setShowPersonalityAssessment = useGameStore((state) => state.setShowPersonalityAssessment);
+  const proMode = useGameStore((state) => state.proMode);
   const [cards, setCards] = useState<DynamicCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,6 +48,12 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<DynamicCard | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  
+  // Animation states
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [glowBorder, setGlowBorder] = useState(false);
+  const [newCardId, setNewCardId] = useState<string | null>(null);
+  const [floatingText, setFloatingText] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -55,8 +67,37 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
       loadCards();
     };
     
+    const handleCardGeneratedWithAnimation = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { cardId, rarity } = customEvent.detail;
+      
+      // Trigger confetti
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+      
+      // Trigger glow
+      setGlowBorder(true);
+      setTimeout(() => setGlowBorder(false), 2000);
+      
+      // Set new card ID for reveal animation
+      setNewCardId(cardId);
+      setTimeout(() => setNewCardId(null), 2000);
+      
+      // Show floating text
+      setFloatingText(true);
+      setTimeout(() => setFloatingText(false), 1500);
+      
+      // Reload cards
+      loadCards();
+    };
+    
     window.addEventListener('cardGenerated', handleCardGenerated);
-    return () => window.removeEventListener('cardGenerated', handleCardGenerated);
+    window.addEventListener('cardGeneratedWithAnimation', handleCardGeneratedWithAnimation);
+    
+    return () => {
+      window.removeEventListener('cardGenerated', handleCardGenerated);
+      window.removeEventListener('cardGeneratedWithAnimation', handleCardGeneratedWithAnimation);
+    };
   }, [user]);
 
   const loadCards = async () => {
@@ -99,9 +140,26 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
   const levelLabels = ['AUTHENTICITY', 'VISION', 'RESEARCH', 'PROTOTYPE', 'BUILD', 'GROW'];
 
   return (
-    <div className={`h-full flex flex-col bg-background/50 backdrop-blur-sm border-l border-border/30 transition-all duration-300 relative ${
+    <div className={`h-full flex flex-col bg-background/50 backdrop-blur-sm border-l transition-all duration-300 relative ${
       collapsed ? 'w-16' : 'w-full'
-    }`}>
+    } ${glowBorder ? 'border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.5)]' : 'border-border/30'}`}>
+      {/* Confetti Effect */}
+      {showConfetti && <ParticleEffect type="confetti" count={80} />}
+      
+      {/* Floating +1 CARD Text */}
+      {floatingText && (
+        <motion.div
+          initial={{ y: 0, opacity: 1, scale: 1 }}
+          animate={{ y: -100, opacity: 0, scale: 1.2 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
+        >
+          <div className="text-3xl font-bold font-mono text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
+            +1 CARD
+          </div>
+        </motion.div>
+      )}
+      
       {/* Collapse Toggle Button */}
       {onToggle && (
         <Button
@@ -116,20 +174,41 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
 
       {collapsed ? (
         // Collapsed view: Just icon and card count
-        <div className="p-4 text-center space-y-3">
-          <div className="text-3xl">🎴</div>
-          <div className="text-xs font-mono text-muted-foreground font-bold">
-            {cards.length}
+        <div className="flex-1 p-4 text-center space-y-3 flex flex-col">
+          <div className="flex-1 space-y-3">
+            <div className="text-3xl">🎴</div>
+            <div className="text-xs font-mono text-muted-foreground font-bold">
+              {cards.length}
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowPersonalityAssessment(true)}
+              className="w-full text-xs"
+              title="Take Authenticity Assessment"
+            >
+              🎭
+            </Button>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setShowPersonalityAssessment(true)}
-            className="w-full text-xs"
-            title="Take Authenticity Assessment"
-          >
-            🎭
-          </Button>
+          
+          {/* Bottom buttons in collapsed view */}
+          {!proMode && (
+            <div className="flex flex-col gap-2 pt-4 border-t border-border/30">
+              <VersionTogglePanel />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={async () => {
+                  await signOut();
+                  navigate('/login');
+                }}
+                className="h-8 w-8 border-border/50 bg-card/80 backdrop-blur-sm hover:bg-card"
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         // Full expanded view
@@ -333,9 +412,10 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
         ) : (
           <div className="p-4 grid grid-cols-1 gap-4">
             {filteredCards.map((card) => (
-              <CollectibleCard 
-                key={card.id} 
+              <CollectibleCard
+                key={card.id}
                 card={card}
+                isNew={card.id === newCardId}
                 onClick={() => {
                   setSelectedCard(card);
                   setShowDetailModal(true);
@@ -345,6 +425,25 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           </div>
         )}
       </ScrollArea>
+      
+      {/* Bottom buttons in expanded view */}
+      {!proMode && (
+        <div className="p-2 border-t border-border/30 bg-card/30 backdrop-blur-sm flex items-center justify-end gap-2">
+          <VersionTogglePanel />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={async () => {
+              await signOut();
+              navigate('/login');
+            }}
+            className="h-8 w-8 border-border/50 bg-card/80 backdrop-blur-sm hover:bg-card"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
       </>
       )}
 
