@@ -157,6 +157,29 @@ export interface PhaseStage {
   stageLabel: string;
 }
 
+export interface StageCompletion {
+  id: string;
+  player_id: string;
+  session_id: string;
+  phase: string;
+  stage_number: number;
+  stage_label: string;
+  completed_at: string;
+  xp_earned: number | null;
+  tasks_completed: number | null;
+  time_spent_seconds: number | null;
+}
+
+export interface StageReward {
+  xp: number;
+  spores: number;
+  message: string;
+  unlocks?: {
+    mode?: ConversationMode;
+    feature?: string;
+  };
+}
+
 export interface GameState {
   // Player stats
   xp: number;
@@ -247,4 +270,12 @@ export interface GameState {
   
   // Pro Mode toggle
   proMode: boolean;
+  
+  // Stage progression
+  stageHistory: StageCompletion[];
+  showStageCompletionModal: boolean;
+  completedStage: any | null;
+  stageRewards: StageReward | null;
+  lastStageTransition: Date | null;
+  previousPhaseProgress: number;
 }

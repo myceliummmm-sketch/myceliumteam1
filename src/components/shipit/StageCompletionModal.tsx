@@ -19,7 +19,7 @@ export function StageCompletionModal() {
 
   useEffect(() => {
     if (showModal) {
-      playSound('levelup');
+      playSound('levelUp');
       const timer = setTimeout(() => setShowParticles(false), 3000);
       return () => clearTimeout(timer);
     }

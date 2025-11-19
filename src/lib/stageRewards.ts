@@ -31,7 +31,7 @@ export const STAGE_REWARDS: Record<Phase, Record<number, StageReward>> = {
       xp: 200, 
       spores: 40, 
       message: 'Prototype ready! Time to forge the real thing.',
-      unlocks: { mode: 'technical' }
+      unlocks: { mode: 'code-review' }
     }
   },
   FORGE: {
@@ -42,7 +42,7 @@ export const STAGE_REWARDS: Record<Phase, Record<number, StageReward>> = {
       xp: 225, 
       spores: 45, 
       message: 'Feature complete! Ready for polish.',
-      unlocks: { mode: 'review' }
+      unlocks: { mode: 'debug' }
     }
   },
   POLISH: {
@@ -52,7 +52,7 @@ export const STAGE_REWARDS: Record<Phase, Record<number, StageReward>> = {
       xp: 200, 
       spores: 40, 
       message: 'Final polish applied! Ready to launch.',
-      unlocks: { mode: 'planning' }
+      unlocks: { mode: 'sprint-planning' }
     },
     4: { xp: 250, spores: 50, message: 'Polish phase complete! Launch-ready.' }
   },
