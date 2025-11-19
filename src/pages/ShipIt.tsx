@@ -49,10 +49,15 @@ export default function ShipIt() {
   const toggleRightPanel = useGameStore((state) => state.toggleRightPanel);
   const projectName = useGameStore((state) => state.projectName);
   const proMode = useGameStore((state) => state.proMode);
+  const showCardPackModal = useGameStore((state) => state.showCardPackModal);
+  const cardPackToOpen = useGameStore((state) => state.cardPackToOpen);
+  const setShowCardPackModal = useGameStore((state) => state.setShowCardPackModal);
   const promptCount = 0;
 
   // Real-time presence tracking
   const [onlineCollaborators, setOnlineCollaborators] = useState<any[]>([]);
+  const [selectedCardForDetail, setSelectedCardForDetail] = useState<any>(null);
+  const [showCardDetailModal, setShowCardDetailModal] = useState(false);
 
   useEffect(() => {
     if (!sessionId || !user) return;

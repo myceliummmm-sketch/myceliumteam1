@@ -218,6 +218,12 @@ export interface GameState {
   
   // Prompt library
   showPromptLibrary: boolean;
+  selectedPrompt: any | null;
+  showPromptDetailModal: boolean;
+  
+  // Card system
+  showCardPackModal: boolean;
+  cardPackToOpen: any[] | null;
   
   // Panel collapse state
   leftPanelCollapsed: boolean;
