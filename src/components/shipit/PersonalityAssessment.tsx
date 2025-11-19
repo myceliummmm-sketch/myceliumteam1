@@ -5,11 +5,13 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, TrendingUp, Target, Lightbulb, Brain, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useGameStore } from '@/stores/gameStore';
 import { toast } from 'sonner';
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 interface Question {
   id: string;
@@ -309,9 +311,255 @@ This is a comprehensive personality assessment covering Self-Awareness, Alignmen
     return categoryScores;
   };
 
+  // Transform category scores for radar chart
+  const getRadarChartData = () => {
+    const categoryScores = calculateCategoryScores();
+    
+    return [
+      {
+        category: 'Self-Awareness',
+        score: categoryScores['Self-Awareness']?.average || 0,
+        fullMark: 10,
+      },
+      {
+        category: 'Alignment',
+        score: categoryScores['Alignment']?.average || 0,
+        fullMark: 10,
+      },
+      {
+        category: 'Growth Mindset',
+        score: categoryScores['Growth Mindset']?.average || 0,
+        fullMark: 10,
+      },
+      {
+        category: 'Consistency',
+        score: categoryScores['Consistency']?.average || 0,
+        fullMark: 10,
+      },
+      {
+        category: 'Empathy',
+        score: categoryScores['Empathy']?.average || 0,
+        fullMark: 10,
+      },
+    ];
+  };
+
+  const chartConfig = {
+    score: {
+      label: 'Score',
+      color: 'hsl(var(--primary))',
+    },
+  };
+
+  // Generate personality insights based on scores
+  interface PersonalityInsight {
+    icon: typeof Brain;
+    title: string;
+    description: string;
+    tips: string[];
+  }
+
+  const getPersonalityInsights = (): PersonalityInsight[] => {
+    const categoryScores = calculateCategoryScores();
+    const insights: PersonalityInsight[] = [];
+
+    Object.entries(categoryScores).forEach(([category, { average }]) => {
+      let insight: PersonalityInsight | null = null;
+
+      if (category === 'Self-Awareness') {
+        if (average >= 8) {
+          insight = {
+            icon: Brain,
+            title: 'Strong Self-Awareness',
+            description: 'You have excellent understanding of your emotions and behaviors.',
+            tips: [
+              'Share your self-reflection practices with others',
+              'Mentor someone who struggles with self-awareness',
+              'Journal your insights to track growth over time'
+            ]
+          };
+        } else if (average >= 5) {
+          insight = {
+            icon: Brain,
+            title: 'Developing Self-Awareness',
+            description: 'You\'re building awareness but have room to grow.',
+            tips: [
+              'Practice daily 5-minute reflection sessions',
+              'Ask trusted friends for honest feedback',
+              'Try mindfulness meditation to understand your emotions better'
+            ]
+          };
+        } else {
+          insight = {
+            icon: Brain,
+            title: 'Build Self-Awareness',
+            description: 'Increasing self-awareness will unlock your potential.',
+            tips: [
+              'Start with emotion labeling: name what you feel throughout the day',
+              'Keep a simple journal: "What did I feel today and why?"',
+              'Use the "5 Whys" technique when you have strong reactions'
+            ]
+          };
+        }
+      }
+
+      if (category === 'Alignment') {
+        if (average >= 8) {
+          insight = {
+            icon: Target,
+            title: 'Values-Driven Life',
+            description: 'Your actions consistently reflect your core values.',
+            tips: [
+              'Document your decision-making framework to help others',
+              'Take on leadership roles that require ethical decisions',
+              'Review your values quarterly to ensure they still resonate'
+            ]
+          };
+        } else if (average >= 5) {
+          insight = {
+            icon: Target,
+            title: 'Strengthening Alignment',
+            description: 'You try to live by your values but face challenges.',
+            tips: [
+              'Write down your top 5 core values and review them weekly',
+              'Before major decisions, ask: "Does this align with my values?"',
+              'Identify one area where your actions conflict with values and address it'
+            ]
+          };
+        } else {
+          insight = {
+            icon: Target,
+            title: 'Discover Your Values',
+            description: 'Clarifying your values will guide better decisions.',
+            tips: [
+              'List 10 moments when you felt most proud - find the common theme',
+              'Identify what makes you angry - it reveals your values',
+              'Choose 3 non-negotiable values to focus on this month'
+            ]
+          };
+        }
+      }
+
+      if (category === 'Growth Mindset') {
+        if (average >= 8) {
+          insight = {
+            icon: TrendingUp,
+            title: 'Exceptional Growth Mindset',
+            description: 'You embrace challenges and see failures as opportunities.',
+            tips: [
+              'Take on a "stretch project" outside your comfort zone',
+              'Share your failure stories to inspire others',
+              'Experiment with learning in a completely new domain'
+            ]
+          };
+        } else if (average >= 5) {
+          insight = {
+            icon: TrendingUp,
+            title: 'Growing Your Mindset',
+            description: 'You\'re learning to embrace challenges more.',
+            tips: [
+              'After setbacks, write down 3 lessons learned',
+              'Replace "I can\'t" with "I can\'t yet" in your vocabulary',
+              'Celebrate effort and progress, not just outcomes'
+            ]
+          };
+        } else {
+          insight = {
+            icon: TrendingUp,
+            title: 'Unlock Growth Potential',
+            description: 'Shifting your mindset will accelerate your development.',
+            tips: [
+              'Read "Mindset" by Carol Dweck to understand growth vs fixed mindset',
+              'Start small: try one new thing this week without fear of failure',
+              'Track your learning: "What did I try? What did I learn?"'
+            ]
+          };
+        }
+      }
+
+      if (category === 'Consistency') {
+        if (average >= 8) {
+          insight = {
+            icon: Heart,
+            title: 'Highly Consistent',
+            description: 'You\'re reliable and authentic across all contexts.',
+            tips: [
+              'Your consistency builds trust - leverage this in leadership',
+              'Help others build reliable systems and habits',
+              'Document your routines to maintain consistency during stress'
+            ]
+          };
+        } else if (average >= 5) {
+          insight = {
+            icon: Heart,
+            title: 'Building Consistency',
+            description: 'You\'re working on being more reliable and authentic.',
+            tips: [
+              'Create a simple daily routine and stick to it for 30 days',
+              'Track your commitments in a visible place',
+              'Practice saying no to avoid overcommitting'
+            ]
+          };
+        } else {
+          insight = {
+            icon: Heart,
+            title: 'Develop Consistency',
+            description: 'Building reliable patterns will strengthen relationships.',
+            tips: [
+              'Start with one small daily habit (e.g., 5-minute morning routine)',
+              'Under-promise and over-deliver to rebuild trust',
+              'Use accountability: share your commitments with a friend'
+            ]
+          };
+        }
+      }
+
+      if (category === 'Empathy') {
+        if (average >= 8) {
+          insight = {
+            icon: Heart,
+            title: 'Deep Empathy',
+            description: 'You naturally understand and connect with others.',
+            tips: [
+              'Use your empathy in conflict resolution and mediation',
+              'Be mindful not to absorb others\' emotions - practice boundaries',
+              'Teach active listening techniques to your team'
+            ]
+          };
+        } else if (average >= 5) {
+          insight = {
+            icon: Heart,
+            title: 'Growing Empathy',
+            description: 'You can understand others when you make the effort.',
+            tips: [
+              'Practice active listening: listen without planning your response',
+              'Ask "How are you feeling?" instead of "What do you think?"',
+              'Read fiction to experience different perspectives'
+            ]
+          };
+        } else {
+          insight = {
+            icon: Heart,
+            title: 'Strengthen Empathy',
+            description: 'Developing empathy will deepen your relationships.',
+            tips: [
+              'Pause before responding - ask yourself how the other person feels',
+              'Practice this daily: imagine being in someone else\'s situation',
+              'Volunteer or engage with people from different backgrounds'
+            ]
+          };
+        }
+      }
+
+      if (insight) insights.push(insight);
+    });
+
+    return insights;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-primary" />
@@ -330,42 +578,120 @@ This is a comprehensive personality assessment covering Self-Awareness, Alignmen
           </div>
         ) : showSummary ? (
           <div className="space-y-6 py-4">
-            <Card className="p-6 bg-card/50 backdrop-blur-sm border-primary/20">
-              <div className="space-y-4">
-                <div className="text-center space-y-2">
-                  <div className="text-4xl">🎭</div>
-                  <h3 className="text-xl font-bold">Assessment Complete!</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Review your personality profile before generating your card
-                  </p>
-                </div>
+            {/* Header */}
+            <div className="text-center space-y-2">
+              <div className="text-4xl">🎭</div>
+              <h3 className="text-xl font-bold">Assessment Complete!</h3>
+              <p className="text-sm text-muted-foreground">
+                Review your personality profile before generating your card
+              </p>
+            </div>
 
-                <div className="space-y-3 mt-6">
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* LEFT: Radar Chart */}
+              <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20">
+                <div className="space-y-4">
+                  <h4 className="text-sm font-mono text-primary uppercase text-center">
+                    Your Profile
+                  </h4>
+                  <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
+                    <RadarChart data={getRadarChartData()}>
+                      <PolarGrid stroke="hsl(var(--border))" />
+                      <PolarAngleAxis 
+                        dataKey="category" 
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                      />
+                      <PolarRadiusAxis 
+                        angle={90} 
+                        domain={[0, 10]}
+                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      />
+                      <Radar 
+                        name="Score" 
+                        dataKey="score" 
+                        stroke="hsl(var(--primary))" 
+                        fill="hsl(var(--primary))" 
+                        fillOpacity={0.6}
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                    </RadarChart>
+                  </ChartContainer>
+                </div>
+              </Card>
+
+              {/* RIGHT: Score Breakdown */}
+              <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20">
+                <div className="space-y-3">
                   <h4 className="text-sm font-mono text-primary uppercase">Your Scores</h4>
                   {Object.entries(calculateCategoryScores()).map(([category, { average }]) => (
-                    <div key={category} className="space-y-2">
+                    <div key={category} className="space-y-1">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">{category}</span>
-                        <span className="text-sm font-mono text-primary">
+                        <span className="text-xs font-medium">{category}</span>
+                        <span className="text-xs font-mono text-primary">
                           {average.toFixed(1)}/10
                         </span>
                       </div>
                       <Progress 
                         value={(average / 10) * 100} 
-                        className="h-2"
+                        className="h-1.5"
                       />
                     </div>
                   ))}
                 </div>
+              </Card>
+            </div>
 
-                <div className="mt-6 p-4 bg-muted/50 rounded-lg space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Sparkles className="h-3 w-3" />
-                    <span>Your unique AUTHENTICITY card will be crafted based on these results</span>
-                  </div>
-                </div>
+            {/* Personality Insights */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 text-primary" />
+                <h4 className="text-sm font-mono text-primary uppercase">
+                  Your Insights & Growth Tips
+                </h4>
               </div>
-            </Card>
+              
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                {getPersonalityInsights().map((insight, index) => {
+                  const Icon = insight.icon;
+                  return (
+                    <Card key={index} className="p-4 bg-card/30 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Icon className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <h5 className="text-sm font-semibold">{insight.title}</h5>
+                            <p className="text-xs text-muted-foreground">{insight.description}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="pl-11 space-y-2">
+                          <p className="text-xs font-medium text-primary/80">Action Steps:</p>
+                          <ul className="space-y-1.5">
+                            {insight.tips.map((tip, tipIndex) => (
+                              <li key={tipIndex} className="text-xs text-muted-foreground flex items-start gap-2">
+                                <span className="text-primary mt-0.5">→</span>
+                                <span className="flex-1">{tip}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Bottom Note */}
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Sparkles className="h-3 w-3" />
+                <span>Your unique AUTHENTICITY card will be crafted based on these results</span>
+              </div>
+            </div>
 
             {/* Action Buttons */}
             <div className="flex justify-between gap-4">
