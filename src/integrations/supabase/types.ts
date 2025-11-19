@@ -100,6 +100,122 @@ export type Database = {
           },
         ]
       }
+      card_evaluations: {
+        Row: {
+          card_id: string
+          created_at: string | null
+          factor_1_explanation: string | null
+          factor_1_name: string
+          factor_1_score: number
+          factor_2_explanation: string | null
+          factor_2_name: string
+          factor_2_score: number
+          factor_3_explanation: string | null
+          factor_3_name: string
+          factor_3_score: number
+          factor_4_explanation: string | null
+          factor_4_name: string
+          factor_4_score: number
+          factor_5_explanation: string | null
+          factor_5_name: string
+          factor_5_score: number
+          id: string
+        }
+        Insert: {
+          card_id: string
+          created_at?: string | null
+          factor_1_explanation?: string | null
+          factor_1_name: string
+          factor_1_score: number
+          factor_2_explanation?: string | null
+          factor_2_name: string
+          factor_2_score: number
+          factor_3_explanation?: string | null
+          factor_3_name: string
+          factor_3_score: number
+          factor_4_explanation?: string | null
+          factor_4_name: string
+          factor_4_score: number
+          factor_5_explanation?: string | null
+          factor_5_name: string
+          factor_5_score: number
+          id?: string
+        }
+        Update: {
+          card_id?: string
+          created_at?: string | null
+          factor_1_explanation?: string | null
+          factor_1_name?: string
+          factor_1_score?: number
+          factor_2_explanation?: string | null
+          factor_2_name?: string
+          factor_2_score?: number
+          factor_3_explanation?: string | null
+          factor_3_name?: string
+          factor_3_score?: number
+          factor_4_explanation?: string | null
+          factor_4_name?: string
+          factor_4_score?: number
+          factor_5_explanation?: string | null
+          factor_5_name?: string
+          factor_5_score?: number
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_evaluations_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "dynamic_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_generation_events: {
+        Row: {
+          card_id: string
+          conversation_context: Json | null
+          created_at: string | null
+          id: string
+          player_id: string
+          session_id: string | null
+          trigger_type: string
+        }
+        Insert: {
+          card_id: string
+          conversation_context?: Json | null
+          created_at?: string | null
+          id?: string
+          player_id: string
+          session_id?: string | null
+          trigger_type: string
+        }
+        Update: {
+          card_id?: string
+          conversation_context?: Json | null
+          created_at?: string | null
+          id?: string
+          player_id?: string
+          session_id?: string | null
+          trigger_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_generation_events_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "dynamic_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_generation_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -203,6 +319,80 @@ export type Database = {
           player_id?: string
         }
         Relationships: []
+      }
+      dynamic_cards: {
+        Row: {
+          average_score: number | null
+          card_type: string
+          content: string
+          contributing_characters: string[] | null
+          created_at: string | null
+          created_by_character: string | null
+          description: string | null
+          id: string
+          is_archived: boolean | null
+          last_used_at: string | null
+          level: number
+          player_id: string
+          rarity: string
+          session_id: string | null
+          tags: string[] | null
+          times_used: number | null
+          title: string
+          updated_at: string | null
+          visual_theme: string | null
+        }
+        Insert: {
+          average_score?: number | null
+          card_type: string
+          content: string
+          contributing_characters?: string[] | null
+          created_at?: string | null
+          created_by_character?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          last_used_at?: string | null
+          level: number
+          player_id: string
+          rarity: string
+          session_id?: string | null
+          tags?: string[] | null
+          times_used?: number | null
+          title: string
+          updated_at?: string | null
+          visual_theme?: string | null
+        }
+        Update: {
+          average_score?: number | null
+          card_type?: string
+          content?: string
+          contributing_characters?: string[] | null
+          created_at?: string | null
+          created_by_character?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          last_used_at?: string | null
+          level?: number
+          player_id?: string
+          rarity?: string
+          session_id?: string | null
+          tags?: string[] | null
+          times_used?: number | null
+          title?: string
+          updated_at?: string | null
+          visual_theme?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dynamic_cards_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       game_sessions: {
         Row: {

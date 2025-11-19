@@ -226,4 +226,7 @@ export interface GameState {
   // Dev mode
   devMode: boolean;
   responseDepth: ResponseDepth;
+  
+  // Pro Mode toggle
+  proMode: boolean;
 }
