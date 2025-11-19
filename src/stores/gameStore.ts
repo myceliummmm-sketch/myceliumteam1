@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId, QuickReplyButton, ConversationMode, ResponseDepth } from '@/types/game';
+import { Phase, GameState, ChatMessage, GameEvent, TeamMember, Artifact, ArtifactId, QuickReplyButton, ConversationMode, ResponseDepth } from '@/types/game';
 import { supabase } from '@/integrations/supabase/client';
 
 interface GameActions {
@@ -56,7 +56,7 @@ const initialState: GameState = {
   energy: 10,
   streak: 0,
   codeHealth: 100,
-  currentPhase: 'SPARK',
+  currentPhase: 'VISION' as Phase,
   completedTasks: [],
   currentTasks: [],
   blockers: [],

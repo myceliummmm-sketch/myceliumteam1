@@ -13,12 +13,12 @@ export interface PromptTemplate {
 }
 
 export const PROMPT_TEMPLATES: PromptTemplate[] = [
-  // SPARK Phase Templates
+  // VISION Phase Templates
   {
     title: 'Problem Statement Framework',
     description: 'Define the core problem you\'re solving',
     category: 'product',
-    phase: 'SPARK',
+    phase: 'VISION',
     prompt_text: `You are a product strategist helping define a clear problem statement.
 
 CONTEXT:
@@ -52,7 +52,7 @@ Current solutions like Slack threads fail because they lack structure and accoun
     title: 'Vision Document Template',
     description: 'Articulate your product vision and mission',
     category: 'product',
-    phase: 'SPARK',
+    phase: 'VISION',
     prompt_text: `You are a product visionary crafting a compelling product vision.
 
 CONTEXT:
@@ -89,12 +89,12 @@ Keep it inspiring but grounded.`,
     tags: ['vision', 'mission', 'strategy']
   },
 
-  // EXPLORE Phase Templates
+  // RESEARCH Phase Templates
   {
     title: 'User Interview Guide',
     description: 'Comprehensive framework for user interviews',
     category: 'research',
-    phase: 'EXPLORE',
+    phase: 'RESEARCH',
     prompt_text: `You are a user researcher conducting interviews to validate assumptions.
 
 CONTEXT:
@@ -150,7 +150,7 @@ RULES:
     title: 'Competitor Analysis Framework',
     description: 'Systematic competitive research template',
     category: 'research',
-    phase: 'EXPLORE',
+    phase: 'RESEARCH',
     prompt_text: `You are a market analyst researching competitive landscape.
 
 CONTEXT:
@@ -201,12 +201,12 @@ SOURCES TO CHECK:
     tags: ['competitive-analysis', 'market-research']
   },
 
-  // CRAFT Phase Templates
+  // PROTOTYPE Phase Templates
   {
     title: 'User Story Template',
     description: 'Convert features into user-focused stories',
     category: 'design',
-    phase: 'CRAFT',
+    phase: 'PROTOTYPE',
     prompt_text: `You are a product manager writing user stories.
 
 CONTEXT:
@@ -253,12 +253,12 @@ Acceptance Criteria:
     tags: ['user-stories', 'requirements', 'agile']
   },
 
-  // FORGE Phase Templates
+  // BUILD Phase Templates
   {
     title: 'Code Review Checklist',
     description: 'Systematic code review criteria',
     category: 'technical',
-    phase: 'FORGE',
+    phase: 'BUILD',
     prompt_text: `You are a senior engineer reviewing code for quality and security.
 
 CONTEXT:
@@ -310,12 +310,12 @@ FORMAT:
     tags: ['code-review', 'quality-assurance', 'best-practices']
   },
 
-  // POLISH Phase Templates
+  // GROW Phase Templates (Testing & Launch)
   {
     title: 'QA Testing Checklist',
     description: 'Comprehensive testing scenarios',
     category: 'technical',
-    phase: 'POLISH',
+    phase: 'GROW',
     prompt_text: `You are a QA engineer creating a testing plan.
 
 CONTEXT:
@@ -369,12 +369,12 @@ Test Case | Steps | Expected Result | Pass/Fail`,
     tags: ['testing', 'qa', 'quality-assurance']
   },
 
-  // LAUNCH Phase Templates
+  // GROW Phase Templates (Launch)
   {
     title: 'Launch Checklist',
     description: 'Pre-launch preparation and monitoring',
     category: 'general',
-    phase: 'LAUNCH',
+    phase: 'GROW',
     prompt_text: `You are a launch manager preparing for production deployment.
 
 CONTEXT:
