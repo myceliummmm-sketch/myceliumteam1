@@ -174,8 +174,8 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
 
       {collapsed ? (
         // Collapsed view: Just icon and card count
-        <div className="flex-1 p-4 text-center space-y-3 flex flex-col">
-          <div className="flex-1 space-y-3">
+        <div className="h-full p-4 text-center flex flex-col">
+          <div className="flex-1 space-y-3 overflow-y-auto">
             <div className="text-3xl">🎴</div>
             <div className="text-xs font-mono text-muted-foreground font-bold">
               {cards.length}
@@ -193,7 +193,7 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           
           {/* Bottom buttons in collapsed view */}
           {!proMode && (
-            <div className="flex flex-col gap-2 pt-4 border-t border-border/30">
+            <div className="flex flex-col gap-2 pt-4 mt-auto border-t border-border/30">
               <VersionTogglePanel />
               <Button
                 variant="outline"
@@ -391,7 +391,7 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
       </div>
 
       {/* Cards Grid - Only in expanded view */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         {loading ? (
           <div className="p-8 text-center">
             <div className="inline-block animate-pulse font-mono text-primary">
@@ -428,7 +428,7 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
       
       {/* Bottom buttons in expanded view */}
       {!proMode && (
-        <div className="p-2 border-t border-border/30 bg-card/30 backdrop-blur-sm flex items-center justify-end gap-2">
+        <div className="p-2 border-t border-border/30 bg-card/30 backdrop-blur-sm flex items-center justify-end gap-2 shrink-0">
           <VersionTogglePanel />
           <Button
             variant="outline"
