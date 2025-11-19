@@ -316,3 +316,24 @@ export function calculateStageProgress(
   const progressInStage = phaseProgress - rangeStart;
   return Math.round((progressInStage / rangeSize) * 100);
 }
+
+export function hasCompletedStage(
+  currentProgress: number,
+  previousProgress: number,
+  stage: StageDefinition
+): boolean {
+  const [start, end] = stage.progressRange;
+  return previousProgress < end && currentProgress >= end;
+}
+
+export function getCompletedStages(
+  phase: Phase,
+  currentProgress: number,
+  previousProgress: number
+): StageDefinition[] {
+  const stages = STAGE_DEFINITIONS[phase];
+  return stages.filter(stage => 
+    hasCompletedStage(currentProgress, previousProgress, stage)
+  );
+}
+

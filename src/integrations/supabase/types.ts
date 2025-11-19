@@ -464,6 +464,8 @@ export type Database = {
           completed_tasks: Json | null
           created_at: string | null
           current_phase: Database["public"]["Enums"]["game_phase"] | null
+          current_stage_number: number | null
+          current_stage_progress: number | null
           current_tasks: Json | null
           energy: number | null
           id: string
@@ -483,6 +485,8 @@ export type Database = {
           completed_tasks?: Json | null
           created_at?: string | null
           current_phase?: Database["public"]["Enums"]["game_phase"] | null
+          current_stage_number?: number | null
+          current_stage_progress?: number | null
           current_tasks?: Json | null
           energy?: number | null
           id?: string
@@ -502,6 +506,8 @@ export type Database = {
           completed_tasks?: Json | null
           created_at?: string | null
           current_phase?: Database["public"]["Enums"]["game_phase"] | null
+          current_stage_number?: number | null
+          current_stage_progress?: number | null
           current_tasks?: Json | null
           energy?: number | null
           id?: string
@@ -864,6 +870,53 @@ export type Database = {
           },
           {
             foreignKeyName: "session_invites_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stage_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          phase: string
+          player_id: string
+          session_id: string
+          stage_label: string
+          stage_number: number
+          tasks_completed: number | null
+          time_spent_seconds: number | null
+          xp_earned: number | null
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          phase: string
+          player_id: string
+          session_id: string
+          stage_label: string
+          stage_number: number
+          tasks_completed?: number | null
+          time_spent_seconds?: number | null
+          xp_earned?: number | null
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          phase?: string
+          player_id?: string
+          session_id?: string
+          stage_label?: string
+          stage_number?: number
+          tasks_completed?: number | null
+          time_spent_seconds?: number | null
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_completions_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "game_sessions"

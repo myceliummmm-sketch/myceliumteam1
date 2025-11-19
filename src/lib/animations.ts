@@ -151,3 +151,35 @@ export const cardRevealAnimation = {
     duration: 1
   }
 };
+
+// Stage transition animations
+export const stageTransitionAnimation = {
+  initial: { x: 100, opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: -100, opacity: 0 },
+  transition: {
+    type: "spring" as const,
+    stiffness: 200,
+    damping: 25
+  }
+};
+
+export const stageProgressBarAnimation = {
+  initial: { width: 0 },
+  animate: (progress: number) => ({ 
+    width: `${progress}%`,
+    transition: {
+      duration: 0.8,
+      ease: "easeOut" as const
+    }
+  })
+};
+
+export const stageBadgePulse = {
+  scale: [1, 1.1, 1],
+  transition: {
+    duration: 0.5,
+    repeat: 2,
+    ease: "easeInOut" as const
+  }
+};
