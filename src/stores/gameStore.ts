@@ -34,6 +34,8 @@ interface GameActions {
   toggleDevMode: () => void;
   setResponseDepth: (depth: ResponseDepth) => void;
   setProjectMetadata: (metadata: { name?: string; description?: string; color?: string; icon?: string }) => void;
+  toggleProMode: () => void;
+  setProMode: (enabled: boolean) => void;
 }
 
 const initialState: GameState = {
@@ -100,6 +102,9 @@ const initialState: GameState = {
   responseDepth: (typeof window !== 'undefined' 
     ? localStorage.getItem('responseDepth') 
     : 'normal') as ResponseDepth || 'normal',
+  proMode: typeof window !== 'undefined' 
+    ? localStorage.getItem('proMode') === 'true' 
+    : false,
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -424,5 +429,16 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     projectColor: metadata.color ?? state.projectColor,
     projectIcon: metadata.icon ?? state.projectIcon,
   })),
+
+  toggleProMode: () => set((state) => {
+    const newValue = !state.proMode;
+    localStorage.setItem('proMode', String(newValue));
+    return { proMode: newValue };
+  }),
+  
+  setProMode: (enabled: boolean) => {
+    localStorage.setItem('proMode', String(enabled));
+    set({ proMode: enabled });
+  },
 }));
 

@@ -26,6 +26,9 @@ import { SessionContext } from '@/components/shipit/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 
+import { VersionTogglePanel } from '@/components/shipit/VersionTogglePanel';
+import { CardCollection } from '@/components/shipit/CardCollection';
+
 export default function ShipIt() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -43,6 +46,7 @@ export default function ShipIt() {
   const toggleLeftPanel = useGameStore((state) => state.toggleLeftPanel);
   const toggleRightPanel = useGameStore((state) => state.toggleRightPanel);
   const projectName = useGameStore((state) => state.projectName);
+  const proMode = useGameStore((state) => state.proMode);
   const promptCount = 0;
 
   // Real-time presence tracking
@@ -156,7 +160,7 @@ export default function ShipIt() {
       
       {/* Responsive Flex Layout */}
       <div className="h-auto lg:h-[calc(100vh-6rem)] flex flex-col lg:flex-row gap-4">
-        {/* Left: Team Panel - Hidden on mobile, collapsible sidebar on desktop */}
+        {/* Left: Team Panel - Always visible */}
         <div 
           className={`hidden lg:block transition-all duration-300 overflow-y-auto ${
             leftPanelCollapsed ? 'w-20' : 'w-64'
@@ -166,9 +170,9 @@ export default function ShipIt() {
           <TeamPanel collapsed={leftPanelCollapsed} onToggle={toggleLeftPanel} />
         </div>
         
-        {/* Center: Chat & Terminal - Full width on mobile, grows to fill space on desktop */}
+        {/* Center: Chat & Terminal */}
         <div className="flex flex-col gap-4 flex-1 min-w-0 min-h-[60vh] lg:min-h-0">
-          <PhaseProgress />
+          {proMode && <PhaseProgress />}
           <div className="flex-1 min-h-[400px] lg:min-h-0" data-tutorial-target="chat-terminal">
             <ChatTerminal />
           </div>
@@ -182,26 +186,35 @@ export default function ShipIt() {
           </div>
         </div>
         
-        {/* Right: Stats, Activity Feed & Quest Log - Below chat on mobile, collapsible sidebar on desktop */}
-        <div 
-          className={`flex flex-col gap-4 overflow-y-auto transition-all duration-300 ${
-            rightPanelCollapsed ? 'lg:w-20' : 'lg:w-80'
-          }`}
-        >
-          <div data-tutorial-target="stats-panel">
-            <StatsPanel collapsed={rightPanelCollapsed} onToggle={toggleRightPanel} />
+        {/* Right Sidebar - Conditional based on mode */}
+        {proMode ? (
+          // PRO Mode: Stats, Activity, Quest Log
+          <div 
+            className={`flex flex-col gap-4 overflow-y-auto transition-all duration-300 ${
+              rightPanelCollapsed ? 'lg:w-20' : 'lg:w-80'
+            }`}
+          >
+            <div data-tutorial-target="stats-panel">
+              <StatsPanel collapsed={rightPanelCollapsed} onToggle={toggleRightPanel} />
+            </div>
+            <StreakCalendar collapsed={rightPanelCollapsed} />
+            {sessionId && onlineCollaborators.length > 1 && (
+              <ActivityFeed sessionId={sessionId} collapsed={rightPanelCollapsed} />
+            )}
+            <div data-tutorial-target="quest-log">
+              <QuestLog collapsed={rightPanelCollapsed} />
+            </div>
           </div>
-          <StreakCalendar collapsed={rightPanelCollapsed} />
-          {sessionId && onlineCollaborators.length > 1 && (
-            <ActivityFeed sessionId={sessionId} collapsed={rightPanelCollapsed} />
-          )}
-          <div data-tutorial-target="quest-log">
-            <QuestLog collapsed={rightPanelCollapsed} />
+        ) : (
+          // Lite Mode: Card Collection
+          <div className="lg:w-96 hidden lg:block">
+            <CardCollection />
           </div>
-        </div>
+        )}
       </div>
       <TutorialOverlay />
-      <DevModePanel />
+      {proMode && <DevModePanel />}
+      <VersionTogglePanel />
     </div>
   );
 }
