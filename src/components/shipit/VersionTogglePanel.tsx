@@ -1,21 +1,26 @@
 import { useGameStore } from '@/stores/gameStore';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Zap, Layers } from 'lucide-react';
+import { Zap, Layers, LogOut } from 'lucide-react';
 
-export function VersionTogglePanel() {
+export function VersionTogglePanel({ showLogout = false }: { showLogout?: boolean }) {
   const proMode = useGameStore((state) => state.proMode);
   const toggleProMode = useGameStore((state) => state.toggleProMode);
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="fixed bottom-4 right-4 z-50 gap-2 border-border/50 bg-card/80 backdrop-blur-sm hover:bg-card"
-        >
+    <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2">
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 border-border/50 bg-card/80 backdrop-blur-sm hover:bg-card"
+          >
           {proMode ? (
             <>
               <Layers className="h-4 w-4" />
@@ -27,9 +32,9 @@ export function VersionTogglePanel() {
               <span className="hidden sm:inline">Lite Mode</span>
             </>
           )}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] border-border/50 bg-card/95 backdrop-blur-xl">
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px] border-border/50 bg-card/95 backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold neon-text-cyan">Experience Mode</DialogTitle>
         </DialogHeader>
@@ -107,5 +112,22 @@ export function VersionTogglePanel() {
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Logout Button - Only show in Lite Mode */}
+    {!proMode && showLogout && (
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={async () => {
+          await signOut();
+          navigate('/login');
+        }}
+        className="border-border/50 bg-card/80 backdrop-blur-sm hover:bg-card"
+        title="Logout"
+      >
+        <LogOut className="h-4 w-4" />
+      </Button>
+    )}
+  </div>
   );
 }

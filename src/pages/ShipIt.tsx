@@ -140,7 +140,7 @@ export default function ShipIt() {
       />
       
       {/* Header - Conditional based on mode */}
-      {proMode ? (
+      {proMode && (
         // PRO MODE: Full header with all navigation
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4 bg-card rounded-lg p-4 border">
           <div className="flex items-center gap-4 flex-wrap">
@@ -198,23 +198,6 @@ export default function ShipIt() {
               <span className="hidden md:inline">Logout</span>
             </Button>
           </div>
-        </div>
-      ) : (
-        // LITE MODE: Minimal header - Only Version Toggle + Logout
-        <div className="mb-4 flex items-center justify-end gap-2 bg-card/50 backdrop-blur-sm rounded-lg p-2 border border-border/50">
-          <VersionTogglePanel />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await signOut();
-              navigate('/login');
-            }}
-            className="gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
-          </Button>
         </div>
       )}
       
@@ -279,7 +262,7 @@ export default function ShipIt() {
       </div>
       <TutorialOverlay />
       {proMode && <DevModePanel />}
-      <VersionTogglePanel />
+      <VersionTogglePanel showLogout={true} />
     </div>
   );
 }
