@@ -63,7 +63,7 @@ export function DevModePanel() {
       xp: 0,
       energy: 10,
       spores: 0,
-      currentPhase: 'SPARK',
+      currentPhase: 'VISION',
       artifacts: [],
     });
   };

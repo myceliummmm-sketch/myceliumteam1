@@ -45,6 +45,10 @@ export const STAGE_DEFINITIONS: Record<Phase, StageDefinition[]> = {
 
 export function getCurrentStage(phase: Phase, phaseProgress: number): StageDefinition {
   const stages = STAGE_DEFINITIONS[phase];
+  if (!stages || !Array.isArray(stages)) {
+    // Fallback for unknown phase - return VISION stage 1
+    return STAGE_DEFINITIONS.VISION[0];
+  }
   for (const stage of stages) {
     if (phaseProgress >= stage.progressRange[0] && phaseProgress < stage.progressRange[1]) return stage;
   }

@@ -1,6 +1,6 @@
 import { GameState, QuickReplyButton } from '@/types/game';
 import { getCurrentStage, getStageActions, calculateStageProgress } from './stageSystem';
-import { shouldShowTip, getStageTips } from './stageTips';
+import { getStageTip } from './stageTips';
 
 // Calculate phase progress based on tasks and milestones
 export function calculatePhaseProgress(state: GameState): number {
@@ -53,14 +53,15 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
   }));
   
   // Add hint button if user is stuck in stage (>5 minutes)
-  if (shouldShowTip(state.currentStageEnteredAt, 5)) {
-    const tips = getStageTips(state.currentPhase, currentStage.stageNumber);
-    if (tips) {
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+  if (state.currentStageEnteredAt && new Date(state.currentStageEnteredAt) < fiveMinutesAgo) {
+    const tip = getStageTip(state.currentPhase, currentStage.stageNumber);
+    if (tip) {
       replies.push({
         text: `💡 Need a hint?`,
         category: 'general',
         isHint: true,
-        hintContent: tips.tips,
+        hintContent: tip.tips,
         icon: '💡'
       });
     }

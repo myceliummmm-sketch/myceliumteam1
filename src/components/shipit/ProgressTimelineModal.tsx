@@ -9,15 +9,14 @@ import { motion } from 'framer-motion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 
-const PHASES: Phase[] = ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE', 'POLISH', 'LAUNCH'];
+const PHASES: Phase[] = ['VISION', 'RESEARCH', 'PROTOTYPE', 'BUILD', 'GROW'];
 
 const PHASE_COLORS: Record<Phase, string> = {
-  SPARK: 'from-yellow-500/20 to-orange-500/20 border-yellow-500/50',
-  EXPLORE: 'from-blue-500/20 to-cyan-500/20 border-blue-500/50',
-  CRAFT: 'from-purple-500/20 to-pink-500/20 border-purple-500/50',
-  FORGE: 'from-red-500/20 to-orange-500/20 border-red-500/50',
-  POLISH: 'from-green-500/20 to-emerald-500/20 border-green-500/50',
-  LAUNCH: 'from-cyan-500/20 to-blue-500/20 border-cyan-500/50',
+  VISION: 'from-yellow-500/20 to-orange-500/20 border-yellow-500/50',
+  RESEARCH: 'from-blue-500/20 to-cyan-500/20 border-blue-500/50',
+  PROTOTYPE: 'from-purple-500/20 to-pink-500/20 border-purple-500/50',
+  BUILD: 'from-red-500/20 to-orange-500/20 border-red-500/50',
+  GROW: 'from-green-500/20 to-emerald-500/20 border-green-500/50',
 };
 
 interface ProgressTimelineModalProps {
