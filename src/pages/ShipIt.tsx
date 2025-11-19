@@ -32,6 +32,7 @@ import { CardDetailModal } from '@/components/shipit/CardDetailModal';
 import { PersonalityAssessment } from '@/components/shipit/PersonalityAssessment';
 import { CardCollection } from '@/components/shipit/CardCollection';
 import { GenerateCardButton } from '@/components/shipit/GenerateCardButton';
+import { ConversationControls } from '@/components/shipit/ConversationControls';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -161,6 +162,8 @@ export default function ShipIt() {
               collaborators={onlineCollaborators}
               currentUserId={user?.id || ''}
             />
+            <div className="h-6 w-px bg-border hidden lg:block" />
+            <ConversationControls compact showLabels={false} />
           </div>
           
           <div className="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap">
