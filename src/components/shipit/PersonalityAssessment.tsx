@@ -151,6 +151,12 @@ export function PersonalityAssessment({ open, onClose }: PersonalityAssessmentPr
   const progress = (currentStep / totalQuestions) * 100;
   const currentQuestion = ASSESSMENT_QUESTIONS[currentStep];
 
+  // Safety guard: if currentStep is out of bounds, reset to 0
+  if (!currentQuestion && open) {
+    setCurrentStep(0);
+    return null;
+  }
+
   const handleAnswer = (value: string) => {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
     
