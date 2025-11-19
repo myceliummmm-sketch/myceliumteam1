@@ -228,6 +228,7 @@ export interface GameState {
   // Panel collapse state
   leftPanelCollapsed: boolean;
   rightPanelCollapsed: boolean;
+  cardCollectionCollapsed: boolean;
   
   // Dev mode
   devMode: boolean;

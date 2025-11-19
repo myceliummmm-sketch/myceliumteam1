@@ -19,6 +19,13 @@ interface CardFactors {
 }
 
 const CARD_TYPE_FACTORS: Record<string, CardFactors> = {
+  'AUTHENTICITY': {
+    factor_1_name: 'Self-Awareness',
+    factor_2_name: 'Alignment',
+    factor_3_name: 'Growth Mindset',
+    factor_4_name: 'Consistency',
+    factor_5_name: 'Empathy'
+  },
   'IDEA': {
     factor_1_name: 'Uniqueness',
     factor_2_name: 'Feasibility',
@@ -57,6 +64,7 @@ const CARD_TYPE_FACTORS: Record<string, CardFactors> = {
 };
 
 function determineCardType(level: number): string {
+  if (level === 0) return 'AUTHENTICITY';
   const types = ['IDEA', 'INSIGHT', 'DESIGN', 'CODE', 'GROWTH'];
   return types[level - 1] || 'IDEA';
 }
