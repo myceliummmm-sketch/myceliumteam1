@@ -46,6 +46,7 @@ interface GameActions {
   loadStageHistory: (history: any[]) => void;
   recordStageCompletion: (completion: any) => void;
   setPreviousPhaseProgress: (progress: number) => void;
+  setCurrentStageEnteredAt: (date: Date | null) => void;
 }
 
 const initialState: GameState = {
@@ -129,6 +130,7 @@ const initialState: GameState = {
   stageRewards: null,
   lastStageTransition: null,
   previousPhaseProgress: 0,
+  currentStageEnteredAt: null,
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -512,5 +514,8 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   
   setPreviousPhaseProgress: (progress) =>
     set({ previousPhaseProgress: progress }),
+  
+  setCurrentStageEnteredAt: (date) =>
+    set({ currentStageEnteredAt: date }),
 }));
 
