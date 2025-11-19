@@ -29,6 +29,7 @@ import { useEffect, useState } from 'react';
 import { VersionTogglePanel } from '@/components/shipit/VersionTogglePanel';
 import { CardPackOpeningModal } from '@/components/shipit/CardPackOpeningModal';
 import { CardDetailModal } from '@/components/shipit/CardDetailModal';
+import { PersonalityAssessment } from '@/components/shipit/PersonalityAssessment';
 import { CardCollection } from '@/components/shipit/CardCollection';
 
 export default function ShipIt() {
@@ -54,6 +55,8 @@ export default function ShipIt() {
   const showCardPackModal = useGameStore((state) => state.showCardPackModal);
   const cardPackToOpen = useGameStore((state) => state.cardPackToOpen);
   const setShowCardPackModal = useGameStore((state) => state.setShowCardPackModal);
+  const showPersonalityAssessment = useGameStore((state) => state.showPersonalityAssessment);
+  const setShowPersonalityAssessment = useGameStore((state) => state.setShowPersonalityAssessment);
   const promptCount = 0;
 
   // Real-time presence tracking
@@ -130,6 +133,11 @@ export default function ShipIt() {
           }}
         />
       )}
+
+      <PersonalityAssessment
+        open={showPersonalityAssessment}
+        onClose={() => setShowPersonalityAssessment(false)}
+      />
       
       {/* Header - Conditional based on mode */}
       {proMode ? (

@@ -36,6 +36,7 @@ interface GameActions {
   setRightPanelCollapsed: (collapsed: boolean) => void;
   toggleCardCollection: () => void;
   setCardCollectionCollapsed: (collapsed: boolean) => void;
+  setShowPersonalityAssessment: (show: boolean) => void;
   toggleDevMode: () => void;
   setResponseDepth: (depth: ResponseDepth) => void;
   setProjectMetadata: (metadata: { name?: string; description?: string; color?: string; icon?: string }) => void;
@@ -108,6 +109,7 @@ const initialState: GameState = {
   cardCollectionCollapsed: typeof window !== 'undefined'
     ? localStorage.getItem('cardCollectionCollapsed') === 'true'
     : false,
+  showPersonalityAssessment: false,
   devMode: typeof window !== 'undefined' 
     ? localStorage.getItem('devMode') === 'true' 
     : false,
@@ -478,5 +480,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
       localStorage.setItem('cardCollectionCollapsed', String(collapsed));
     }
   },
+
+  setShowPersonalityAssessment: (show: boolean) => set({ showPersonalityAssessment: show }),
 }));
 

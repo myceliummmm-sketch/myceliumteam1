@@ -225,6 +225,9 @@ export interface GameState {
   showCardPackModal: boolean;
   cardPackToOpen: any[] | null;
   
+  // Personality assessment
+  showPersonalityAssessment: boolean;
+  
   // Panel collapse state
   leftPanelCollapsed: boolean;
   rightPanelCollapsed: boolean;
