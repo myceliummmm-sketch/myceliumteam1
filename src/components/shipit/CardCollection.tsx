@@ -5,10 +5,11 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, SortAsc, ChevronLeft } from 'lucide-react';
+import { Search, Filter, SortAsc, ChevronLeft, Sparkles } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CollectibleCard } from './CollectibleCard';
 import { CardDetailModal } from './CardDetailModal';
+import { useGameStore } from '@/stores/gameStore';
 
 interface DynamicCard {
   id: string;
@@ -33,6 +34,7 @@ interface CardCollectionProps {
 
 export function CardCollection({ collapsed = false, onToggle }: CardCollectionProps) {
   const { user } = useAuth();
+  const setShowPersonalityAssessment = useGameStore((state) => state.setShowPersonalityAssessment);
   const [cards, setCards] = useState<DynamicCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,6 +111,15 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           <div className="text-xs font-mono text-muted-foreground font-bold">
             {cards.length}
           </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowPersonalityAssessment(true)}
+            className="w-full text-xs"
+            title="Take Authenticity Assessment"
+          >
+            🎭
+          </Button>
         </div>
       ) : (
         // Full expanded view
@@ -119,9 +130,20 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           <h2 className="text-xl font-bold font-mono neon-text-cyan">
             &gt; CARD_COLLECTION.EXE
           </h2>
-          <Badge variant="outline" className="font-mono">
-            {filteredCards.length}/{cards.length}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowPersonalityAssessment(true)}
+              className="gap-1 h-7"
+            >
+              <Sparkles className="h-3 w-3" />
+              <span className="hidden sm:inline text-xs">Assessment</span>
+            </Button>
+            <Badge variant="outline" className="font-mono">
+              {filteredCards.length}/{cards.length}
+            </Badge>
+          </div>
         </div>
         
         {/* Stats */}
