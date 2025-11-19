@@ -13,7 +13,7 @@ import { createArtifactFromDefinition, applyArtifactBonuses } from '@/lib/artifa
 import { ArtifactId, ConversationMode, Phase, TeamMember } from '@/types/game';
 import { MODE_CONFIGS, isModeUnlocked } from '@/lib/modeConfig';
 import { PROMPT_TEMPLATES } from '@/lib/promptTemplates';
-import { getCompletedStages } from '@/lib/stageSystem';
+import { getCompletedStages, getCurrentStage } from '@/lib/stageSystem';
 import { getStageReward } from '@/lib/stageRewards';
 
 export function useGameSession() {
@@ -425,6 +425,34 @@ export function useGameSession() {
 
     initSession();
   }, [user]);
+  
+  // Track stage changes and set timestamp when entering new stage
+  useEffect(() => {
+    const store = useGameStore.getState();
+    const phaseProgress = calculatePhaseProgress(store);
+    const currentStage = getCurrentStage(store.currentPhase, phaseProgress);
+    
+    // Monitor for stage changes
+    let lastStageKey = `${store.currentPhase}-${currentStage.stageNumber}`;
+    
+    const unsubscribe = useGameStore.subscribe((state) => {
+      const progress = calculatePhaseProgress(state);
+      const stage = getCurrentStage(state.currentPhase, progress);
+      const stageKey = `${state.currentPhase}-${stage.stageNumber}`;
+      
+      if (stageKey !== lastStageKey) {
+        lastStageKey = stageKey;
+        state.setCurrentStageEnteredAt(new Date());
+      }
+    });
+    
+    // Set initial timestamp
+    if (!store.currentStageEnteredAt) {
+      store.setCurrentStageEnteredAt(new Date());
+    }
+    
+    return unsubscribe;
+  }, []);
 
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;

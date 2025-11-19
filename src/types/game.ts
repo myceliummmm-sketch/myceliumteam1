@@ -278,4 +278,5 @@ export interface GameState {
   stageRewards: StageReward | null;
   lastStageTransition: Date | null;
   previousPhaseProgress: number;
+  currentStageEnteredAt: Date | null;
 }

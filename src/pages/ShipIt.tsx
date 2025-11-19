@@ -34,6 +34,7 @@ import { CardCollection } from '@/components/shipit/CardCollection';
 import { GenerateCardButton } from '@/components/shipit/GenerateCardButton';
 import { StageCompletionModal } from '@/components/shipit/StageCompletionModal';
 import { StageHistory } from '@/components/shipit/StageHistory';
+import { ProgressTimelineButton } from '@/components/shipit/ProgressTimelineButton';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -242,7 +243,8 @@ export default function ShipIt() {
             disabled={isLoading || energy < 1}
           />
           <div className="sticky bottom-0 bg-background space-y-2" data-tutorial-target="input-bar">
-            <div className="flex justify-center pb-2">
+            <div className="flex justify-center items-center gap-2 pb-2">
+              <ProgressTimelineButton />
               <GenerateCardButton />
             </div>
             <InputBar />
