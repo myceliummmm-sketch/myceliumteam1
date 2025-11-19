@@ -6,7 +6,7 @@ import { Sparkles, Code, Lightbulb, Rocket, BarChart3 } from 'lucide-react';
 interface CollectibleCardProps {
   card: {
     id: string;
-    card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH';
+    card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH' | 'AUTHENTICITY';
     level: number;
     rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
     title: string;
@@ -26,6 +26,16 @@ const cardTypeIcons = {
   DESIGN: Code,
   CODE: Code,
   GROWTH: Rocket,
+  AUTHENTICITY: Sparkles, // Will use emoji instead
+};
+
+const cardTypeEmoji = {
+  IDEA: '💡',
+  INSIGHT: '🔍',
+  DESIGN: '🎨',
+  CODE: '💻',
+  GROWTH: '🚀',
+  AUTHENTICITY: '🎭',
 };
 
 const rarityStyles = {
@@ -64,6 +74,7 @@ const rarityStyles = {
 export function CollectibleCard({ card, onClick }: CollectibleCardProps & { onClick?: () => void }) {
   const Icon = cardTypeIcons[card.card_type];
   const style = rarityStyles[card.rarity];
+  const emoji = cardTypeEmoji[card.card_type];
 
   return (
     <Card
@@ -81,9 +92,7 @@ export function CollectibleCard({ card, onClick }: CollectibleCardProps & { onCl
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className={`p-2 rounded ${style.bg} border ${style.border}`}>
-              <Icon className={`h-4 w-4 ${style.text}`} />
-            </div>
+            <div className="text-2xl">{emoji}</div>
             <div>
               <Badge variant="outline" className={`text-xs font-mono ${style.text}`}>
                 L{card.level}:{card.card_type}

@@ -5,14 +5,14 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, SortAsc } from 'lucide-react';
+import { Search, Filter, SortAsc, ChevronLeft } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CollectibleCard } from './CollectibleCard';
 import { CardDetailModal } from './CardDetailModal';
 
 interface DynamicCard {
   id: string;
-  card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH';
+  card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH' | 'AUTHENTICITY';
   level: number;
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   title: string;
@@ -26,7 +26,12 @@ interface DynamicCard {
   created_at: string;
 }
 
-export function CardCollection() {
+interface CardCollectionProps {
+  collapsed?: boolean;
+  onToggle?: () => void;
+}
+
+export function CardCollection({ collapsed = false, onToggle }: CardCollectionProps) {
   const { user } = useAuth();
   const [cards, setCards] = useState<DynamicCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,10 +84,35 @@ export function CardCollection() {
     legendary: 'text-amber-400',
   };
 
-  const levelLabels = ['VISION', 'RESEARCH', 'PROTOTYPE', 'BUILD', 'GROW'];
+  const levelLabels = ['AUTHENTICITY', 'VISION', 'RESEARCH', 'PROTOTYPE', 'BUILD', 'GROW'];
 
   return (
-    <div className="h-full flex flex-col bg-background/50 backdrop-blur-sm border-l border-border/30">
+    <div className={`h-full flex flex-col bg-background/50 backdrop-blur-sm border-l border-border/30 transition-all duration-300 relative ${
+      collapsed ? 'w-16' : 'w-full'
+    }`}>
+      {/* Collapse Toggle Button */}
+      {onToggle && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggle}
+          className="absolute top-2 -left-3 z-10 h-6 w-6 rounded-full bg-card border border-border shadow-lg hover:bg-accent"
+        >
+          <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
+        </Button>
+      )}
+
+      {collapsed ? (
+        // Collapsed view: Just icon and card count
+        <div className="p-4 text-center space-y-3">
+          <div className="text-3xl">🎴</div>
+          <div className="text-xs font-mono text-muted-foreground font-bold">
+            {cards.length}
+          </div>
+        </div>
+      ) : (
+        // Full expanded view
+        <>
       {/* Header */}
       <div className="p-4 border-b border-border/30 bg-card/30 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-3">
@@ -160,6 +190,14 @@ export function CardCollection() {
           >
             ALL TYPES
           </Button>
+          <Button
+            variant={typeFilter === 'AUTHENTICITY' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setTypeFilter('AUTHENTICITY')}
+            className="text-xs font-mono h-7"
+          >
+            🎭 L0
+          </Button>
           {(['IDEA', 'INSIGHT', 'DESIGN', 'CODE', 'GROWTH'] as const).map((type, idx) => (
             <Button
               key={type}
@@ -173,6 +211,8 @@ export function CardCollection() {
           ))}
         </div>
       </div>
+      </>
+      )}
 
       {/* Cards Grid */}
       <ScrollArea className="flex-1">

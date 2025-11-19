@@ -47,6 +47,8 @@ export default function ShipIt() {
   const rightPanelCollapsed = useGameStore((state) => state.rightPanelCollapsed);
   const toggleLeftPanel = useGameStore((state) => state.toggleLeftPanel);
   const toggleRightPanel = useGameStore((state) => state.toggleRightPanel);
+  const cardCollectionCollapsed = useGameStore((state) => state.cardCollectionCollapsed);
+  const toggleCardCollection = useGameStore((state) => state.toggleCardCollection);
   const projectName = useGameStore((state) => state.projectName);
   const proMode = useGameStore((state) => state.proMode);
   const showCardPackModal = useGameStore((state) => state.showCardPackModal);
@@ -129,52 +131,70 @@ export default function ShipIt() {
         />
       )}
       
-      {/* Header */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-4 bg-card rounded-lg p-4 border">
-        <div className="flex items-center gap-4 flex-wrap">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/projects')}
-            className="gap-2"
-          >
-            <Folder className="h-4 w-4" />
-            <span className="hidden sm:inline">My Projects</span>
-          </Button>
-          <div className="h-6 w-px bg-border hidden sm:block" />
-          <SessionSwitcher />
-          <SessionContext />
-          <CollaboratorsList 
-            collaborators={onlineCollaborators}
-            currentUserId={user?.id || ''}
-          />
+      {/* Header - Conditional based on mode */}
+      {proMode ? (
+        // PRO MODE: Full header with all navigation
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4 bg-card rounded-lg p-4 border">
+          <div className="flex items-center gap-4 flex-wrap">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/projects')}
+              className="gap-2"
+            >
+              <Folder className="h-4 w-4" />
+              <span className="hidden sm:inline">My Projects</span>
+            </Button>
+            <div className="h-6 w-px bg-border hidden sm:block" />
+            <SessionSwitcher />
+            <SessionContext />
+            <CollaboratorsList 
+              collaborators={onlineCollaborators}
+              currentUserId={user?.id || ''}
+            />
+          </div>
+          
+          <div className="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap">
+            {sessionId && <SessionShareButton sessionId={sessionId} />}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPromptLibrary(true)}
+              className="relative"
+            >
+              <BookOpen className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Prompts</span>
+              {promptCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] flex items-center justify-center">
+                  {promptCount}
+                </span>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/analytics')}
+            >
+              <BarChart3 className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Analytics</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                await signOut();
+                navigate('/login');
+              }}
+            >
+              <LogOut className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Logout</span>
+            </Button>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap">
-          <SessionSwitcher />
-          {sessionId && <SessionShareButton sessionId={sessionId} />}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPromptLibrary(true)}
-            className="relative"
-          >
-            <BookOpen className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">Prompts</span>
-            {promptCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] flex items-center justify-center">
-                {promptCount}
-              </span>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/analytics')}
-          >
-            <BarChart3 className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">Analytics</span>
-          </Button>
+      ) : (
+        // LITE MODE: Minimal header - Only Version Toggle + Logout
+        <div className="mb-4 flex items-center justify-end gap-2 bg-card/50 backdrop-blur-sm rounded-lg p-2 border border-border/50">
+          <VersionTogglePanel />
           <Button
             variant="ghost"
             size="sm"
@@ -182,12 +202,13 @@ export default function ShipIt() {
               await signOut();
               navigate('/login');
             }}
+            className="gap-2"
           >
-            <LogOut className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">Logout</span>
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
           </Button>
         </div>
-      </div>
+      )}
       
       {/* Responsive Flex Layout */}
       <div className="h-auto lg:h-[calc(100vh-6rem)] flex flex-col lg:flex-row gap-4">
@@ -236,12 +257,17 @@ export default function ShipIt() {
               <QuestLog collapsed={rightPanelCollapsed} />
             </div>
           </div>
-        ) : (
-          // Lite Mode: Card Collection
-          <div className="lg:w-96 hidden lg:block">
-            <CardCollection />
-          </div>
-        )}
+            ) : (
+              // Lite Mode: Card Collection with collapse
+              <div className={`transition-all duration-300 ${
+                cardCollectionCollapsed ? 'lg:w-16' : 'lg:w-96'
+              } hidden lg:block relative`}>
+                <CardCollection 
+                  collapsed={cardCollectionCollapsed}
+                  onToggle={toggleCardCollection}
+                />
+              </div>
+            )}
       </div>
       <TutorialOverlay />
       {proMode && <DevModePanel />}

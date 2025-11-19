@@ -34,6 +34,8 @@ interface GameActions {
   toggleRightPanel: () => void;
   setLeftPanelCollapsed: (collapsed: boolean) => void;
   setRightPanelCollapsed: (collapsed: boolean) => void;
+  toggleCardCollection: () => void;
+  setCardCollectionCollapsed: (collapsed: boolean) => void;
   toggleDevMode: () => void;
   setResponseDepth: (depth: ResponseDepth) => void;
   setProjectMetadata: (metadata: { name?: string; description?: string; color?: string; icon?: string }) => void;
@@ -98,10 +100,13 @@ const initialState: GameState = {
   showCardPackModal: false,
   cardPackToOpen: null,
   leftPanelCollapsed: typeof window !== 'undefined'
-    ? localStorage.getItem('leftPanelCollapsed') === 'true' 
+    ? localStorage.getItem('leftPanelCollapsed') === 'true'
     : false,
-  rightPanelCollapsed: typeof window !== 'undefined' 
-    ? localStorage.getItem('rightPanelCollapsed') === 'true' 
+  rightPanelCollapsed: typeof window !== 'undefined'
+    ? localStorage.getItem('rightPanelCollapsed') === 'true'
+    : false,
+  cardCollectionCollapsed: typeof window !== 'undefined'
+    ? localStorage.getItem('cardCollectionCollapsed') === 'true'
     : false,
   devMode: typeof window !== 'undefined' 
     ? localStorage.getItem('devMode') === 'true' 
@@ -456,5 +461,22 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     showCardPackModal: show, 
     cardPackToOpen: cards || null 
   }),
+
+  toggleCardCollection: () => {
+    set((state) => {
+      const newCollapsed = !state.cardCollectionCollapsed;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cardCollectionCollapsed', String(newCollapsed));
+      }
+      return { cardCollectionCollapsed: newCollapsed };
+    });
+  },
+
+  setCardCollectionCollapsed: (collapsed: boolean) => {
+    set({ cardCollectionCollapsed: collapsed });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cardCollectionCollapsed', String(collapsed));
+    }
+  },
 }));
 
