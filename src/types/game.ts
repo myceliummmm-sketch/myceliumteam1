@@ -1,4 +1,4 @@
-export type Phase = 'SPARK' | 'EXPLORE' | 'CRAFT' | 'FORGE' | 'POLISH' | 'LAUNCH';
+export type Phase = 'VISION' | 'RESEARCH' | 'PROTOTYPE' | 'BUILD' | 'GROW';
 export type TeamMember = 'ever' | 'prisma' | 'toxic' | 'phoenix' | 'techpriest' | 'virgil' | 'zen';
 export type Mood = 'happy' | 'neutral' | 'stressed' | 'excited';
 export type MessageRole = 'user' | 'assistant' | 'system';
@@ -59,6 +59,22 @@ export interface Blocker {
   createdAt: Date;
   resolvedAt?: Date;
 }
+
+export interface LevelMetadata {
+  level: number;
+  phase: Phase;
+  emoji: string;
+  totalStages: number;
+  description: string;
+}
+
+export const LEVEL_METADATA: Record<Phase, LevelMetadata> = {
+  VISION: { level: 1, phase: 'VISION', emoji: '📊', totalStages: 4, description: 'Define your product vision' },
+  RESEARCH: { level: 2, phase: 'RESEARCH', emoji: '🔍', totalStages: 4, description: 'Validate with users' },
+  PROTOTYPE: { level: 3, phase: 'PROTOTYPE', emoji: '🎨', totalStages: 5, description: 'Design & test with users' },
+  BUILD: { level: 4, phase: 'BUILD', emoji: '🏗️', totalStages: 4, description: 'Develop the product' },
+  GROW: { level: 5, phase: 'GROW', emoji: '🚀', totalStages: 4, description: 'Launch & scale' }
+};
 
 export interface Milestone {
   id: string;

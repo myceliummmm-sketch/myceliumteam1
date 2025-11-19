@@ -299,6 +299,57 @@ export type Database = {
           },
         ]
       }
+      daily_challenges: {
+        Row: {
+          challenge_date: string
+          challenge_text: string
+          challenge_type: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          current_count: number | null
+          id: string
+          phase: string
+          player_id: string
+          spores_reward: number | null
+          stage_number: number
+          target_count: number | null
+          xp_reward: number | null
+        }
+        Insert: {
+          challenge_date?: string
+          challenge_text: string
+          challenge_type: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_count?: number | null
+          id?: string
+          phase: string
+          player_id: string
+          spores_reward?: number | null
+          stage_number: number
+          target_count?: number | null
+          xp_reward?: number | null
+        }
+        Update: {
+          challenge_date?: string
+          challenge_text?: string
+          challenge_type?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_count?: number | null
+          id?: string
+          phase?: string
+          player_id?: string
+          spores_reward?: number | null
+          stage_number?: number
+          target_count?: number | null
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       daily_logins: {
         Row: {
           created_at: string | null
@@ -989,9 +1040,21 @@ export type Database = {
         Args: { p_session_id: string }
         Returns: boolean
       }
+      migrate_phase_data: { Args: never; Returns: undefined }
     }
     Enums: {
-      game_phase: "SPARK" | "EXPLORE" | "CRAFT" | "FORGE" | "POLISH" | "LAUNCH"
+      game_phase:
+        | "SPARK"
+        | "EXPLORE"
+        | "CRAFT"
+        | "FORGE"
+        | "POLISH"
+        | "LAUNCH"
+        | "VISION"
+        | "RESEARCH"
+        | "PROTOTYPE"
+        | "BUILD"
+        | "GROW"
       session_access_level: "owner" | "editor" | "viewer"
     }
     CompositeTypes: {
@@ -1120,7 +1183,19 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      game_phase: ["SPARK", "EXPLORE", "CRAFT", "FORGE", "POLISH", "LAUNCH"],
+      game_phase: [
+        "SPARK",
+        "EXPLORE",
+        "CRAFT",
+        "FORGE",
+        "POLISH",
+        "LAUNCH",
+        "VISION",
+        "RESEARCH",
+        "PROTOTYPE",
+        "BUILD",
+        "GROW",
+      ],
       session_access_level: ["owner", "editor", "viewer"],
     },
   },

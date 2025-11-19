@@ -10,330 +10,71 @@ export interface StageDefinition {
 }
 
 export const STAGE_DEFINITIONS: Record<Phase, StageDefinition[]> = {
-  SPARK: [
-    {
-      phase: 'SPARK',
-      stageNumber: 1,
-      label: 'Problem Articulation',
-      progressRange: [0, 25],
-      actions: [
-        'Define the core problem',
-        'Describe who suffers from this'
-      ],
-      completionCriteria: ['problem_defined', 'target_user_identified']
-    },
-    {
-      phase: 'SPARK',
-      stageNumber: 2,
-      label: 'Solution Hypothesis',
-      progressRange: [25, 50],
-      actions: [
-        'Sketch your solution approach',
-        'Name your product'
-      ],
-      completionCriteria: ['solution_outlined', 'product_named']
-    },
-    {
-      phase: 'SPARK',
-      stageNumber: 3,
-      label: 'Value Proposition',
-      progressRange: [50, 75],
-      actions: [
-        'Articulate the unique value',
-        'Identify your competitive edge'
-      ],
-      completionCriteria: ['value_prop_defined', 'differentiation_clear']
-    },
-    {
-      phase: 'SPARK',
-      stageNumber: 4,
-      label: 'Vision Lock',
-      progressRange: [75, 100],
-      actions: [
-        'Lock your vision statement',
-        'Move to EXPLORE phase'
-      ],
-      completionCriteria: ['vision_locked', 'ready_for_explore']
-    }
+  VISION: [
+    { phase: 'VISION', stageNumber: 1, label: 'Problem Discovery', progressRange: [0, 25], actions: ['Define the core problem', 'Identify who faces this problem'], completionCriteria: ['problem_defined', 'target_users_identified'] },
+    { phase: 'VISION', stageNumber: 2, label: 'Solution Concept', progressRange: [25, 50], actions: ['Sketch your solution idea', 'Name your product'], completionCriteria: ['solution_concept_defined', 'product_named'] },
+    { phase: 'VISION', stageNumber: 3, label: 'Value Definition', progressRange: [50, 75], actions: ['Define unique value proposition', 'Identify competitive advantage'], completionCriteria: ['value_prop_clear', 'advantage_identified'] },
+    { phase: 'VISION', stageNumber: 4, label: 'Vision Statement', progressRange: [75, 100], actions: ['Craft vision statement', 'Lock vision and proceed'], completionCriteria: ['vision_statement_complete', 'ready_for_research'] }
   ],
-  EXPLORE: [
-    {
-      phase: 'EXPLORE',
-      stageNumber: 1,
-      label: 'User Profiling',
-      progressRange: [0, 25],
-      actions: [
-        'Create user personas',
-        'Map user journey'
-      ],
-      completionCriteria: ['personas_created', 'journey_mapped']
-    },
-    {
-      phase: 'EXPLORE',
-      stageNumber: 2,
-      label: 'Research Planning',
-      progressRange: [25, 50],
-      actions: [
-        'Design interview questions',
-        'Identify research channels'
-      ],
-      completionCriteria: ['questions_ready', 'channels_identified']
-    },
-    {
-      phase: 'EXPLORE',
-      stageNumber: 3,
-      label: 'Data Collection',
-      progressRange: [50, 75],
-      actions: [
-        'Conduct user interviews',
-        'Gather market data'
-      ],
-      completionCriteria: ['interviews_done', 'data_collected']
-    },
-    {
-      phase: 'EXPLORE',
-      stageNumber: 4,
-      label: 'Insight Synthesis',
-      progressRange: [75, 100],
-      actions: [
-        'Synthesize key learnings',
-        'Move to CRAFT phase'
-      ],
-      completionCriteria: ['insights_synthesized', 'ready_for_craft']
-    }
+  RESEARCH: [
+    { phase: 'RESEARCH', stageNumber: 1, label: 'User Profiling', progressRange: [0, 25], actions: ['Create detailed user personas', 'Map user pain points'], completionCriteria: ['personas_created', 'pain_points_mapped'] },
+    { phase: 'RESEARCH', stageNumber: 2, label: 'Research Design', progressRange: [25, 50], actions: ['Design interview questions', 'Plan research approach'], completionCriteria: ['questions_prepared', 'approach_planned'] },
+    { phase: 'RESEARCH', stageNumber: 3, label: 'User Interviews', progressRange: [50, 75], actions: ['Conduct user interviews', 'Gather qualitative data'], completionCriteria: ['interviews_conducted', 'data_collected'] },
+    { phase: 'RESEARCH', stageNumber: 4, label: 'Insights Synthesis', progressRange: [75, 100], actions: ['Analyze findings', 'Document key insights'], completionCriteria: ['findings_analyzed', 'insights_documented'] }
   ],
-  CRAFT: [
-    {
-      phase: 'CRAFT',
-      stageNumber: 1,
-      label: 'Information Architecture',
-      progressRange: [0, 25],
-      actions: [
-        'Map user flows',
-        'Define feature hierarchy'
-      ],
-      completionCriteria: ['flows_mapped', 'hierarchy_defined']
-    },
-    {
-      phase: 'CRAFT',
-      stageNumber: 2,
-      label: 'Wireframing',
-      progressRange: [25, 50],
-      actions: [
-        'Sketch core screens',
-        'Design interaction patterns'
-      ],
-      completionCriteria: ['screens_sketched', 'interactions_defined']
-    },
-    {
-      phase: 'CRAFT',
-      stageNumber: 3,
-      label: 'Visual Design',
-      progressRange: [50, 75],
-      actions: [
-        'Apply visual identity',
-        'Create design system'
-      ],
-      completionCriteria: ['visual_applied', 'system_created']
-    },
-    {
-      phase: 'CRAFT',
-      stageNumber: 4,
-      label: 'Prototype',
-      progressRange: [75, 100],
-      actions: [
-        'Build clickable prototype',
-        'Move to FORGE phase'
-      ],
-      completionCriteria: ['prototype_ready', 'ready_for_forge']
-    }
+  PROTOTYPE: [
+    { phase: 'PROTOTYPE', stageNumber: 1, label: 'Information Architecture', progressRange: [0, 20], actions: ['Map user flows', 'Define feature hierarchy'], completionCriteria: ['flows_defined', 'features_prioritized'] },
+    { phase: 'PROTOTYPE', stageNumber: 2, label: 'Wireframe Design', progressRange: [20, 40], actions: ['Create low-fi wireframes', 'Design core interactions'], completionCriteria: ['wireframes_complete', 'interactions_designed'] },
+    { phase: 'PROTOTYPE', stageNumber: 3, label: 'High-Fi Prototype', progressRange: [40, 60], actions: ['Build clickable prototype', 'Apply visual design'], completionCriteria: ['prototype_built', 'design_applied'] },
+    { phase: 'PROTOTYPE', stageNumber: 4, label: 'User Testing Setup', progressRange: [60, 80], actions: ['Recruit 5 test users', 'Prepare test scenarios'], completionCriteria: ['users_recruited', 'scenarios_ready'] },
+    { phase: 'PROTOTYPE', stageNumber: 5, label: 'User Testing → 5 People', progressRange: [80, 100], actions: ['Test with 5 users', 'Document feedback & iterate'], completionCriteria: ['5_users_tested', 'feedback_synthesized'] }
   ],
-  FORGE: [
-    {
-      phase: 'FORGE',
-      stageNumber: 1,
-      label: 'Architecture',
-      progressRange: [0, 25],
-      actions: [
-        'Define tech stack',
-        'Set up infrastructure'
-      ],
-      completionCriteria: ['stack_defined', 'infra_ready']
-    },
-    {
-      phase: 'FORGE',
-      stageNumber: 2,
-      label: 'Core Features',
-      progressRange: [25, 50],
-      actions: [
-        'Build MVP features',
-        'Implement auth & data'
-      ],
-      completionCriteria: ['mvp_features_built', 'auth_implemented']
-    },
-    {
-      phase: 'FORGE',
-      stageNumber: 3,
-      label: 'Integration',
-      progressRange: [50, 75],
-      actions: [
-        'Connect frontend & backend',
-        'Add external APIs'
-      ],
-      completionCriteria: ['integration_complete', 'apis_connected']
-    },
-    {
-      phase: 'FORGE',
-      stageNumber: 4,
-      label: 'Feature Complete',
-      progressRange: [75, 100],
-      actions: [
-        'Finish remaining features',
-        'Move to POLISH phase'
-      ],
-      completionCriteria: ['features_complete', 'ready_for_polish']
-    }
+  BUILD: [
+    { phase: 'BUILD', stageNumber: 1, label: 'Technical Foundation', progressRange: [0, 25], actions: ['Setup tech stack', 'Build core architecture'], completionCriteria: ['stack_configured', 'architecture_built'] },
+    { phase: 'BUILD', stageNumber: 2, label: 'Core Features', progressRange: [25, 50], actions: ['Develop main features', 'Integrate backend'], completionCriteria: ['features_developed', 'backend_integrated'] },
+    { phase: 'BUILD', stageNumber: 3, label: 'Quality Assurance', progressRange: [50, 75], actions: ['Write tests', 'Fix critical bugs'], completionCriteria: ['tests_passing', 'bugs_resolved'] },
+    { phase: 'BUILD', stageNumber: 4, label: 'Beta Release', progressRange: [75, 100], actions: ['Deploy beta version', 'Gather early user feedback'], completionCriteria: ['beta_deployed', 'feedback_collected'] }
   ],
-  POLISH: [
-    {
-      phase: 'POLISH',
-      stageNumber: 1,
-      label: 'Testing',
-      progressRange: [0, 33],
-      actions: [
-        'Run QA test suite',
-        'Fix critical bugs'
-      ],
-      completionCriteria: ['qa_complete', 'bugs_fixed']
-    },
-    {
-      phase: 'POLISH',
-      stageNumber: 2,
-      label: 'Optimization',
-      progressRange: [33, 66],
-      actions: [
-        'Optimize performance',
-        'Improve code health'
-      ],
-      completionCriteria: ['performance_optimized', 'code_health_good']
-    },
-    {
-      phase: 'POLISH',
-      stageNumber: 3,
-      label: 'Final Polish',
-      progressRange: [66, 100],
-      actions: [
-        'Review UX friction',
-        'Move to LAUNCH phase'
-      ],
-      completionCriteria: ['ux_polished', 'ready_for_launch']
-    }
-  ],
-  LAUNCH: [
-    {
-      phase: 'LAUNCH',
-      stageNumber: 1,
-      label: 'Pre-Launch',
-      progressRange: [0, 33],
-      actions: [
-        'Complete launch checklist',
-        'Set up monitoring'
-      ],
-      completionCriteria: ['checklist_complete', 'monitoring_ready']
-    },
-    {
-      phase: 'LAUNCH',
-      stageNumber: 2,
-      label: 'Deployment',
-      progressRange: [33, 66],
-      actions: [
-        'Deploy to production',
-        'Publish announcement'
-      ],
-      completionCriteria: ['deployed', 'announced']
-    },
-    {
-      phase: 'LAUNCH',
-      stageNumber: 3,
-      label: 'Post-Launch',
-      progressRange: [66, 100],
-      actions: [
-        'Monitor first users',
-        'Gather feedback'
-      ],
-      completionCriteria: ['monitoring_active', 'feedback_collected']
-    }
+  GROW: [
+    { phase: 'GROW', stageNumber: 1, label: 'Launch Prep', progressRange: [0, 25], actions: ['Finalize marketing materials', 'Setup analytics'], completionCriteria: ['materials_ready', 'analytics_configured'] },
+    { phase: 'GROW', stageNumber: 2, label: 'Public Launch', progressRange: [25, 50], actions: ['Launch to public', 'Announce on channels'], completionCriteria: ['launched_publicly', 'announced'] },
+    { phase: 'GROW', stageNumber: 3, label: 'Growth Activation', progressRange: [50, 75], actions: ['Implement growth tactics', 'Track key metrics'], completionCriteria: ['tactics_active', 'metrics_tracked'] },
+    { phase: 'GROW', stageNumber: 4, label: 'Scale & Optimize', progressRange: [75, 100], actions: ['Scale infrastructure', 'Optimize conversion'], completionCriteria: ['infrastructure_scaled', 'conversion_optimized'] }
   ]
 };
 
-export function getCurrentStage(
-  phase: Phase, 
-  phaseProgress: number
-): StageDefinition {
+export function getCurrentStage(phase: Phase, phaseProgress: number): StageDefinition {
   const stages = STAGE_DEFINITIONS[phase];
-  const currentStage = stages.find(s => 
-    phaseProgress >= s.progressRange[0] && 
-    phaseProgress <= s.progressRange[1]
-  );
-  return currentStage || stages[0];
+  for (const stage of stages) {
+    if (phaseProgress >= stage.progressRange[0] && phaseProgress < stage.progressRange[1]) return stage;
+  }
+  return stages[stages.length - 1];
 }
 
-export function getStageActions(
-  phase: Phase,
-  stageNumber: number,
-  gameState: GameState
-): string[] {
+export function getStageActions(phase: Phase, stageNumber: number, gameState: GameState): string[] {
   const stages = STAGE_DEFINITIONS[phase];
   const stage = stages.find(s => s.stageNumber === stageNumber);
   if (!stage) return [];
-  
-  let actions = [...stage.actions];
-  
-  // Context-aware overrides: critical blocker takes priority
-  const criticalBlocker = gameState.blockers.find(b => b.severity === 'high');
-  if (criticalBlocker) {
-    const shortDesc = criticalBlocker.description.length > 25 
-      ? criticalBlocker.description.slice(0, 25) + '...'
-      : criticalBlocker.description;
-    actions[2] = `Fix: ${shortDesc}`;
-  }
-  
-  // Low energy warning
-  if (gameState.energy < 3 && !criticalBlocker) {
-    actions[2] = 'Restore energy';
-  }
-  
-  return actions.slice(0, 3);
+  const criticalBlockers = gameState.blockers.filter(b => b.severity === 'high' && !b.resolvedAt);
+  if (criticalBlockers.length > 0) return [`URGENT: Resolve critical blocker "${criticalBlockers[0].description}"`, ...stage.actions.slice(0, 2)];
+  if (gameState.energy < 20) return ['Take a break and regenerate energy', ...stage.actions];
+  return stage.actions;
 }
 
-export function calculateStageProgress(
-  phase: Phase,
-  phaseProgress: number
-): number {
-  const currentStage = getCurrentStage(phase, phaseProgress);
-  const [rangeStart, rangeEnd] = currentStage.progressRange;
-  const rangeSize = rangeEnd - rangeStart;
-  const progressInStage = phaseProgress - rangeStart;
-  return Math.round((progressInStage / rangeSize) * 100);
+export function calculateStageProgress(phase: Phase, phaseProgress: number): number {
+  const stage = getCurrentStage(phase, phaseProgress);
+  const [min, max] = stage.progressRange;
+  const stageSpan = max - min;
+  const progressInStage = phaseProgress - min;
+  return Math.min(100, Math.max(0, (progressInStage / stageSpan) * 100));
 }
 
-export function hasCompletedStage(
-  currentProgress: number,
-  previousProgress: number,
-  stage: StageDefinition
-): boolean {
-  const [start, end] = stage.progressRange;
-  return previousProgress < end && currentProgress >= end;
+export function hasCompletedStage(currentProgress: number, previousProgress: number, stage: StageDefinition): boolean {
+  const [, stageEnd] = stage.progressRange;
+  return previousProgress < stageEnd && currentProgress >= stageEnd;
 }
 
-export function getCompletedStages(
-  phase: Phase,
-  currentProgress: number,
-  previousProgress: number
-): StageDefinition[] {
+export function getCompletedStages(phase: Phase, currentProgress: number, previousProgress: number): StageDefinition[] {
   const stages = STAGE_DEFINITIONS[phase];
-  return stages.filter(stage => 
-    hasCompletedStage(currentProgress, previousProgress, stage)
-  );
+  return stages.filter(stage => hasCompletedStage(currentProgress, previousProgress, stage));
 }
-
