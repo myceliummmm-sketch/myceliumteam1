@@ -27,6 +27,9 @@ interface GameActions {
   setConversationMode: (mode: ConversationMode) => void;
   unlockMode: (mode: ConversationMode) => void;
   setShowPromptLibrary: (show: boolean) => void;
+  setSelectedPrompt: (prompt: any | null) => void;
+  setShowPromptDetailModal: (show: boolean) => void;
+  setShowCardPackModal: (show: boolean, cards?: any[]) => void;
   toggleLeftPanel: () => void;
   toggleRightPanel: () => void;
   setLeftPanelCollapsed: (collapsed: boolean) => void;
@@ -90,6 +93,8 @@ const initialState: GameState = {
   conversationMode: 'discussion' as ConversationMode,
   unlockedModes: ['discussion'] as ConversationMode[],
   showPromptLibrary: false,
+  selectedPrompt: null,
+  showPromptDetailModal: false,
   showCardPackModal: false,
   cardPackToOpen: null,
   leftPanelCollapsed: typeof window !== 'undefined'
@@ -442,6 +447,10 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     localStorage.setItem('proMode', String(enabled));
     set({ proMode: enabled });
   },
+  
+  setSelectedPrompt: (prompt: any | null) => set({ selectedPrompt: prompt }),
+  
+  setShowPromptDetailModal: (show: boolean) => set({ showPromptDetailModal: show }),
   
   setShowCardPackModal: (show: boolean, cards?: any[]) => set({ 
     showCardPackModal: show, 
