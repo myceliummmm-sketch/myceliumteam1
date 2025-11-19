@@ -31,6 +31,7 @@ import { CardPackOpeningModal } from '@/components/shipit/CardPackOpeningModal';
 import { CardDetailModal } from '@/components/shipit/CardDetailModal';
 import { PersonalityAssessment } from '@/components/shipit/PersonalityAssessment';
 import { CardCollection } from '@/components/shipit/CardCollection';
+import { GenerateCardButton } from '@/components/shipit/GenerateCardButton';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -224,7 +225,10 @@ export default function ShipIt() {
             onSelect={sendMessage}
             disabled={isLoading || energy < 1}
           />
-          <div className="sticky bottom-0 bg-background" data-tutorial-target="input-bar">
+          <div className="sticky bottom-0 bg-background space-y-2" data-tutorial-target="input-bar">
+            <div className="flex justify-center pb-2">
+              <GenerateCardButton />
+            </div>
             <InputBar />
           </div>
         </div>
