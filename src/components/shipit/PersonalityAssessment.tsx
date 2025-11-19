@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useSearchParams } from 'react-router-dom';
+import { useGameStore } from '@/stores/gameStore';
 import { toast } from 'sonner';
 
 interface Question {
@@ -141,11 +141,11 @@ interface PersonalityAssessmentProps {
 
 export function PersonalityAssessment({ open, onClose }: PersonalityAssessmentProps) {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session');
+  const sessionId = useGameStore((state) => state.sessionId);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   const totalQuestions = ASSESSMENT_QUESTIONS.length;
   const progress = (currentStep / totalQuestions) * 100;
@@ -164,8 +164,10 @@ export function PersonalityAssessment({ open, onClose }: PersonalityAssessmentPr
     setTimeout(() => {
       if (currentStep < totalQuestions - 1) {
         setCurrentStep(prev => prev + 1);
+      } else {
+        // Last question answered - show summary screen
+        setShowSummary(true);
       }
-      // On last question, don't auto-advance - let them click "Generate Card"
     }, 400);
   };
 
@@ -177,8 +179,6 @@ export function PersonalityAssessment({ open, onClose }: PersonalityAssessmentPr
     
     if (currentStep < totalQuestions - 1) {
       setCurrentStep(prev => prev + 1);
-    } else {
-      generateAuthenticityCard();
     }
   };
 
@@ -189,7 +189,15 @@ export function PersonalityAssessment({ open, onClose }: PersonalityAssessmentPr
   };
 
   const generateAuthenticityCard = async () => {
-    if (!user || !sessionId) return;
+    if (!user) {
+      toast.error('Please log in to generate your card');
+      return;
+    }
+    
+    if (!sessionId) {
+      toast.error('No active session found. Please start a new session.');
+      return;
+    }
 
     setIsGenerating(true);
     try {
@@ -266,6 +274,7 @@ This is a comprehensive personality assessment covering Self-Awareness, Alignmen
         onClose();
         setCurrentStep(0);
         setAnswers({});
+        setShowSummary(false);
       }, 500);
     } catch (error) {
       console.error('Error generating authenticity card:', error);
@@ -273,6 +282,31 @@ This is a comprehensive personality assessment covering Self-Awareness, Alignmen
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Calculate category scores for summary display
+  const calculateCategoryScores = () => {
+    const categoryScores: Record<string, { total: number; count: number; average: number }> = {};
+    
+    ASSESSMENT_QUESTIONS.forEach(q => {
+      const answer = answers[q.id];
+      const option = q.options.find(opt => opt.value === answer);
+      if (option) {
+        if (!categoryScores[q.category]) {
+          categoryScores[q.category] = { total: 0, count: 0, average: 0 };
+        }
+        categoryScores[q.category].total += option.score;
+        categoryScores[q.category].count += 1;
+      }
+    });
+
+    // Calculate averages
+    Object.keys(categoryScores).forEach(category => {
+      const { total, count } = categoryScores[category];
+      categoryScores[category].average = total / count;
+    });
+
+    return categoryScores;
   };
 
   return (
@@ -293,6 +327,67 @@ This is a comprehensive personality assessment covering Self-Awareness, Alignmen
             <div className="inline-block animate-spin text-primary text-4xl">🎭</div>
             <p className="text-lg font-mono text-primary">Generating your Authenticity Card...</p>
             <p className="text-sm text-muted-foreground">Analyzing your responses and crafting your unique profile</p>
+          </div>
+        ) : showSummary ? (
+          <div className="space-y-6 py-4">
+            <Card className="p-6 bg-card/50 backdrop-blur-sm border-primary/20">
+              <div className="space-y-4">
+                <div className="text-center space-y-2">
+                  <div className="text-4xl">🎭</div>
+                  <h3 className="text-xl font-bold">Assessment Complete!</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Review your personality profile before generating your card
+                  </p>
+                </div>
+
+                <div className="space-y-3 mt-6">
+                  <h4 className="text-sm font-mono text-primary uppercase">Your Scores</h4>
+                  {Object.entries(calculateCategoryScores()).map(([category, { average }]) => (
+                    <div key={category} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">{category}</span>
+                        <span className="text-sm font-mono text-primary">
+                          {average.toFixed(1)}/10
+                        </span>
+                      </div>
+                      <Progress 
+                        value={(average / 10) * 100} 
+                        className="h-2"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 p-4 bg-muted/50 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Sparkles className="h-3 w-3" />
+                    <span>Your unique AUTHENTICITY card will be crafted based on these results</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between gap-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSummary(false);
+                  setCurrentStep(totalQuestions - 1);
+                }}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Review Answers
+              </Button>
+              <Button
+                onClick={generateAuthenticityCard}
+                className="gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Generate My Card
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="space-y-6 py-4">
@@ -361,17 +456,8 @@ This is a comprehensive personality assessment covering Self-Awareness, Alignmen
                 disabled={!answers[currentQuestion.id]}
                 className="gap-2"
               >
-                {currentStep === totalQuestions - 1 ? (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Generate Card
-                  </>
-                ) : (
-                  <>
-                    Next
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
+                Next
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
