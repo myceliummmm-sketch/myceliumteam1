@@ -12,7 +12,7 @@ export function StageHistory() {
     if (!acc[completion.phase]) acc[completion.phase] = [];
     acc[completion.phase].push(completion);
     return acc;
-  }, {} as Record<string, typeof stageHistory>);
+  }, {} as Record<string, any[]>);
 
   if (stageHistory.length === 0) {
     return (

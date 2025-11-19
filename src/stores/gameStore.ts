@@ -492,5 +492,25 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   },
 
   setShowPersonalityAssessment: (show: boolean) => set({ showPersonalityAssessment: show }),
+  
+  // Stage progression actions
+  setShowStageCompletionModal: (show, stage, rewards) =>
+    set({ 
+      showStageCompletionModal: show, 
+      completedStage: stage || null, 
+      stageRewards: rewards || null,
+      lastStageTransition: show ? new Date() : null
+    }),
+  
+  loadStageHistory: (history) =>
+    set({ stageHistory: history }),
+  
+  recordStageCompletion: (completion) =>
+    set((state) => ({ 
+      stageHistory: [completion, ...state.stageHistory] 
+    })),
+  
+  setPreviousPhaseProgress: (progress) =>
+    set({ previousPhaseProgress: progress }),
 }));
 
