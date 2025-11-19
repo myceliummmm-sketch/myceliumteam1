@@ -56,8 +56,14 @@ export function GenerateCardButton() {
         description: `Created a ${data.rarity} ${data.card_type} card`
       });
 
-      // Dispatch custom event to reload cards
-      window.dispatchEvent(new CustomEvent('cardGenerated'));
+      // Dispatch custom event with animation trigger
+      window.dispatchEvent(new CustomEvent('cardGeneratedWithAnimation', { 
+        detail: { 
+          cardId: data.card_id,
+          rarity: data.rarity,
+          cardType: data.card_type
+        } 
+      }));
       
     } catch (error) {
       console.error('Error generating card:', error);
