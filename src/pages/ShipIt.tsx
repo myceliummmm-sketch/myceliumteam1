@@ -16,7 +16,7 @@ import { StreakCalendar } from '@/components/shipit/StreakCalendar';
 import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
 import { ArtifactUnlockModal } from '@/components/shipit/ArtifactUnlockModal';
 import { DevModePanel } from '@/components/shipit/DevModePanel';
-import { LogOut, Loader2, Users, BarChart3, BookOpen, Folder } from 'lucide-react';
+import { LogOut, Loader2, Users, BarChart3, BookOpen, Folder, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { PromptLibrary } from '@/components/shipit/PromptLibrary';
 import { SessionShareButton } from '@/components/shipit/SessionShareButton';
 import { CollaboratorsList } from '@/components/shipit/CollaboratorsList';
@@ -32,7 +32,6 @@ import { CardDetailModal } from '@/components/shipit/CardDetailModal';
 import { PersonalityAssessment } from '@/components/shipit/PersonalityAssessment';
 import { CardCollection } from '@/components/shipit/CardCollection';
 import { GenerateCardButton } from '@/components/shipit/GenerateCardButton';
-import { ConversationControls } from '@/components/shipit/ConversationControls';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -54,6 +53,7 @@ export default function ShipIt() {
   const toggleCardCollection = useGameStore((state) => state.toggleCardCollection);
   const projectName = useGameStore((state) => state.projectName);
   const proMode = useGameStore((state) => state.proMode);
+  const toggleProMode = useGameStore((state) => state.toggleProMode);
   const showCardPackModal = useGameStore((state) => state.showCardPackModal);
   const cardPackToOpen = useGameStore((state) => state.cardPackToOpen);
   const setShowCardPackModal = useGameStore((state) => state.setShowCardPackModal);
@@ -162,8 +162,19 @@ export default function ShipIt() {
               collaborators={onlineCollaborators}
               currentUserId={user?.id || ''}
             />
+            
+            {/* PRO to Lite Mode Toggle */}
             <div className="h-6 w-px bg-border hidden lg:block" />
-            <ConversationControls compact showLabels={false} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toggleProMode()}
+              className="gap-2"
+              title="Switch to Lite Mode"
+            >
+              <Zap className="h-4 w-4" />
+              <span className="hidden xl:inline">Lite Mode</span>
+            </Button>
           </div>
           
           <div className="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap">

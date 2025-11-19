@@ -175,8 +175,44 @@ Return your analysis as a JSON object.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Generate the card based on the conversation above.' }
         ],
-        response_format: { type: 'json_object' },
-        temperature: 0.7,
+        tools: [{
+          type: 'function',
+          function: {
+            name: 'generate_card',
+            description: 'Generate a collectible card from conversation analysis',
+            parameters: {
+              type: 'object',
+              properties: {
+                title: { type: 'string', description: 'Card title (max 40 chars)' },
+                description: { type: 'string', description: 'Brief description (max 150 chars)' },
+                content: { type: 'string', description: 'Main card content (max 500 chars)' },
+                created_by_character: { type: 'string', description: 'Character who created this card' },
+                contributing_characters: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Other characters who contributed'
+                },
+                tags: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Relevant tags'
+                },
+                factor_1_score: { type: 'number', minimum: 1, maximum: 10 },
+                factor_1_explanation: { type: 'string' },
+                factor_2_score: { type: 'number', minimum: 1, maximum: 10 },
+                factor_2_explanation: { type: 'string' },
+                factor_3_score: { type: 'number', minimum: 1, maximum: 10 },
+                factor_3_explanation: { type: 'string' },
+                factor_4_score: { type: 'number', minimum: 1, maximum: 10 },
+                factor_4_explanation: { type: 'string' },
+                factor_5_score: { type: 'number', minimum: 1, maximum: 10 },
+                factor_5_explanation: { type: 'string' }
+              },
+              required: ['title', 'content', 'created_by_character', 'factor_1_score', 'factor_2_score', 'factor_3_score', 'factor_4_score', 'factor_5_score']
+            }
+          }
+        }],
+        tool_choice: { type: 'function', function: { name: 'generate_card' } }
       }),
     });
 
@@ -185,7 +221,16 @@ Return your analysis as a JSON object.`;
     }
 
     const aiData = await aiResponse.json();
-    const cardData = JSON.parse(aiData.choices[0].message.content);
+    
+    // Extract from tool call
+    const toolCall = aiData.choices[0].message.tool_calls?.[0];
+    if (!toolCall) {
+      console.error('No tool call in response:', JSON.stringify(aiData));
+      throw new Error('AI did not return card data');
+    }
+
+    const cardData = JSON.parse(toolCall.function.arguments);
+    console.log('Parsed card data:', cardData);
 
     // Calculate rarity
     const scores = [
@@ -209,7 +254,7 @@ Return your analysis as a JSON object.`;
         level: currentLevel,
         title: cardData.title,
         content: cardData.content,
-        description: cardData.description || cardData.content.substring(0, 150),
+        description: cardData.description || (cardData.content ? cardData.content.substring(0, 150) : 'Generated card'),
         created_by_character: cardData.created_by_character,
         contributing_characters: cardData.contributing_characters || [],
         tags: cardData.tags || [],
