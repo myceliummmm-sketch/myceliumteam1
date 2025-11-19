@@ -7,17 +7,23 @@ import { calculateEnergyRegeneration } from '@/lib/energySystem';
 import { calculateStreak, getStreakMilestone } from '@/lib/streakSystem';
 import { format } from 'date-fns';
 import { useSound } from '@/hooks/useSound';
-import { generateQuickReplies } from '@/lib/quickReplies';
+import { generateQuickReplies, calculatePhaseProgress } from '@/lib/quickReplies';
 import { LEGENDARY_ARTIFACTS } from '@/lib/artifacts';
 import { createArtifactFromDefinition, applyArtifactBonuses } from '@/lib/artifactSystem';
 import { ArtifactId, ConversationMode, Phase, TeamMember } from '@/types/game';
 import { MODE_CONFIGS, isModeUnlocked } from '@/lib/modeConfig';
 import { PROMPT_TEMPLATES } from '@/lib/promptTemplates';
+import { getCompletedStages } from '@/lib/stageSystem';
+import { getStageReward } from '@/lib/stageRewards';
 
 export function useGameSession() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const { setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial, setQuickReplies, setAiSuggestedActions, setProjectMetadata } = useGameStore();
+  const { 
+    setSessionId, updateStats, addMessage, setLoading: setGameLoading, setShowTutorial, 
+    setQuickReplies, setAiSuggestedActions, setProjectMetadata, loadStageHistory,
+    recordStageCompletion, setShowStageCompletionModal, setPreviousPhaseProgress, unlockMode
+  } = useGameStore();
   const { playSound } = useSound();
 
   useEffect(() => {

@@ -32,6 +32,8 @@ import { CardDetailModal } from '@/components/shipit/CardDetailModal';
 import { PersonalityAssessment } from '@/components/shipit/PersonalityAssessment';
 import { CardCollection } from '@/components/shipit/CardCollection';
 import { GenerateCardButton } from '@/components/shipit/GenerateCardButton';
+import { StageCompletionModal } from '@/components/shipit/StageCompletionModal';
+import { StageHistory } from '@/components/shipit/StageHistory';
 
 export default function ShipIt() {
   const navigate = useNavigate();

@@ -2,10 +2,11 @@ import { useGameStore } from '@/stores/gameStore';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { getCurrentStage, calculateStageProgress, STAGE_DEFINITIONS } from '@/lib/stageSystem';
 import { calculatePhaseProgress } from '@/lib/quickReplies';
+import { stageTransitionAnimation, stageBadgePulse } from '@/lib/animations';
 
 const phases = ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE', 'POLISH', 'LAUNCH'];
 
@@ -30,7 +31,9 @@ export function PhaseProgress() {
   const stageProgress = calculateStageProgress(currentPhase, phaseProgress);
   const totalStages = STAGE_DEFINITIONS[currentPhase].length;
   const [prevPhase, setPrevPhase] = useState(currentPhase);
+  const [prevStage, setPrevStage] = useState(currentStage.stageNumber);
   const [showPhaseChange, setShowPhaseChange] = useState(false);
+  const [showStageTransition, setShowStageTransition] = useState(false);
 
   useEffect(() => {
     if (currentPhase !== prevPhase && prevPhase) {
@@ -40,16 +43,41 @@ export function PhaseProgress() {
     setPrevPhase(currentPhase);
   }, [currentPhase, prevPhase]);
 
+  useEffect(() => {
+    if (currentStage.stageNumber !== prevStage) {
+      setShowStageTransition(true);
+      setTimeout(() => setShowStageTransition(false), 1500);
+      setPrevStage(currentStage.stageNumber);
+    }
+  }, [currentStage.stageNumber, prevStage]);
+
   return (
     <Card className="p-4 relative overflow-hidden">
-      {showPhaseChange && (
-        <motion.div
-          initial={{ x: '-100%' }}
-          animate={{ x: '100%' }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent"
-        />
-      )}
+      {/* Phase transition effect */}
+      <AnimatePresence>
+        {showPhaseChange && (
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
+      
+      {/* Stage transition effect */}
+      <AnimatePresence>
+        {showStageTransition && (
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
       
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-mono text-muted-foreground">
@@ -66,16 +94,34 @@ export function PhaseProgress() {
         </motion.span>
       </div>
       
-      {/* Stage Progress */}
+      {/* Stage Progress with animations */}
       <div className="flex items-center gap-2 mb-2">
-        <Badge variant="outline" className="text-xs font-mono">
-          Stage {currentStage.stageNumber}/{totalStages}
-        </Badge>
-        <span className="text-xs text-muted-foreground truncate">
-          {currentStage.label}
-        </span>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${currentPhase}-${currentStage.stageNumber}`}
+            {...stageTransitionAnimation}
+            className="flex items-center gap-2 flex-1"
+          >
+            <motion.div animate={showStageTransition ? stageBadgePulse : {}}>
+              <Badge variant="outline" className="text-xs font-mono">
+                Stage {currentStage.stageNumber}/{totalStages}
+              </Badge>
+            </motion.div>
+            <span className="text-xs text-muted-foreground truncate">
+              {currentStage.label}
+            </span>
+          </motion.div>
+        </AnimatePresence>
+        
         <div className="ml-auto flex items-center gap-1">
-          <Progress value={stageProgress} className="w-16 h-1" />
+          <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-primary"
+              initial={{ width: 0 }}
+              animate={{ width: `${stageProgress}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
+          </div>
           <span className="text-xs text-muted-foreground font-mono">
             {Math.round(stageProgress)}%
           </span>

@@ -42,6 +42,10 @@ interface GameActions {
   setProjectMetadata: (metadata: { name?: string; description?: string; color?: string; icon?: string }) => void;
   toggleProMode: () => void;
   setProMode: (enabled: boolean) => void;
+  setShowStageCompletionModal: (show: boolean, stage?: any, rewards?: any) => void;
+  loadStageHistory: (history: any[]) => void;
+  recordStageCompletion: (completion: any) => void;
+  setPreviousPhaseProgress: (progress: number) => void;
 }
 
 const initialState: GameState = {
@@ -119,6 +123,12 @@ const initialState: GameState = {
   proMode: typeof window !== 'undefined' 
     ? localStorage.getItem('proMode') === 'true' 
     : false,
+  stageHistory: [],
+  showStageCompletionModal: false,
+  completedStage: null,
+  stageRewards: null,
+  lastStageTransition: null,
+  previousPhaseProgress: 0,
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
