@@ -25,6 +25,7 @@ export function InputBar() {
   const setConversationMode = useGameStore((state) => state.setConversationMode);
   const responseDepth = useGameStore((state) => state.responseDepth);
   const setResponseDepth = useGameStore((state) => state.setResponseDepth);
+  const proMode = useGameStore((state) => state.proMode);
   
   useEffect(() => {
     const handleInsertPrompt = (e: CustomEvent) => {
@@ -52,8 +53,9 @@ export function InputBar() {
   return (
     <Card className="p-2 sm:p-4 border-t-2">
       <div className="space-y-2">
-        {/* Mode and Depth Selectors */}
-        <div className="flex items-center gap-2 px-1 flex-wrap">
+        {/* Mode and Depth Selectors - ONLY in PRO mode */}
+        {proMode && (
+        <div className="flex items-center gap-2 px-1 flex-wrap border-b pb-2">
           <span className="text-xs text-muted-foreground font-mono">Mode:</span>
           <TooltipProvider>
             <Select value={conversationMode} onValueChange={(val: any) => setConversationMode(val)}>
@@ -119,6 +121,7 @@ export function InputBar() {
             </Tooltip>
           </TooltipProvider>
         </div>
+        )}
 
         {/* Input Area */}
         <div className="flex gap-2">
