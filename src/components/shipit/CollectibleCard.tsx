@@ -61,15 +61,16 @@ const rarityStyles = {
   },
 };
 
-export function CollectibleCard({ card }: CollectibleCardProps) {
+export function CollectibleCard({ card, onClick }: CollectibleCardProps & { onClick?: () => void }) {
   const Icon = cardTypeIcons[card.card_type];
   const style = rarityStyles[card.rarity];
 
   return (
     <Card
+      onClick={onClick}
       className={`
         relative overflow-hidden border-2 ${style.border} ${style.bg} ${style.glow}
-        hover:scale-[1.02] transition-all duration-300
+        hover:scale-[1.02] transition-all duration-300 cursor-pointer
         before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity
       `}
     >

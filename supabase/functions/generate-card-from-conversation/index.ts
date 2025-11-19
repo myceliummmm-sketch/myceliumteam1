@@ -1,0 +1,273 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.77.0';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface Message {
+  role: string;
+  content: string;
+}
+
+interface CardFactors {
+  factor_1_name: string;
+  factor_2_name: string;
+  factor_3_name: string;
+  factor_4_name: string;
+  factor_5_name: string;
+}
+
+const CARD_TYPE_FACTORS: Record<string, CardFactors> = {
+  'IDEA': {
+    factor_1_name: 'Uniqueness',
+    factor_2_name: 'Feasibility',
+    factor_3_name: 'Impact',
+    factor_4_name: 'Clarity',
+    factor_5_name: 'Market Fit'
+  },
+  'INSIGHT': {
+    factor_1_name: 'Depth',
+    factor_2_name: 'Relevance',
+    factor_3_name: 'Credibility',
+    factor_4_name: 'Actionability',
+    factor_5_name: 'Surprise Factor'
+  },
+  'DESIGN': {
+    factor_1_name: 'Usability',
+    factor_2_name: 'Aesthetics',
+    factor_3_name: 'Accessibility',
+    factor_4_name: 'Innovation',
+    factor_5_name: 'Test Results'
+  },
+  'CODE': {
+    factor_1_name: 'Code Quality',
+    factor_2_name: 'Security',
+    factor_3_name: 'Performance',
+    factor_4_name: 'Test Coverage',
+    factor_5_name: 'Innovation'
+  },
+  'GROWTH': {
+    factor_1_name: 'Reach',
+    factor_2_name: 'Conversion',
+    factor_3_name: 'Retention',
+    factor_4_name: 'Virality',
+    factor_5_name: 'ROI'
+  }
+};
+
+function determineCardType(level: number): string {
+  const types = ['IDEA', 'INSIGHT', 'DESIGN', 'CODE', 'GROWTH'];
+  return types[level - 1] || 'IDEA';
+}
+
+function calculateRarity(scores: number[]): string {
+  const average = scores.reduce((a, b) => a + b, 0) / scores.length;
+  if (average >= 9) return 'legendary';
+  if (average >= 7.5) return 'epic';
+  if (average >= 6) return 'rare';
+  if (average >= 4) return 'uncommon';
+  return 'common';
+}
+
+function getVisualTheme(rarity: string): string {
+  const themes: Record<string, string> = {
+    common: 'gray',
+    uncommon: 'green',
+    rare: 'cyan',
+    epic: 'magenta',
+    legendary: 'yellow'
+  };
+  return themes[rarity] || 'cyan';
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    const { sessionId, messages, currentLevel, currentPhase, trigger, selectedContent } = await req.json();
+
+    const cardType = determineCardType(currentLevel);
+    const factors = CARD_TYPE_FACTORS[cardType];
+
+    // Build conversation context
+    const recentMessages = messages.slice(-10);
+    const conversationContext = recentMessages.map((m: Message) => `${m.role}: ${m.content}`).join('\n\n');
+
+    // Call Lovable AI for card generation
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY not configured');
+    }
+
+    const systemPrompt = `You are an expert evaluator analyzing a product development conversation to generate a collectible card.
+
+CARD TYPE: ${cardType}
+CURRENT PHASE: ${currentPhase}
+CONVERSATION CONTEXT:
+${conversationContext}
+
+${selectedContent ? `SELECTED CONTENT:\n${selectedContent}\n` : ''}
+
+Your task:
+1. Extract the KEY INSIGHT/OUTPUT from this conversation that represents a ${cardType} card
+2. Create a concise title (max 40 chars)
+3. Write a description (max 150 chars)
+4. Write the full content (max 500 chars) - this is the main card content
+5. Score these 5 factors (1-10) with brief explanations:
+   - ${factors.factor_1_name}: How well does this demonstrate ${factors.factor_1_name}?
+   - ${factors.factor_2_name}: How well does this demonstrate ${factors.factor_2_name}?
+   - ${factors.factor_3_name}: How well does this demonstrate ${factors.factor_3_name}?
+   - ${factors.factor_4_name}: How well does this demonstrate ${factors.factor_4_name}?
+   - ${factors.factor_5_name}: How well does this demonstrate ${factors.factor_5_name}?
+
+SCORING GUIDELINES:
+- 1-3: Poor/Weak - Minimal evidence or quality
+- 4-6: Average/Decent - Acceptable but unremarkable
+- 7-8: Good/Strong - Clear evidence of quality
+- 9-10: Excellent/Exceptional - Outstanding demonstration
+
+Identify which team character would have created this card based on the content:
+- ever (Ever Green): Ideas, vision, brainstorming, big picture thinking
+- prisma (Prisma): Planning, organization, structure, clarity
+- toxic (Toxic): Bold choices, breaking conventions, high-risk ideas
+- phoenix (Phoenix): Transformation, pivots, research, insights
+- techpriest (Tech Priest): Technical implementation, code, architecture
+- virgil (Virgil): Guidance, wisdom, deep analysis, strategy
+- zen (Zen): User experience, design, simplicity, elegance
+
+Return your analysis as a JSON object.`;
+
+    const aiResponse = await fetch('https://api.lovable.app/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: 'Generate the card based on the conversation above.' }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.7,
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      throw new Error(`AI API error: ${aiResponse.status}`);
+    }
+
+    const aiData = await aiResponse.json();
+    const cardData = JSON.parse(aiData.choices[0].message.content);
+
+    // Calculate rarity
+    const scores = [
+      cardData.factor_1_score,
+      cardData.factor_2_score,
+      cardData.factor_3_score,
+      cardData.factor_4_score,
+      cardData.factor_5_score
+    ];
+    const averageScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const rarity = calculateRarity(scores);
+
+    // Insert card into database
+    const { data: card, error: cardError } = await supabaseClient
+      .from('dynamic_cards')
+      .insert({
+        player_id: user.id,
+        session_id: sessionId,
+        card_type: cardType,
+        rarity: rarity,
+        level: currentLevel,
+        title: cardData.title,
+        content: cardData.content,
+        description: cardData.description || cardData.content.substring(0, 150),
+        created_by_character: cardData.created_by_character,
+        contributing_characters: cardData.contributing_characters || [],
+        tags: cardData.tags || [],
+        visual_theme: getVisualTheme(rarity),
+        average_score: averageScore,
+        times_used: 0
+      })
+      .select()
+      .single();
+
+    if (cardError) {
+      console.error('Card insert error:', cardError);
+      throw cardError;
+    }
+
+    // Insert evaluation scores
+    const { error: evalError } = await supabaseClient
+      .from('card_evaluations')
+      .insert({
+        card_id: card.id,
+        factor_1_name: factors.factor_1_name,
+        factor_1_score: cardData.factor_1_score,
+        factor_1_explanation: cardData.factor_1_explanation || '',
+        factor_2_name: factors.factor_2_name,
+        factor_2_score: cardData.factor_2_score,
+        factor_2_explanation: cardData.factor_2_explanation || '',
+        factor_3_name: factors.factor_3_name,
+        factor_3_score: cardData.factor_3_score,
+        factor_3_explanation: cardData.factor_3_explanation || '',
+        factor_4_name: factors.factor_4_name,
+        factor_4_score: cardData.factor_4_score,
+        factor_4_explanation: cardData.factor_4_explanation || '',
+        factor_5_name: factors.factor_5_name,
+        factor_5_score: cardData.factor_5_score,
+        factor_5_explanation: cardData.factor_5_explanation || ''
+      });
+
+    if (evalError) {
+      console.error('Evaluation insert error:', evalError);
+    }
+
+    // Track generation event
+    await supabaseClient
+      .from('card_generation_events')
+      .insert({
+        player_id: user.id,
+        session_id: sessionId,
+        card_id: card.id,
+        trigger_type: trigger || 'auto',
+        conversation_context: JSON.stringify(recentMessages.slice(-3))
+      });
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        card: card
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Error generating card:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
