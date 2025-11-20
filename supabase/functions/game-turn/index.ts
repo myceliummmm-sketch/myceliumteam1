@@ -673,7 +673,7 @@ If the user's question requires expertise from unavailable members, have the ava
       aiContent = aiContent.replace(/\n```\s*$/, '');
     }
     
-    // Sanitize control characters - character-by-character approach
+    // Remove literal control characters that break JSON parsing
     let parsedResponse;
     try {
       // First attempt: parse as-is
@@ -681,19 +681,16 @@ If the user's question requires expertise from unavailable members, have the ava
     } catch (firstError) {
       console.error('Initial JSON parse failed, attempting sanitization:', firstError);
       
-      // Character-by-character sanitization to escape literal control chars
+      // Remove all literal control characters (newlines, tabs, etc.)
+      // These should not appear literally in valid JSON strings
       const sanitized = aiContent
         .split('')
         .map((char: string) => {
           const code = char.charCodeAt(0);
-          // Remove most control characters (except \t, \n, \r)
-          if (code < 32 && code !== 9 && code !== 10 && code !== 13) {
-            return '';
+          // Remove ALL control characters (0-31) and DEL (127)
+          if (code < 32 || code === 127) {
+            return ' '; // Replace with space to preserve structure
           }
-          // Escape newlines, carriage returns, tabs if they appear literally in JSON
-          if (code === 10) return '\\n';
-          if (code === 13) return '\\r';
-          if (code === 9) return '\\t';
           return char;
         })
         .join('');
