@@ -741,11 +741,7 @@ export function useGameSession() {
         const artifactDef = LEGENDARY_ARTIFACTS[artifactId];
         
         if (artifactDef) {
-          const artifact = {
-            ...createArtifactFromDefinition(artifactId, artifactDef),
-            unlocked: true,
-            unlockedAt: new Date()
-          } as Artifact;
+          const artifact = createArtifactFromDefinition(artifactId, true);
           useGameStore.getState().setUnlockedArtifact(artifact);
           useGameStore.getState().setShowArtifactUnlockModal(true);
           playSound('levelUp');
