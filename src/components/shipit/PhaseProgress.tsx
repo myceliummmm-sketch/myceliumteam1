@@ -8,15 +8,14 @@ import { getCurrentStage, calculateStageProgress, STAGE_DEFINITIONS } from '@/li
 import { calculatePhaseProgress } from '@/lib/quickReplies';
 import { stageTransitionAnimation, stageBadgePulse } from '@/lib/animations';
 
-const phases = ['SPARK', 'EXPLORE', 'CRAFT', 'FORGE', 'POLISH', 'LAUNCH'];
+const phases = ['VISION', 'RESEARCH', 'PROTOTYPE', 'BUILD', 'GROW'];
 
 const phaseEmojis: Record<string, string> = {
-  'SPARK': '⚡',
-  'EXPLORE': '🗺️',
-  'CRAFT': '🎨',
-  'FORGE': '⚙️',
-  'POLISH': '✨',
-  'LAUNCH': '🚀'
+  'VISION': '📊',
+  'RESEARCH': '🔍',
+  'PROTOTYPE': '🎨',
+  'BUILD': '🏗️',
+  'GROW': '🚀'
 };
 
 export function PhaseProgress() {
