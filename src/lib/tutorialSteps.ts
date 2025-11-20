@@ -26,6 +26,22 @@ export const tutorialSteps: TutorialStep[] = [
   },
   {
     id: 2,
+    title: "Current Focus Panel",
+    description: "Always know what to do next",
+    target: "current-focus-panel",
+    content: "This panel shows your current stage goals and the exact next steps to take. No more wondering 'what should I do now?' — just follow the numbered actions!",
+    action: "Got it!"
+  },
+  {
+    id: 3,
+    title: "Need Help? Just Ask!",
+    description: "Your AI team is always ready",
+    target: "help-button",
+    content: "Feeling stuck? Click the '❓ What should I focus on?' button anytime to get personalized guidance from your team. They'll review your progress and suggest the ONE thing to do next.",
+    action: "Perfect!"
+  },
+  {
+    id: 4,
     title: "Chat Terminal",
     description: "Collaborate with your team",
     target: "chat-terminal",
@@ -33,7 +49,7 @@ export const tutorialSteps: TutorialStep[] = [
     action: "Next"
   },
   {
-    id: 3,
+    id: 5,
     title: "Quest Log",
     description: "Your active tasks",
     target: "quest-log",
@@ -41,7 +57,7 @@ export const tutorialSteps: TutorialStep[] = [
     action: "Next"
   },
   {
-    id: 4,
+    id: 6,
     title: "Let's Get Started!",
     description: "Time to build something amazing",
     target: "input-bar",

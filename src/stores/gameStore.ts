@@ -348,7 +348,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   nextTutorialStep: () => set((state) => {
     const nextStep = (state.tutorialStep || 0) + 1;
     
-    if (nextStep >= 5) {
+    if (nextStep >= 7) {
       // Tutorial complete - update database
       const updateProgress = async () => {
         const { data } = await supabase.auth.getUser();
@@ -357,7 +357,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
             .from('player_progress')
             .update({ 
               has_completed_tutorial: true,
-              tutorial_step: 5 
+              tutorial_step: 7 
             })
             .eq('player_id', data.user.id);
         }
@@ -383,7 +383,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
           .from('player_progress')
           .update({ 
             has_completed_tutorial: true,
-            tutorial_step: 5 
+            tutorial_step: 7 
           })
           .eq('player_id', data.user.id);
       }
