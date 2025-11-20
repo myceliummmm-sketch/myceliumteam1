@@ -18,6 +18,7 @@ import { TutorialOverlay } from '@/components/shipit/TutorialOverlay';
 import { ArtifactUnlockModal } from '@/components/shipit/ArtifactUnlockModal';
 import { DevModePanel } from '@/components/shipit/DevModePanel';
 import { DailyChallenges } from '@/components/shipit/DailyChallenges';
+import { CurrentFocusPanel } from '@/components/shipit/CurrentFocusPanel';
 import { LogOut, Loader2, Users, BarChart3, BookOpen, Folder, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { PromptLibrary } from '@/components/shipit/PromptLibrary';
 import { SessionShareButton } from '@/components/shipit/SessionShareButton';
@@ -265,6 +266,7 @@ export default function ShipIt() {
             }`}
           >
             <div data-tutorial-target="stats-panel">
+              {!rightPanelCollapsed && <CurrentFocusPanel />}
               {!rightPanelCollapsed && <DailyChallenges />}
               <StatsPanel collapsed={rightPanelCollapsed} onToggle={toggleRightPanel} />
             </div>

@@ -20,7 +20,7 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
   
   // Priority 1: AI-suggested actions override if present and relevant
   if (aiSuggestedActions.length > 0) {
-    return aiSuggestedActions.slice(0, 3).map((text, idx) => ({
+    const aiReplies: QuickReplyButton[] = aiSuggestedActions.slice(0, 3).map((text, idx) => ({
       text,
       category: 'ai-suggested' as const,
       icon: idx === 0 ? '🎯' : '✨',
@@ -31,6 +31,15 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
         type: 'phase' as const
       } : undefined
     }));
+    
+    // Always add help button as 4th button
+    aiReplies.push({
+      text: '❓ What should I focus on?',
+      category: 'general',
+      icon: '🤔'
+    });
+    
+    return aiReplies;
   }
   
   // Priority 2: Stage-driven actions (Swiss clock precision)
@@ -40,32 +49,59 @@ export function generateQuickReplies(state: GameState, aiSuggestedActions: strin
     state
   );
   
-  const replies: QuickReplyButton[] = stageActions.map((text, idx) => ({
-    text,
-    category: 'phase' as const,
-    icon: idx === 0 ? '🎯' : idx === 1 ? '📍' : '💡',
-    progress: idx === 0 ? {
+  const replies: QuickReplyButton[] = [];
+  
+  // 1. Primary stage action (always)
+  replies.push({
+    text: stageActions[0],
+    category: 'phase',
+    icon: '🎯',
+    progress: {
       current: Math.round(stageProgress),
       total: 100,
       percentage: Math.round(stageProgress),
-      type: 'phase' as const
-    } : undefined
-  }));
-  
-  // Add hint button if user is stuck in stage (>5 minutes)
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-  if (state.currentStageEnteredAt && new Date(state.currentStageEnteredAt) < fiveMinutesAgo) {
-    const tip = getStageTip(state.currentPhase, currentStage.stageNumber);
-    if (tip) {
-      replies.push({
-        text: `💡 Need a hint?`,
-        category: 'general',
-        isHint: true,
-        hintContent: tip.tips,
-        icon: '💡'
-      });
+      type: 'phase'
     }
+  });
+  
+  // 2. Secondary stage action (always)
+  replies.push({
+    text: stageActions[1] || "Continue working",
+    category: 'phase',
+    icon: '📍'
+  });
+  
+  // 3. Context-aware action (dynamic)
+  const criticalBlockers = state.blockers?.filter(b => b.severity === 'high') || [];
+  
+  if (criticalBlockers.length > 0) {
+    replies.push({
+      text: `Fix: ${criticalBlockers[0].description.slice(0, 30)}...`,
+      category: 'blocker',
+      urgency: 'high',
+      icon: '🚨'
+    });
+  } else if (state.energy < 3) {
+    replies.push({
+      text: 'Take a break (restore energy)',
+      category: 'energy',
+      urgency: 'high',
+      icon: '⚡'
+    });
+  } else {
+    replies.push({
+      text: stageActions[2] || "Explore alternatives",
+      category: 'general',
+      icon: '💡'
+    });
   }
   
-  return replies.slice(0, 4); // Max 4 buttons (3 actions + 1 hint)
+  // 4. Help/Guidance button (ALWAYS available)
+  replies.push({
+    text: '❓ What should I focus on?',
+    category: 'general',
+    icon: '🤔'
+  });
+  
+  return replies; // Always 4 buttons
 }
