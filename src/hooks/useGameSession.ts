@@ -191,6 +191,18 @@ export function useGameSession() {
           });
         }
 
+        // Load stage history
+        const { data: stageHistory } = await supabase
+          .from('stage_completions')
+          .select('*')
+          .eq('player_id', user.id)
+          .eq('session_id', sessionId)
+          .order('completed_at', { ascending: false });
+
+        if (stageHistory) {
+          loadStageHistory(stageHistory);
+        }
+
         // Check tutorial progress
         const { data: progress } = await supabase
           .from('player_progress')
