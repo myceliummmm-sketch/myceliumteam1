@@ -15,7 +15,7 @@ export function CurrentFocusPanel() {
   const stageProgressPercent = calculateStageProgress(currentPhase, phaseProgress);
 
   return (
-    <Card className="p-4 border-2 border-primary/30 bg-primary/5">
+    <Card className="p-4 border-2 border-primary/30 bg-primary/5" data-tutorial-target="current-focus-panel">
       <h3 className="text-xs font-bold text-primary mb-2">🎯 CURRENT FOCUS</h3>
       <div className="space-y-2">
         <div className="text-sm font-semibold">{currentStage.label}</div>

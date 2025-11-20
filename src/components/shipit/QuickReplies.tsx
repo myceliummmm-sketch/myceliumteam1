@@ -141,6 +141,7 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
             transition={{ delay: idx * 0.05 }}
             whileTap={{ scale: 0.95 }}
             className="flex-shrink-0"
+            data-tutorial-target={suggestion.text.includes('What should I focus on') ? 'help-button' : undefined}
           >
             {suggestion.isHint && suggestion.hintContent ? (
               <Popover open={openHintIndex === idx} onOpenChange={(open) => setOpenHintIndex(open ? idx : null)}>
