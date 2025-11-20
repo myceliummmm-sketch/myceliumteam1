@@ -373,6 +373,7 @@ export type Database = {
       }
       dynamic_cards: {
         Row: {
+          auto_generated: boolean | null
           average_score: number | null
           card_type: string
           content: string
@@ -380,6 +381,7 @@ export type Database = {
           created_at: string | null
           created_by_character: string | null
           description: string | null
+          event_data: Json | null
           id: string
           is_archived: boolean | null
           last_used_at: string | null
@@ -390,10 +392,12 @@ export type Database = {
           tags: string[] | null
           times_used: number | null
           title: string
+          triggered_by_event: string | null
           updated_at: string | null
           visual_theme: string | null
         }
         Insert: {
+          auto_generated?: boolean | null
           average_score?: number | null
           card_type: string
           content: string
@@ -401,6 +405,7 @@ export type Database = {
           created_at?: string | null
           created_by_character?: string | null
           description?: string | null
+          event_data?: Json | null
           id?: string
           is_archived?: boolean | null
           last_used_at?: string | null
@@ -411,10 +416,12 @@ export type Database = {
           tags?: string[] | null
           times_used?: number | null
           title: string
+          triggered_by_event?: string | null
           updated_at?: string | null
           visual_theme?: string | null
         }
         Update: {
+          auto_generated?: boolean | null
           average_score?: number | null
           card_type?: string
           content?: string
@@ -422,6 +429,7 @@ export type Database = {
           created_at?: string | null
           created_by_character?: string | null
           description?: string | null
+          event_data?: Json | null
           id?: string
           is_archived?: boolean | null
           last_used_at?: string | null
@@ -432,6 +440,7 @@ export type Database = {
           tags?: string[] | null
           times_used?: number | null
           title?: string
+          triggered_by_event?: string | null
           updated_at?: string | null
           visual_theme?: string | null
         }
