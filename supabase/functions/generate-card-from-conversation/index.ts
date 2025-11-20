@@ -160,7 +160,34 @@ ${conversationContext}
 
 ${selectedContent ? `SELECTED CONTENT:\n${selectedContent}\n` : ''}
 
-Your task:`;
+Your task:
+1. Extract the KEY INSIGHT/OUTPUT from this event that represents a ${cardType} card
+2. Create a concise title (max 40 chars)
+3. Write a description (max 150 chars)
+4. Write the full content (max 500 chars) - this is the main card content
+5. Score these 5 factors (1-10) with brief explanations:
+   - ${factors.factor_1_name}: How well does this demonstrate ${factors.factor_1_name}?
+   - ${factors.factor_2_name}: How well does this demonstrate ${factors.factor_2_name}?
+   - ${factors.factor_3_name}: How well does this demonstrate ${factors.factor_3_name}?
+   - ${factors.factor_4_name}: How well does this demonstrate ${factors.factor_4_name}?
+   - ${factors.factor_5_name}: How well does this demonstrate ${factors.factor_5_name}?
+
+SCORING GUIDELINES:
+- 1-3: Poor/Weak - Minimal evidence or quality
+- 4-6: Average/Decent - Acceptable but unremarkable
+- 7-8: Good/Strong - Clear evidence of quality
+- 9-10: Excellent/Exceptional - Outstanding demonstration
+
+Identify which team character would have created this card based on the content:
+- ever (Ever Green): Ideas, vision, brainstorming, big picture thinking
+- prisma (Prisma): Planning, organization, structure, clarity
+- toxic (Toxic): Bold choices, breaking conventions, high-risk ideas
+- phoenix (Phoenix): Transformation, pivots, research, insights
+- techpriest (Tech Priest): Technical implementation, code, architecture
+- virgil (Virgil): Guidance, wisdom, deep analysis, strategy
+- zen (Zen): User experience, design, simplicity, elegance
+
+Return your analysis as a JSON object.`;
     } else {
       // Standard conversation-based card generation
       systemPrompt = `You are an expert evaluator analyzing a product development conversation to generate a collectible card.
@@ -172,7 +199,7 @@ ${conversationContext}
 
 ${selectedContent ? `SELECTED CONTENT:\n${selectedContent}\n` : ''}
 
-Your task:`;
+Your task:
 1. Extract the KEY INSIGHT/OUTPUT from this conversation that represents a ${cardType} card
 2. Create a concise title (max 40 chars)
 3. Write a description (max 150 chars)
@@ -200,6 +227,7 @@ Identify which team character would have created this card based on the content:
 - zen (Zen): User experience, design, simplicity, elegance
 
 Return your analysis as a JSON object.`;
+    }
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
