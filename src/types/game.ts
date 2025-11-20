@@ -249,6 +249,9 @@ export interface GameState {
   showTutorial: boolean;
   tutorialStep: number | null;
   hasCompletedTutorial: boolean;
+  hasMetTeam: boolean;
+  showTeamIntroModal: boolean;
+  teamIntroSlide: number;
   
   // UI State
   showLevelUpModal: boolean;

@@ -21,6 +21,8 @@ interface GameActions {
   regenerateEnergy: () => void;
   nextTutorialStep: () => void;
   skipTutorial: () => void;
+  setHasMetTeam: (value: boolean) => void;
+  setShowTeamIntroModal: (value: boolean) => void;
   setShowTutorial: (show: boolean) => void;
   setQuickReplies: (replies: QuickReplyButton[]) => void;
   setAiSuggestedActions: (actions: string[]) => void;
@@ -94,6 +96,9 @@ const initialState: GameState = {
   showTutorial: false,
   tutorialStep: null,
   hasCompletedTutorial: false,
+  hasMetTeam: false,
+  showTeamIntroModal: false,
+  teamIntroSlide: 0,
   showLevelUpModal: false,
   levelUpRewards: { spores: 0 },
   showArtifactUnlockModal: false,
@@ -494,6 +499,9 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   },
 
   setShowPersonalityAssessment: (show: boolean) => set({ showPersonalityAssessment: show }),
+  
+  setHasMetTeam: (value: boolean) => set({ hasMetTeam: value }),
+  setShowTeamIntroModal: (value: boolean) => set({ showTeamIntroModal: value }),
   
   // Stage progression actions
   setShowStageCompletionModal: (show, stage, rewards) =>

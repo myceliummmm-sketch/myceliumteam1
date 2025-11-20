@@ -39,6 +39,8 @@ import { StageCompletionModal } from '@/components/shipit/StageCompletionModal';
 import { StageHistory } from '@/components/shipit/StageHistory';
 import { ProgressTimelineButton } from '@/components/shipit/ProgressTimelineButton';
 import { MobileGate } from '@/components/shipit/MobileGate';
+import { WelcomeScreen } from '@/components/shipit/WelcomeScreen';
+import { TeamIntroductionModal } from '@/components/shipit/TeamIntroductionModal';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -67,6 +69,10 @@ export default function ShipIt() {
   const setShowCardPackModal = useGameStore((state) => state.setShowCardPackModal);
   const showPersonalityAssessment = useGameStore((state) => state.showPersonalityAssessment);
   const setShowPersonalityAssessment = useGameStore((state) => state.setShowPersonalityAssessment);
+  const hasMetTeam = useGameStore((state) => state.hasMetTeam);
+  const showTeamIntroModal = useGameStore((state) => state.showTeamIntroModal);
+  const setShowTeamIntroModal = useGameStore((state) => state.setShowTeamIntroModal);
+  const setHasMetTeam = useGameStore((state) => state.setHasMetTeam);
   const promptCount = 0;
 
   // Real-time presence tracking
@@ -98,6 +104,30 @@ export default function ShipIt() {
     };
   }, [sessionId, user]);
 
+  const handleTeamIntroComplete = async (takeAssessment: boolean) => {
+    // Update database
+    const { data } = await supabase.auth.getUser();
+    if (data.user) {
+      await supabase
+        .from('player_progress')
+        .update({ 
+          has_met_team: true,
+          met_team_at: new Date().toISOString(),
+          skipped_personality_assessment: !takeAssessment
+        })
+        .eq('player_id', data.user.id);
+    }
+
+    // Update state
+    setHasMetTeam(true);
+    setShowTeamIntroModal(false);
+
+    // Open personality assessment if chosen
+    if (takeAssessment) {
+      setShowPersonalityAssessment(true);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -106,6 +136,19 @@ export default function ShipIt() {
           <p className="text-muted-foreground">Loading your game session...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show welcome screen if user hasn't met the team
+  if (!hasMetTeam) {
+    return (
+      <>
+        <WelcomeScreen onStart={() => setShowTeamIntroModal(true)} />
+        <TeamIntroductionModal
+          open={showTeamIntroModal}
+          onComplete={handleTeamIntroComplete}
+        />
+      </>
     );
   }
 

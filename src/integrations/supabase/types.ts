@@ -626,21 +626,30 @@ export type Database = {
         Row: {
           created_at: string | null
           has_completed_tutorial: boolean | null
+          has_met_team: boolean | null
+          met_team_at: string | null
           player_id: string
+          skipped_personality_assessment: boolean | null
           tutorial_step: number | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           has_completed_tutorial?: boolean | null
+          has_met_team?: boolean | null
+          met_team_at?: string | null
           player_id: string
+          skipped_personality_assessment?: boolean | null
           tutorial_step?: number | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           has_completed_tutorial?: boolean | null
+          has_met_team?: boolean | null
+          met_team_at?: string | null
           player_id?: string
+          skipped_personality_assessment?: boolean | null
           tutorial_step?: number | null
           updated_at?: string | null
         }
