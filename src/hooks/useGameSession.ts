@@ -13,7 +13,7 @@ import { createArtifactFromDefinition, applyArtifactBonuses } from '@/lib/artifa
 import { ArtifactId, ConversationMode, Phase, TeamMember } from '@/types/game';
 import { MODE_CONFIGS, isModeUnlocked } from '@/lib/modeConfig';
 import { PROMPT_TEMPLATES } from '@/lib/promptTemplates';
-import { getCompletedStages, getCurrentStage } from '@/lib/stageSystem';
+import { getCompletedStages, getCurrentStage, STAGE_DEFINITIONS, calculateStageProgress } from '@/lib/stageSystem';
 import { getStageReward } from '@/lib/stageRewards';
 
 export function useGameSession() {
@@ -73,6 +73,15 @@ export function useGameSession() {
             energyGained = gained;
           }
 
+          // Calculate current stage
+          const phaseProgress = calculatePhaseProgress({
+            ...latestState,
+            currentPhase: latestState.current_phase as Phase
+          } as any);
+          const currentStage = getCurrentStage(latestState.current_phase as Phase, phaseProgress);
+          const stageProgress = calculateStageProgress(latestState.current_phase as Phase, phaseProgress);
+          const totalStages = STAGE_DEFINITIONS[latestState.current_phase as Phase]?.length || 4;
+
           // Load player artifacts
           const { data: playerArtifacts } = await supabase
             .from('player_artifacts')
@@ -100,6 +109,12 @@ export function useGameSession() {
             energy: currentEnergy,
             streak: latestState.streak,
             codeHealth: latestState.code_health,
+            phaseStage: {
+              phase: latestState.current_phase as Phase,
+              stageNumber: currentStage.stageNumber,
+              stageProgress,
+              stageLabel: currentStage.label
+            },
             currentPhase: latestState.current_phase as Phase,
             completedTasks: (latestState.completed_tasks as any) || [],
             currentTasks: (latestState.current_tasks as any) || [],
@@ -554,6 +569,47 @@ export function useGameSession() {
       if (data.gameEvents?.some((e: any) => e.type === 'TASK_COMPLETED')) {
         toast.success('Task completed! +XP');
         playSound('levelUp');
+      }
+
+      // Handle stage completion
+      if (data.gameEvents?.some((e: any) => e.type === 'STAGE_COMPLETE')) {
+        const stageEvent = data.gameEvents.find((e: any) => e.type === 'STAGE_COMPLETE');
+        const { phase, stageNumber, stageLabel, rewards, timeSpent } = stageEvent.data;
+        
+        // Record stage completion in database
+        try {
+          const { data: completionData } = await supabase.from('stage_completions').insert({
+            player_id: user!.id,
+            session_id: state.sessionId!,
+            phase,
+            stage_number: stageNumber,
+            stage_label: stageLabel,
+            xp_earned: rewards.xp,
+            time_spent_seconds: timeSpent
+          }).select().single();
+
+          // Load updated stage history
+          const { data: history } = await supabase
+            .from('stage_completions')
+            .select('*')
+            .eq('player_id', user!.id)
+            .eq('session_id', state.sessionId!)
+            .order('completed_at', { ascending: false });
+
+          if (history) {
+            loadStageHistory(history);
+          }
+
+          // Record in store and show modal
+          if (completionData) {
+            recordStageCompletion(completionData);
+          }
+          
+          setShowStageCompletionModal(true, { phase, stageNumber, stageLabel }, rewards);
+          playSound('levelUp');
+        } catch (error) {
+          console.error('Error recording stage completion:', error);
+        }
       }
 
     } catch (error) {
