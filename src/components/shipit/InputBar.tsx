@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 import { useGameSession } from '@/hooks/useGameSession';
+import { useInputHint } from '@/hooks/useInputHint';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -11,10 +12,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { MODE_CONFIGS, isModeUnlocked, getUnlockMessage } from '@/lib/modeConfig';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function InputBar() {
   const [input, setInput] = useState('');
   const { sendMessage } = useGameSession();
+  const { currentInputHint } = useInputHint();
   const isLoading = useGameStore((state) => state.isLoading);
   const energy = useGameStore((state) => state.energy);
   const level = useGameStore((state) => state.level);
@@ -26,6 +29,7 @@ export function InputBar() {
   const responseDepth = useGameStore((state) => state.responseDepth);
   const setResponseDepth = useGameStore((state) => state.setResponseDepth);
   const proMode = useGameStore((state) => state.proMode);
+  const blockers = useGameStore((state) => state.blockers);
   
   useEffect(() => {
     const handleInsertPrompt = (e: CustomEvent) => {
@@ -48,6 +52,17 @@ export function InputBar() {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const getPlaceholderClass = () => {
+    const activeBlockers = blockers.filter(b => !b.resolvedAt);
+    if (activeBlockers.length > 0) {
+      return "placeholder:text-red-500/80 placeholder:font-medium";
+    }
+    if (energy < 3) {
+      return "placeholder:text-amber-500/80 placeholder:italic";
+    }
+    return "placeholder:text-muted-foreground/70 placeholder:italic";
   };
 
   return (
@@ -130,8 +145,11 @@ export function InputBar() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message... (Shift+Enter for new line)"
-              className="min-h-[60px] sm:min-h-[80px] pr-16"
+              placeholder={currentInputHint}
+              className={cn(
+                "min-h-[60px] sm:min-h-[80px] pr-16",
+                getPlaceholderClass()
+              )}
               disabled={isLoading}
             />
             <span className="absolute top-2 right-2 text-[10px] sm:text-xs text-muted-foreground">

@@ -575,6 +575,10 @@ export function useGameSession() {
       };
       addMessage(userMessage);
 
+      // Increment hint trigger count
+      const currentCount = useGameStore.getState().hintTriggerCount;
+      useGameStore.setState({ hintTriggerCount: currentCount + 1 });
+
       // Save user message to database
       await supabase.from('chat_messages').insert({
         session_id: sessionId,

@@ -49,6 +49,8 @@ interface GameActions {
   recordStageCompletion: (completion: any) => void;
   setPreviousPhaseProgress: (progress: number) => void;
   setCurrentStageEnteredAt: (date: Date | null) => void;
+  setCurrentInputHint: (hint: string) => void;
+  setIsLoadingHint: (loading: boolean) => void;
 }
 
 const initialState: GameState = {
@@ -126,6 +128,13 @@ const initialState: GameState = {
   responseDepth: (typeof window !== 'undefined' 
     ? localStorage.getItem('responseDepth') 
     : 'normal') as ResponseDepth || 'normal',
+  
+  // Input hint system
+  currentInputHint: "What's your next move?",
+  isLoadingHint: false,
+  lastHintGeneratedAt: null,
+  hintTriggerCount: 0,
+  
   proMode: typeof window !== 'undefined' 
     ? localStorage.getItem('proMode') === 'true' 
     : false,
@@ -525,5 +534,9 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   
   setCurrentStageEnteredAt: (date) =>
     set({ currentStageEnteredAt: date }),
+  
+  setCurrentInputHint: (hint) => set({ currentInputHint: hint }),
+  
+  setIsLoadingHint: (loading) => set({ isLoadingHint: loading }),
 }));
 
