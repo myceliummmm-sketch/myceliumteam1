@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useGameSession } from '@/hooks/useGameSession';
 import { useGameStore } from '@/stores/gameStore';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { TeamPanel } from '@/components/shipit/TeamPanel';
@@ -36,11 +37,13 @@ import { GenerateCardButton } from '@/components/shipit/GenerateCardButton';
 import { StageCompletionModal } from '@/components/shipit/StageCompletionModal';
 import { StageHistory } from '@/components/shipit/StageHistory';
 import { ProgressTimelineButton } from '@/components/shipit/ProgressTimelineButton';
+import { MobileGate } from '@/components/shipit/MobileGate';
 
 export default function ShipIt() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { loading, sendMessage } = useGameSession();
+  const isMobile = useIsMobile();
   const quickReplies = useGameStore((state) => state.quickReplies);
   const isLoading = useGameStore((state) => state.isLoading);
   const energy = useGameStore((state) => state.energy);
@@ -107,6 +110,7 @@ export default function ShipIt() {
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4">
+      {isMobile && <MobileGate />}
       <PromptLibrary />
       <LevelUpModal />
       {showArtifactUnlockModal && unlockedArtifact && (
