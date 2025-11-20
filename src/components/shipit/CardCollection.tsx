@@ -10,6 +10,7 @@ import { Search, Filter, SortAsc, ChevronLeft, Sparkles, LogOut } from 'lucide-r
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CollectibleCard } from './CollectibleCard';
 import { CardDetailModal } from './CardDetailModal';
+import { PromptGenerationModal } from './PromptGenerationModal';
 import { useGameStore } from '@/stores/gameStore';
 import { ParticleEffect } from './ParticleEffect';
 import { VersionTogglePanel } from './VersionTogglePanel';
@@ -48,6 +49,7 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<DynamicCard | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showPromptModal, setShowPromptModal] = useState(false);
   
   // Animation states
   const [showConfetti, setShowConfetti] = useState(false);
@@ -256,16 +258,28 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
         </div>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search, Filters and Generate Prompt */}
       <div className="p-4 space-y-3 border-b border-border/30 bg-card/20">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="SEARCH CARDS..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 font-mono text-sm bg-background/50 border-primary/20"
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="SEARCH CARDS..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 font-mono text-sm bg-background/50 border-primary/20"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPromptModal(true)}
+            disabled={filteredCards.length === 0}
+            className="gap-2 whitespace-nowrap"
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate Prompt
+          </Button>
         </div>
 
         {/* Rarity Filter */}
@@ -390,6 +404,12 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           }}
         />
       )}
+      
+      <PromptGenerationModal
+        open={showPromptModal}
+        onClose={() => setShowPromptModal(false)}
+        allCards={filteredCards}
+      />
     </div>
   );
 }

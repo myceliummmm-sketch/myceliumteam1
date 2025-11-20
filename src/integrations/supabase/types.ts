@@ -676,6 +676,47 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_generations: {
+        Row: {
+          card_ids: string[]
+          created_at: string | null
+          generated_prompt: string
+          id: string
+          options: Json | null
+          player_id: string
+          session_id: string | null
+          token_count: number | null
+        }
+        Insert: {
+          card_ids: string[]
+          created_at?: string | null
+          generated_prompt: string
+          id?: string
+          options?: Json | null
+          player_id: string
+          session_id?: string | null
+          token_count?: number | null
+        }
+        Update: {
+          card_ids?: string[]
+          created_at?: string | null
+          generated_prompt?: string
+          id?: string
+          options?: Json | null
+          player_id?: string
+          session_id?: string | null
+          token_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_generations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prompt_library: {
         Row: {
           category: string
