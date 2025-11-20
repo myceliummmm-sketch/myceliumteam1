@@ -673,35 +673,37 @@ If the user's question requires expertise from unavailable members, have the ava
       aiContent = aiContent.replace(/\n```\s*$/, '');
     }
     
-    // Sanitize control characters - replace actual newlines/tabs/etc in JSON strings
-    // This handles cases where AI includes unescaped control chars
+    // Sanitize control characters - character-by-character approach
     let parsedResponse;
     try {
       // First attempt: parse as-is
       parsedResponse = JSON.parse(aiContent);
     } catch (firstError) {
       console.error('Initial JSON parse failed, attempting sanitization:', firstError);
-      console.log('Raw content preview:', aiContent.substring(0, 500));
       
-      // Replace problematic control characters within string values
-      // This regex finds strings and replaces control chars inside them
-      aiContent = aiContent.replace(
-        /"((?:[^"\\]|\\.)*)"/g,
-        (_match: string, content: string) => {
-          return '"' + content
-            .replace(/\n/g, '\\n')
-            .replace(/\r/g, '\\r')
-            .replace(/\t/g, '\\t')
-            .replace(/[\x00-\x1F\x7F]/g, '') + '"';
-        }
-      );
+      // Character-by-character sanitization to escape literal control chars
+      const sanitized = aiContent
+        .split('')
+        .map((char: string) => {
+          const code = char.charCodeAt(0);
+          // Remove most control characters (except \t, \n, \r)
+          if (code < 32 && code !== 9 && code !== 10 && code !== 13) {
+            return '';
+          }
+          // Escape newlines, carriage returns, tabs if they appear literally in JSON
+          if (code === 10) return '\\n';
+          if (code === 13) return '\\r';
+          if (code === 9) return '\\t';
+          return char;
+        })
+        .join('');
       
       try {
-        parsedResponse = JSON.parse(aiContent);
+        parsedResponse = JSON.parse(sanitized);
         console.log('JSON parse succeeded after sanitization');
       } catch (secondError) {
-        console.error('JSON parse failed after sanitization:', secondError);
-        console.log('Sanitized content preview:', aiContent.substring(0, 500));
+        console.error('Failed after sanitization:', secondError);
+        console.log('Sanitized preview:', sanitized.substring(0, 500));
         const errorMessage = secondError instanceof Error ? secondError.message : 'Unknown error';
         throw new Error(`Failed to parse AI response: ${errorMessage}`);
       }
