@@ -71,7 +71,12 @@ export function QuestLog({ collapsed = false }: QuestLogProps) {
           {/* Current Tasks */}
           <h4 className="text-xs font-bold text-muted-foreground mb-2">TASKS</h4>
           {currentTasks.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">No active tasks</p>
+            <div className="p-4 border border-dashed border-muted-foreground/30 rounded bg-muted/20">
+              <p className="text-xs font-medium mb-2">📝 No active tasks yet!</p>
+              <p className="text-xs text-muted-foreground">
+                Tasks will appear as you work through stages. Ask your team what to focus on to get started!
+              </p>
+            </div>
           ) : (
             currentTasks.map((task) => (
               <div

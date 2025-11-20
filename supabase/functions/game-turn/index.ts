@@ -203,6 +203,22 @@ RESPONSE LENGTH: NORMAL MODE
 
 const SYSTEM_PROMPT = `You are the Game Master for "Ship It" - a product development simulation game.
 
+CRITICAL RESPONSE STRUCTURE - EVERY RESPONSE MUST:
+1. **Acknowledge** user's message (show you heard them)
+2. **Provide context** (where they are in the journey)
+3. **Give advice/answer** (the actual help)
+4. **Clear next step** (explicit action to take)
+5. **suggestedActions** (3 buttons with specific, actionable tasks)
+
+RESPONSE TEMPLATE:
+- Acknowledge: "Got it, you're working on [X]..."
+- Context: "You're in [Phase] Stage [N]: [Stage Name]"
+- Advice: [Team member responses]
+- Next Step: "Here's what to do next: [Clear imperative]"
+- Actions: [3 specific, actionable buttons]
+
+NEVER end a response without a clear next step!
+
 TEAM MEMBERS (CRITICAL - RESPOND EXACTLY IN CHARACTER):
 
 🔷 EVER GREEN (Venture Strategist):
@@ -210,14 +226,16 @@ TEAM MEMBERS (CRITICAL - RESPOND EXACTLY IN CHARACTER):
 - Short punchy sentences: "Look..." / "Here's the deal..." / "Bottom line:"
 - Challenges assumptions: "But is that really solving the problem?"
 - ROI/value focus, uses business jargon
-- Example: "Look, I've seen this before. What's the business case? Who's paying?"
+- MUST END WITH: "Here's what I'd do: [ACTION]"
+- Example: "Look, I've seen this before. What's the business case? Who's paying? Here's what I'd do: talk to 5 potential customers this week."
 
 🔷 PRISMA (Product Strategist):
 - Analytical, data-driven, uses numbered lists
 - References frameworks: RICE, AARRR, Jobs-to-be-Done
 - "Let's break this down:" followed by structure
 - "What's our metric for success?" / "Data says..."
-- Example: "Let's break this down:\n1. Problem\n2. Solution\n3. Metric\nWe need #3 defined first."
+- MUST END WITH: "Step 1: [ACTION]. Step 2: [ACTION]."
+- Example: "Let's break this down:\n1. Problem\n2. Solution\n3. Metric\nStep 1: Define your success metric. Step 2: Set up tracking."
 
 🔷 TOXIC (Security Lead):
 - Cynical, paranoid, sarcastic, dark humor
@@ -252,7 +270,8 @@ TEAM MEMBERS (CRITICAL - RESPOND EXACTLY IN CHARACTER):
 - "How are you feeling about..." / "Let's not burn out..."
 - Focus on balance and sustainable pace
 - Gentle guidance, progress acknowledgment
-- Example: "🌱 Beautiful progress. But I sense tension. Let's breathe. What can we simplify? Sustainable pace beats heroic sprints. ✨"
+- MUST END WITH: "🌱 [ACTION]. You've got this. ✨"
+- Example: "🌱 Beautiful progress. But I sense tension. Let's breathe. What can we simplify? Sustainable pace beats heroic sprints. Try this: take a 5-minute break, then tackle the core feature. You've got this. ✨"
 
 IMPORTANT: Each character MUST speak in their distinct voice. Mix speakers in responses—don't let one dominate unless contextually appropriate (e.g., Tech Priest leads in code-review mode).
 
@@ -304,9 +323,15 @@ STAGE-AWARE CTA GENERATION (CRITICAL - ALWAYS INCLUDE):
 - Actions MUST align with the current stage's goals listed above
 - Use short imperative phrases (3-5 words max)
 - Format: ["Primary stage action", "Secondary stage action", "Context-aware action"]
-- The third action adapts to context (blocker fix, energy warning, or general guidance)
-- Example for VISION Stage 1: ["Define the core problem", "Identify target users", "What's blocking you?"]
+- The third action adapts to context:
+  * If user seems stuck/confused: "Need help? Ask away"
+  * If blocker exists: "Resolve [blocker name]"
+  * If energy low: "Take a break"
+  * Otherwise: Stage-relevant alternative action
+- Example for VISION Stage 1: ["Define the core problem", "Identify target users", "Need help? Ask away"]
 - Example for BUILD Stage 2: ["Build core features", "Integrate backend", "Review architecture"]
+- Be ULTRA-SPECIFIC - not "Define users" but "List 3 target users"
+- Actions should be completable in one session
 
 📊 LEVEL 1: VISION (Define Product Vision):
   Stage 1 (0-25%): Problem Discovery → "Define the core problem", "Identify who faces this problem"
@@ -633,6 +658,37 @@ If the user's question requires expertise from unavailable members, have the ava
       systemPrompt += '\n\n' + modeInstructions;
     }
     
+    // Detect confusion signals
+    const confusionPatterns = [
+      /what (should|do) (i|we) do/i,
+      /^what now/i,
+      /^help$/i,
+      /^stuck$/i,
+      /^idk$/i,
+      /^i don't know/i,
+      /what'?s next/i,
+      /where do i start/i,
+      /^next$/i,
+      /^any ideas/i,
+      /❓ What should I focus on\?/
+    ];
+
+    const isConfused = confusionPatterns.some(pattern => pattern.test(message.trim()));
+
+    if (isConfused) {
+      systemPrompt += `
+      
+⚠️ USER IS CONFUSED/STUCK - SPECIAL GUIDANCE MODE:
+- Zen leads with extra support and encouragement
+- Give ULTRA-SPECIFIC next steps (not general advice)
+- Provide 2-3 quick copy-paste examples
+- Remind them of progress so far
+- Suggest ONE concrete deliverable they can create right now
+- suggestedActions should be ultra-specific tasks with clear outcomes
+- Example: Instead of "Define users", say "List 3 specific people who need this"
+`;
+    }
+    
     // Add response depth instructions
     const depthInstructions = getDepthInstructions(responseDepth);
     systemPrompt += '\n\n' + depthInstructions;
@@ -756,13 +812,31 @@ If the user's question requires expertise from unavailable members, have the ava
       game_events: []
     });
 
+    // Validate response has clear next steps
+    const hasExplicitAction = parsedResponse.segments?.some((seg: any) => 
+      /^(do|try|start|create|define|build|write|design|test|here's what)/i.test(seg.content?.trim() || '')
+    );
+
+    if (!hasExplicitAction && parsedResponse.segments) {
+      // Add fallback guidance from Prisma
+      const currentPhase = gameState?.current_phase || 'SPARK';
+      const stageActions = ['Define the core problem', 'Identify target users', 'Sketch solution approach'];
+      
+      parsedResponse.segments.push({
+        type: 'speech',
+        speaker: 'prisma',
+        content: `Let's get concrete. Start with: ${stageActions[0]}`
+      });
+    }
+
     // Save AI response
     await supabase.from('chat_messages').insert({
       session_id: sessionId,
       role: 'assistant',
       content: JSON.stringify(parsedResponse.segments),
       segments: parsedResponse.segments,
-      game_events: parsedResponse.gameEvents || []
+      game_events: parsedResponse.gameEvents || [],
+      suggested_actions: parsedResponse.suggestedActions || []
     });
 
     // Check for boss blocker spawn
