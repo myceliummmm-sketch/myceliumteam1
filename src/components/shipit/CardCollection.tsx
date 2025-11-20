@@ -275,6 +275,15 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           </div>
           <Button
             variant="outline"
+            size="icon"
+            onClick={() => setViewAsGroups(!viewAsGroups)}
+            className="h-9 w-9"
+            title={viewAsGroups ? "Switch to List View" : "Switch to Group View"}
+          >
+            {viewAsGroups ? <List className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+          </Button>
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => setShowPromptModal(true)}
             disabled={filteredCards.length === 0}
@@ -358,6 +367,16 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
                   : 'Try adjusting your filters'}
               </div>
             </div>
+          </div>
+        ) : viewAsGroups ? (
+          <div className="p-4">
+            <GroupedCardView
+              groups={groupCardsByPhase(filteredCards)}
+              onCardClick={(card) => {
+                setSelectedCard(card);
+                setShowDetailModal(true);
+              }}
+            />
           </div>
         ) : (
           <div className="p-4 grid grid-cols-1 gap-4">
