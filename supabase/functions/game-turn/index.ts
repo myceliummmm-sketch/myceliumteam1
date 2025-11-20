@@ -673,7 +673,39 @@ If the user's question requires expertise from unavailable members, have the ava
       aiContent = aiContent.replace(/\n```\s*$/, '');
     }
     
-    const parsedResponse = JSON.parse(aiContent);
+    // Sanitize control characters - replace actual newlines/tabs/etc in JSON strings
+    // This handles cases where AI includes unescaped control chars
+    let parsedResponse;
+    try {
+      // First attempt: parse as-is
+      parsedResponse = JSON.parse(aiContent);
+    } catch (firstError) {
+      console.error('Initial JSON parse failed, attempting sanitization:', firstError);
+      console.log('Raw content preview:', aiContent.substring(0, 500));
+      
+      // Replace problematic control characters within string values
+      // This regex finds strings and replaces control chars inside them
+      aiContent = aiContent.replace(
+        /"((?:[^"\\]|\\.)*)"/g,
+        (_match: string, content: string) => {
+          return '"' + content
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t')
+            .replace(/[\x00-\x1F\x7F]/g, '') + '"';
+        }
+      );
+      
+      try {
+        parsedResponse = JSON.parse(aiContent);
+        console.log('JSON parse succeeded after sanitization');
+      } catch (secondError) {
+        console.error('JSON parse failed after sanitization:', secondError);
+        console.log('Sanitized content preview:', aiContent.substring(0, 500));
+        const errorMessage = secondError instanceof Error ? secondError.message : 'Unknown error';
+        throw new Error(`Failed to parse AI response: ${errorMessage}`);
+      }
+    }
 
     // Check if AI finalized a prompt (only in prompt-prep mode)
     if (conversationMode === 'prompt-prep') {
