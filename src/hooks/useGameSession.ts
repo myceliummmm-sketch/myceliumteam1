@@ -279,7 +279,8 @@ export function useGameSession() {
           useGameStore.setState({
             tutorialStep: progress.tutorial_step,
             hasCompletedTutorial: progress.has_completed_tutorial,
-            showTutorial: !progress.has_completed_tutorial
+            showTutorial: !progress.has_completed_tutorial,
+            hasMetTeam: progress.has_met_team || false
           });
         } else {
           // Create initial progress record
@@ -288,13 +289,15 @@ export function useGameSession() {
             .insert({
               player_id: user.id,
               tutorial_step: 0,
-              has_completed_tutorial: false
+              has_completed_tutorial: false,
+              has_met_team: false
             });
 
           useGameStore.setState({
             tutorialStep: 0,
             hasCompletedTutorial: false,
-            showTutorial: true
+            showTutorial: true,
+            hasMetTeam: false
           });
         }
 
