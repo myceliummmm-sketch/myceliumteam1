@@ -6,11 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, SortAsc, ChevronLeft, Sparkles, LogOut } from 'lucide-react';
+import { Search, Filter, SortAsc, ChevronLeft, Sparkles, LogOut, LayoutGrid, List } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CollectibleCard } from './CollectibleCard';
 import { CardDetailModal } from './CardDetailModal';
 import { PromptGenerationModal } from './PromptGenerationModal';
+import { GroupedCardView } from './GroupedCardView';
+import { groupCardsByPhase } from '@/lib/cardGrouping';
 import { useGameStore } from '@/stores/gameStore';
 import { ParticleEffect } from './ParticleEffect';
 import { VersionTogglePanel } from './VersionTogglePanel';
@@ -50,6 +52,7 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
   const [selectedCard, setSelectedCard] = useState<DynamicCard | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
+  const [viewAsGroups, setViewAsGroups] = useState(false);
   
   // Animation states
   const [showConfetti, setShowConfetti] = useState(false);

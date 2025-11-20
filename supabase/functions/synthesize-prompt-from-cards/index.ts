@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { cardIds, options = {} } = await req.json();
+    const { cardIds, groupMetadata, options = {} } = await req.json();
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -25,13 +25,11 @@ serve(async (req) => {
       }
     );
 
-    // Get user ID from JWT
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) {
       throw new Error('Unauthorized');
     }
 
-    // Fetch selected cards
     const { data: cards, error: cardsError } = await supabaseClient
       .from('dynamic_cards')
       .select('*')
@@ -43,82 +41,72 @@ serve(async (req) => {
       throw new Error('No cards found');
     }
 
-    // Get session info for context
     const sessionId = cards[0].session_id;
-    let projectContext = '';
+    let sessionData: any = null;
     if (sessionId) {
       const { data: session } = await supabaseClient
         .from('game_sessions')
-        .select('project_name, project_description')
+        .select('*')
         .eq('id', sessionId)
         .single();
-      
-      if (session) {
-        projectContext = `Project: ${session.project_name}\n${session.project_description || ''}`;
-      }
+      sessionData = session;
     }
 
-    // Group cards by type and phase
     const cardsByPhase: Record<string, any[]> = {};
-    const cardsByType: Record<string, any[]> = {};
-    
     cards.forEach(card => {
-      // By phase
-      const phase = card.phase || 'GENERAL';
+      const phase = `Level ${card.level}`;
       if (!cardsByPhase[phase]) cardsByPhase[phase] = [];
-      cardsByPhase[phase].push(card);
-      
-      // By type
-      const type = card.card_type;
-      if (!cardsByType[type]) cardsByType[type] = [];
-      cardsByType[type].push(card);
+      cardsByPhase[phase].push({
+        title: card.title,
+        type: card.card_type,
+        content: card.content
+      });
     });
 
-    // Build AI prompt
     const detailLevel = options.detailLevel || 'standard';
     const includeMetrics = options.includeMetrics !== false;
     const targetAudience = options.targetAudience || 'myself';
     
     const systemPrompt = `You are synthesizing a comprehensive Lovable project prompt from collected knowledge cards.
 
-Cards represent insights from product development phases: VISION, RESEARCH, PROTOTYPE, BUILD, GROW.
-Each card contains key decisions, learnings, and context.
-
-Create a clear, structured prompt that could be used to:
-- Continue this project
-- Start a similar project
-- Onboard a new developer
-- Document project knowledge
+Cards represent insights from product development phases.
+Create a clear, structured prompt that could be used to continue or document this project.
 
 Detail level: ${detailLevel}
 Target audience: ${targetAudience}
 Include metrics: ${includeMetrics}
 
-Format as Markdown with clear sections. Be specific and actionable, not generic.`;
+Format as Markdown with clear sections.`;
 
-    const userPrompt = `${projectContext ? projectContext + '\n\n' : ''}Synthesize these ${cards.length} cards into a comprehensive Lovable prompt:
+    const groupContext = groupMetadata?.groups ? `
 
-${cards.map((card, i) => `
-Card ${i + 1}: ${card.title}
-Type: ${card.card_type}
-Phase: ${card.phase || 'N/A'}
-Content: ${card.content}
-${card.description ? `Description: ${card.description}` : ''}
-${includeMetrics && card.average_score ? `Score: ${card.average_score}/10` : ''}
-${card.tags && card.tags.length > 0 ? `Tags: ${card.tags.join(', ')}` : ''}
-`).join('\n---\n')}
+Card Groups (selected by user):
+${groupMetadata.groups.map((g: any) => `- ${g.title}: ${g.description} (${g.cardIds.length} cards)`).join('\n')}
+
+Use these groups to organize sections.` : '';
+
+    const userPrompt = `Generate a comprehensive Lovable project prompt from these ${cards.length} collected cards.
+
+Project Context:
+- Project: ${sessionData?.project_name || 'Untitled Project'}
+- Description: ${sessionData?.project_description || 'No description'}
+- Current Phase: ${sessionData?.current_phase || 'Unknown'}
+${groupContext}
+
+Cards by Phase:
+${JSON.stringify(cardsByPhase, null, 2)}
 
 Create sections for:
 1. Project Overview & Vision
 2. Problem Statement
-3. Key Insights & Research
+3. User Research Insights
 4. Design Decisions
-5. Technical Implementation
-6. Growth Strategy (if applicable)
-7. Key Learnings & Best Practices
+5. Technical Architecture
+6. Growth Strategy
+7. Key Learnings
 8. Next Steps
 
-Be specific and reference actual card content, not generic text.`;
+Be specific using actual card details.`;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -142,44 +130,32 @@ Be specific and reference actual card content, not generic text.`;
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error('Lovable AI error:', aiResponse.status, errorText);
-      throw new Error(`AI generation failed: ${aiResponse.status}`);
+      console.error('AI API error:', aiResponse.status, errorText);
+      throw new Error(`AI API error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
     const generatedPrompt = aiData.choices[0].message.content;
+    const tokenCount = aiData.usage?.total_tokens || 0;
 
-    // Save to database
-    const { error: insertError } = await supabaseClient
-      .from('prompt_generations')
-      .insert({
-        player_id: user.id,
-        session_id: sessionId,
-        card_ids: cardIds,
-        options,
-        generated_prompt: generatedPrompt,
-        token_count: aiData.usage?.total_tokens || null,
-      });
-
-    if (insertError) {
-      console.error('Error saving prompt generation:', insertError);
-      // Don't fail the request if save fails
-    }
+    await supabaseClient.from('prompt_generations').insert({
+      player_id: user.id,
+      session_id: sessionId,
+      card_ids: cardIds,
+      options,
+      generated_prompt: generatedPrompt,
+      token_count: tokenCount
+    });
 
     return new Response(
-      JSON.stringify({ 
-        prompt: generatedPrompt,
-        cardCount: cards.length,
-        tokenCount: aiData.usage?.total_tokens || null,
-      }),
+      JSON.stringify({ generatedPrompt, tokenCount }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in synthesize-prompt-from-cards:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error:', error);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
