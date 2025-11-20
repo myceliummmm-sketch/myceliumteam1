@@ -287,6 +287,12 @@ export interface GameState {
   devMode: boolean;
   responseDepth: ResponseDepth;
   
+  // Input hint system
+  currentInputHint: string;
+  isLoadingHint: boolean;
+  lastHintGeneratedAt: number | null;
+  hintTriggerCount: number;
+  
   // Pro Mode toggle
   proMode: boolean;
   
