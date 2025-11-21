@@ -7,7 +7,7 @@ import { TemplateFillForm } from './TemplateFillForm';
 import { CardRevealModal } from './CardRevealModal';
 import { useVisionProgress } from '@/hooks/useVisionProgress';
 import { useGameStore } from '@/stores/gameStore';
-import { ALL_VISION_TEMPLATES, EVER_GREEN_TIPS, interpolateTemplate, VisionTemplate } from '@/lib/visionTemplates';
+import { ALL_VISION_TEMPLATES, EVER_GREEN_TIPS, interpolateTemplate, VisionTemplate, getVisionStageLabel } from '@/lib/visionTemplates';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -18,7 +18,7 @@ export function VisionJourneyFlow() {
   const { user } = useAuth();
   const sessionId = useGameStore(state => state.sessionId);
   const level = useGameStore(state => state.level);
-  const { subStages, currentSubStage, setCurrentSubStage, saveSubStageProgress, isLoading } = useVisionProgress();
+  const { subStages, currentSubStage, setCurrentSubStage, saveSubStageProgress, isLoading, stageStartTime } = useVisionProgress();
   
   const [selectedTemplate, setSelectedTemplate] = useState<VisionTemplate | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -88,12 +88,49 @@ export function VisionJourneyFlow() {
         // Save completed progress with card ID
         await saveSubStageProgress(currentSubStage, selectedTemplate.id, values, data.card.id);
         
+        // Record stage completion
+        const timeSpent = Math.floor((Date.now() - stageStartTime) / 1000);
+        const xpEarned = 50 + (currentSubStage * 25); // 75, 100, 125, 150
+        
+        const { data: completionData } = await supabase
+          .from('stage_completions')
+          .insert({
+            player_id: user.id,
+            session_id: sessionId,
+            phase: 'VISION',
+            stage_number: currentSubStage,
+            stage_label: getVisionStageLabel(currentSubStage),
+            xp_earned: xpEarned,
+            time_spent_seconds: timeSpent
+          })
+          .select()
+          .single();
+
+        // Update game store
+        if (completionData) {
+          useGameStore.getState().recordStageCompletion(completionData);
+        }
+
+        // Give XP reward
+        useGameStore.getState().processGameEvents([{
+          type: 'XP_GAIN',
+          data: { amount: xpEarned }
+        }]);
+        
         setRevealedCard(data.card);
         setShowCardReveal(true);
 
         // Fire custom event for animations
         window.dispatchEvent(new CustomEvent('cardGeneratedWithAnimation', {
           detail: { card: data.card, source: 'vision-flow' }
+        }));
+
+        // Notify journey counter update
+        window.dispatchEvent(new CustomEvent('journeyProgressUpdated', {
+          detail: { 
+            newCount: useGameStore.getState().stageHistory.length,
+            totalStages: 24 
+          }
         }));
       }
     } catch (error: any) {
