@@ -194,6 +194,15 @@ export function VisionJourneyFlow() {
     if (currentSubStage < 4) {
       setCurrentSubStage((currentSubStage + 1) as 1 | 2 | 3 | 4);
     } else {
+      // Check if all 4 sub-stages are completed before advancing
+      const allStagesComplete = subStages.every(stage => stage.completed && stage.cardId);
+      
+      if (!allStagesComplete) {
+        const incompleteStages = subStages.filter(s => !s.completed).map(s => s.subStageNumber).join(', ');
+        toast.error(`Завершите все 4 этапа VISION перед переходом (осталось: ${incompleteStages})`);
+        return;
+      }
+
       // All VISION stages complete - transition to RESEARCH
       toast.success('🎉 VISION Phase Complete! Moving to RESEARCH...');
       
