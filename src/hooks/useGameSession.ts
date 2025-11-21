@@ -125,6 +125,51 @@ export function useGameSession() {
           .maybeSingle();
 
         if (latestState) {
+          // Auto-migrate old phases (SPARK -> VISION)
+          let currentPhase = latestState.current_phase;
+          if (currentPhase === 'SPARK' || currentPhase === 'EXPLORE' || currentPhase === 'CRAFT' || 
+              currentPhase === 'FORGE' || currentPhase === 'POLISH' || currentPhase === 'LAUNCH') {
+            // Map old phases to new phases
+            const phaseMap: Record<string, Phase> = {
+              'SPARK': 'VISION',
+              'EXPLORE': 'RESEARCH',
+              'CRAFT': 'PROTOTYPE',
+              'FORGE': 'BUILD',
+              'POLISH': 'GROW',
+              'LAUNCH': 'GROW'
+            };
+            currentPhase = phaseMap[currentPhase] || 'VISION';
+            
+            // Update session
+            await supabase
+              .from('game_sessions')
+              .update({ current_phase: currentPhase })
+              .eq('id', sessionId);
+            // Update game state
+            await supabase
+              .from('game_states')
+              .insert({
+                session_id: sessionId,
+                xp: latestState.xp,
+                level: latestState.level,
+                spores: latestState.spores,
+                energy: latestState.energy,
+                streak: latestState.streak,
+                code_health: latestState.code_health,
+                current_phase: currentPhase,
+                current_stage_number: 1,
+                current_stage_progress: 0,
+                completed_tasks: latestState.completed_tasks,
+                current_tasks: [],
+                blockers: latestState.blockers,
+                milestones: latestState.milestones,
+                team_mood: latestState.team_mood
+              });
+            toast.info(`✨ Migrated to ${currentPhase} phase!`);
+          }
+
+          const phase = currentPhase as Phase;
+
           // Check for energy regeneration
           let currentEnergy = latestState.energy;
           let energyGained = 0;
@@ -141,11 +186,11 @@ export function useGameSession() {
           // Calculate current stage
           const phaseProgress = calculatePhaseProgress({
             ...latestState,
-            currentPhase: latestState.current_phase as Phase
+            currentPhase: phase
           } as any);
-          const currentStage = getCurrentStage(latestState.current_phase as Phase, phaseProgress);
-          const stageProgress = calculateStageProgress(latestState.current_phase as Phase, phaseProgress);
-          const totalStages = STAGE_DEFINITIONS[latestState.current_phase as Phase]?.length || 4;
+          const currentStage = getCurrentStage(phase, phaseProgress);
+          const stageProgress = calculateStageProgress(phase, phaseProgress);
+          const totalStages = STAGE_DEFINITIONS[phase]?.length || 4;
 
           // Load player artifacts
           const { data: playerArtifacts } = await supabase
@@ -175,12 +220,12 @@ export function useGameSession() {
             streak: latestState.streak,
             codeHealth: latestState.code_health,
             phaseStage: {
-              phase: latestState.current_phase as Phase,
+              phase: phase,
               stageNumber: currentStage.stageNumber,
               stageProgress,
               stageLabel: currentStage.label
             },
-            currentPhase: latestState.current_phase as Phase,
+            currentPhase: phase,
             completedTasks: (latestState.completed_tasks as any) || [],
             currentTasks: (latestState.current_tasks as any) || [],
             blockers: (latestState.blockers as any) || [],
@@ -395,7 +440,7 @@ export function useGameSession() {
             .from('game_sessions')
             .insert({
               player_id: user.id,
-              current_phase: 'SPARK',
+              current_phase: 'VISION',
               is_active: true
             })
             .select()
@@ -413,31 +458,9 @@ export function useGameSession() {
             energy: 10,
             streak: 0,
             code_health: 100,
-            current_phase: 'SPARK',
+            current_phase: 'VISION',
             completed_tasks: [],
-            current_tasks: [
-              {
-                id: crypto.randomUUID(),
-                description: 'Define your product vision and target user',
-                xpReward: 25,
-                phase: 'SPARK',
-                completed: false
-              },
-              {
-                id: crypto.randomUUID(),
-                description: 'Identify the core problem you\'re solving',
-                xpReward: 25,
-                phase: 'SPARK',
-                completed: false
-              },
-              {
-                id: crypto.randomUUID(),
-                description: 'Brainstorm solution approaches with the team',
-                xpReward: 30,
-                phase: 'SPARK',
-                completed: false
-              }
-            ],
+            current_tasks: [],
             blockers: [],
             milestones: [],
             team_mood: {
