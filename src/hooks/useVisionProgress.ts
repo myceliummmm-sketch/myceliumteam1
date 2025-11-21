@@ -10,6 +10,7 @@ export function useVisionProgress() {
   const [subStages, setSubStages] = useState<VisionSubStageProgress[]>(createInitialVisionState().subStages);
   const [currentSubStage, setCurrentSubStage] = useState<1 | 2 | 3 | 4>(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [stageStartTime, setStageStartTime] = useState<number>(Date.now());
 
   // Load progress from database
   useEffect(() => {
@@ -63,6 +64,11 @@ export function useVisionProgress() {
     loadProgress();
   }, [user, sessionId]);
 
+  // Reset timer when stage changes
+  useEffect(() => {
+    setStageStartTime(Date.now());
+  }, [currentSubStage]);
+
   const saveSubStageProgress = async (
     subStageNumber: 1 | 2 | 3 | 4,
     templateId: string,
@@ -111,6 +117,7 @@ export function useVisionProgress() {
     currentSubStage,
     setCurrentSubStage,
     saveSubStageProgress,
-    isLoading
+    isLoading,
+    stageStartTime
   };
 }

@@ -267,3 +267,13 @@ export const EVER_GREEN_TIPS = {
     "Great visions inspire YOU first, your team second, investors third."
   ]
 };
+
+export function getVisionStageLabel(stageNumber: 1 | 2 | 3 | 4): string {
+  const labels = {
+    1: 'Problem Discovery',
+    2: 'Solution Concept',
+    3: 'Value Definition',
+    4: 'Vision Statement'
+  };
+  return labels[stageNumber];
+}
