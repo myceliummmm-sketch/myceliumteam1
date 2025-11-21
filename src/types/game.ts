@@ -196,6 +196,13 @@ export interface StageReward {
   };
 }
 
+export interface PlayerBadge {
+  id: string;
+  badge_id: string;
+  unlocked_at: string;
+  milestone_value: number;
+}
+
 export interface GameState {
   // Player stats
   xp: number;
@@ -204,6 +211,9 @@ export interface GameState {
   energy: number;
   streak: number;
   codeHealth: number;
+  
+  // Badges
+  unlockedBadges: PlayerBadge[];
   
   // Progress
   currentPhase: Phase;

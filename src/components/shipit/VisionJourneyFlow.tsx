@@ -5,6 +5,7 @@ import { VisionStageProgressBar } from './VisionStageProgressBar';
 import { TemplateSelector } from './TemplateSelector';
 import { TemplateFillForm } from './TemplateFillForm';
 import { CardRevealModal } from './CardRevealModal';
+import { BadgeUnlockModal } from './BadgeUnlockModal';
 import { useVisionProgress } from '@/hooks/useVisionProgress';
 import { useGameStore } from '@/stores/gameStore';
 import { ALL_VISION_TEMPLATES, EVER_GREEN_TIPS, interpolateTemplate, VisionTemplate, getVisionStageLabel } from '@/lib/visionTemplates';
@@ -13,6 +14,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import everGreenImg from '@/assets/advisor-ever-green.png';
 import { Loader2 } from 'lucide-react';
+import { getBadgeByMilestone } from '@/lib/badgeSystem';
+import { useBadges } from '@/hooks/useBadges';
+import confetti from 'canvas-confetti';
 
 export function VisionJourneyFlow() {
   const { user } = useAuth();
@@ -24,6 +28,10 @@ export function VisionJourneyFlow() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showCardReveal, setShowCardReveal] = useState(false);
   const [revealedCard, setRevealedCard] = useState<any>(null);
+  const [badgeToShow, setBadgeToShow] = useState<any>(null);
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  
+  const { unlockBadge } = useBadges();
 
   const currentTemplates = ALL_VISION_TEMPLATES[currentSubStage as keyof typeof ALL_VISION_TEMPLATES];
   const currentTips = EVER_GREEN_TIPS[currentSubStage as keyof typeof EVER_GREEN_TIPS];
@@ -132,6 +140,31 @@ export function VisionJourneyFlow() {
             totalStages: 24 
           }
         }));
+
+        // Check badge unlocks
+        const totalCompleted = useGameStore.getState().stageHistory.length;
+        const badge = getBadgeByMilestone(totalCompleted);
+        
+        if (badge && user) {
+          const unlocked = await unlockBadge(badge, user.id);
+          if (unlocked) {
+            useGameStore.getState().processGameEvents([{
+              type: 'XP_GAIN',
+              data: { amount: badge.xpReward }
+            }]);
+            setBadgeToShow(badge);
+            
+            if (badge.rarity === 'legendary') {
+              setTimeout(() => {
+                confetti({
+                  particleCount: 300,
+                  spread: 160,
+                  origin: { y: 0.6 }
+                });
+              }, 500);
+            }
+          }
+        }
       }
     } catch (error: any) {
       console.error('Error generating card:', error);
@@ -143,6 +176,18 @@ export function VisionJourneyFlow() {
 
   const handleContinue = async () => {
     setShowCardReveal(false);
+    
+    // Show badge modal if there's a badge to show
+    if (badgeToShow) {
+      setTimeout(() => {
+        setShowBadgeModal(true);
+      }, 300);
+    } else {
+      proceedToNextStage();
+    }
+  };
+
+  const proceedToNextStage = async () => {
     setRevealedCard(null);
     setSelectedTemplate(null);
 
@@ -260,6 +305,16 @@ export function VisionJourneyFlow() {
         card={revealedCard}
         stageNumber={currentSubStage}
         onContinue={handleContinue}
+      />
+
+      <BadgeUnlockModal 
+        badge={badgeToShow}
+        isOpen={showBadgeModal}
+        onClose={() => {
+          setShowBadgeModal(false);
+          setBadgeToShow(null);
+          proceedToNextStage();
+        }}
       />
     </div>
   );
