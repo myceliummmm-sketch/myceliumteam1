@@ -56,80 +56,86 @@ export function TemplateFillForm({ template, initialValues = {}, onBack, onSubmi
   };
 
   const getFieldQuality = (key: string): number => {
-    const value = values[key] || '';
-    if (!value) return 0;
-    if (value.length < 10) return 1;
-    if (value.length < 30) return 3;
-    if (value.length < 50) return 4;
+    const value = values[key]?.trim() || '';
+    if (!value || value.length === 0) return 0;
+    if (value.length < 15) return 1;
+    if (value.length < 40) return 2;
+    if (value.length < 70) return 3;
+    if (value.length < 120) return 4;
     return 5;
   };
 
   const filledCount = template.variables.filter(v => values[v.key]?.trim()).length;
   const totalCount = template.variables.length;
+  const allFieldsFilled = template.variables.every(v => !v.required || values[v.key]?.trim().length > 0);
 
   return (
-    <Card className="p-6 space-y-4 bg-gradient-to-br from-background to-accent/5 border-primary/20">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            disabled={isSubmitting}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Назад
-          </Button>
-          <h3 className="font-bold text-lg">{template.label}</h3>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {filledCount}/{totalCount} заполнено
+    <Card className="p-6 space-y-6 bg-background/50 backdrop-blur-sm border-2 border-primary/20">
+      <div className="flex items-center justify-between mb-2">
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="gap-2"
+          disabled={isSubmitting}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Назад
+        </Button>
+        <div className="text-sm font-medium text-muted-foreground">
+          Заполнено {filledCount}/{totalCount}
         </div>
       </div>
 
-      <div className="space-y-6">{template.variables.map((variable, idx) => {
+      <div className="space-y-6">
+        {template.variables.map((variable, idx) => {
           const suggestions = getSuggestionsForField(variable.key);
           const quality = getFieldQuality(variable.key);
           const isFilled = !!values[variable.key]?.trim();
+          const charCount = values[variable.key]?.length || 0;
 
           return (
-            <motion.div 
-              key={variable.key} 
-              className="space-y-2"
-              initial={{ opacity: 0, y: 10 }}
+            <motion.div
+              key={variable.key}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
+              className="p-6 rounded-xl border-2 bg-background/50 backdrop-blur-sm border-border hover:border-primary/50 transition-all duration-300"
             >
-              <Label htmlFor={variable.key} className="flex items-center gap-2">
-                {variable.label}
-                {variable.required && <span className="text-destructive">*</span>}
+              <div className="flex items-center justify-between mb-3">
+                <Label 
+                  htmlFor={variable.key}
+                  className="text-base font-semibold flex items-center gap-2"
+                >
+                  {variable.label}
+                  {variable.required && <span className="text-destructive">*</span>}
+                </Label>
                 {isFilled && (
-                  <motion.span
+                  <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="text-chart-1"
                   >
-                    <Check className="h-4 w-4" />
-                  </motion.span>
+                    <Check className="h-5 w-5 text-green-500" />
+                  </motion.div>
                 )}
-              </Label>
-              
+              </div>
+
               {variable.type === 'textarea' ? (
-                <Textarea
-                  id={variable.key}
-                  placeholder={variable.placeholder}
-                  value={values[variable.key] || ''}
-                  onChange={e => handleChange(variable.key, e.target.value)}
-                  rows={3}
-                  disabled={isSubmitting}
-                  className={`transition-all ${
-                    errors[variable.key] 
-                      ? 'border-destructive' 
-                      : isFilled 
-                        ? 'border-chart-1/50 bg-chart-1/5' 
-                        : 'focus:border-primary/50'
-                  }`}
-                />
+                <div className="relative">
+                  <Textarea
+                    id={variable.key}
+                    placeholder={variable.placeholder}
+                    value={values[variable.key] || ''}
+                    onChange={e => handleChange(variable.key, e.target.value)}
+                    rows={4}
+                    disabled={isSubmitting}
+                    className={`w-full bg-background border-2 resize-none transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                      errors[variable.key] ? 'border-destructive' : ''
+                    }`}
+                  />
+                  <span className="absolute bottom-2 right-3 text-xs text-muted-foreground">
+                    {charCount}
+                  </span>
+                </div>
               ) : (
                 <Input
                   id={variable.key}
@@ -139,70 +145,56 @@ export function TemplateFillForm({ template, initialValues = {}, onBack, onSubmi
                   onChange={e => handleChange(variable.key, e.target.value)}
                   maxLength={variable.maxLength}
                   disabled={isSubmitting}
-                  className={`transition-all ${
-                    errors[variable.key] 
-                      ? 'border-destructive' 
-                      : isFilled 
-                        ? 'border-chart-1/50 bg-chart-1/5' 
-                        : 'focus:border-primary/50'
+                  className={`w-full bg-background border-2 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                    errors[variable.key] ? 'border-destructive' : ''
                   }`}
                 />
               )}
-              
+
               {errors[variable.key] && (
                 <motion.p 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-sm text-destructive"
+                  className="text-sm text-destructive mt-2"
                 >
                   {errors[variable.key]}
                 </motion.p>
               )}
 
-              {variable.helpText && (
-                <p className="text-xs text-muted-foreground">{variable.helpText}</p>
-              )}
-
-              {/* Quality indicator */}
+              {/* Quality Stars - Only show when typing */}
               {isFilled && quality > 0 && (
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-1"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-1 mt-3"
                 >
                   {[...Array(5)].map((_, i) => (
                     <span 
                       key={i} 
-                      className={`text-xs ${i < quality ? 'text-chart-1' : 'text-muted'}`}
+                      className={`text-sm ${i < quality ? 'text-yellow-400' : 'text-muted-foreground/30'}`}
                     >
                       ⭐
                     </span>
                   ))}
-                  {quality >= 4 && (
-                    <span className="text-xs text-chart-1 ml-2">Отлично!</span>
-                  )}
                 </motion.div>
               )}
 
-              {/* Suggestion chips */}
-              {suggestions.length > 0 && !isFilled && (
-                <div className="space-y-2">
+              {/* Suggestion Chips - Show below stars */}
+              {suggestions.length > 0 && (
+                <div className="mt-4 space-y-2">
                   <p className="text-xs text-muted-foreground">💡 Подсказки:</p>
                   <div className="flex flex-wrap gap-2">
-                    {suggestions.map((chip, chipIdx) => (
+                    {suggestions.slice(0, 4).map((chip, chipIdx) => (
                       <motion.button
                         key={chipIdx}
                         type="button"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.05 * chipIdx }}
-                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleChipClick(variable.key, chip.value)}
                         disabled={isSubmitting}
-                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 hover:bg-primary/20 border border-primary/30 transition-all disabled:opacity-50 flex items-center gap-1"
                       >
-                        {chip.icon && <span className="mr-1">{chip.icon}</span>}
+                        {chip.icon && <span>{chip.icon}</span>}
                         {chip.value}
                       </motion.button>
                     ))}
@@ -216,15 +208,17 @@ export function TemplateFillForm({ template, initialValues = {}, onBack, onSubmi
 
       <Button
         onClick={handleSubmit}
-        disabled={isSubmitting}
-        className="w-full gap-2"
+        disabled={isSubmitting || !allFieldsFilled}
+        className="w-full py-6 text-lg font-semibold"
         size="lg"
       >
         {isSubmitting ? (
           <>Генерируем карточку...</>
+        ) : !allFieldsFilled ? (
+          <>Заполните все поля ({filledCount}/{totalCount})</>
         ) : (
           <>
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-5 w-5 mr-2" />
             Создать карточку
           </>
         )}
