@@ -41,6 +41,7 @@ import { ProgressTimelineButton } from '@/components/shipit/ProgressTimelineButt
 import { MobileGate } from '@/components/shipit/MobileGate';
 import { WelcomeScreen } from '@/components/shipit/WelcomeScreen';
 import { TeamIntroductionModal } from '@/components/shipit/TeamIntroductionModal';
+import { VisionJourneyFlow } from '@/components/shipit/VisionJourneyFlow';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ export default function ShipIt() {
   const isLoading = useGameStore((state) => state.isLoading);
   const energy = useGameStore((state) => state.energy);
   const sessionId = useGameStore((state) => state.sessionId);
+  const currentPhase = useGameStore((state) => state.currentPhase);
   const showArtifactUnlockModal = useGameStore((state) => state.showArtifactUnlockModal);
   const unlockedArtifact = useGameStore((state) => state.unlockedArtifact);
   const setShowArtifactUnlockModal = useGameStore((state) => state.setShowArtifactUnlockModal);
@@ -282,22 +284,30 @@ export default function ShipIt() {
         
         {/* Center: Chat & Terminal */}
         <div className="flex flex-col gap-4 flex-1 min-w-0 min-h-[60vh] lg:min-h-0">
-          {proMode && <PhaseProgress />}
+          {proMode && currentPhase !== 'VISION' && <PhaseProgress />}
           <div className="flex-1 min-h-[400px] lg:min-h-0" data-tutorial-target="chat-terminal">
-            <ChatTerminal />
+            {currentPhase === 'VISION' ? (
+              <VisionJourneyFlow />
+            ) : (
+              <ChatTerminal />
+            )}
           </div>
-          <QuickReplies 
-            suggestions={quickReplies}
-            onSelect={sendMessage}
-            disabled={isLoading || energy < 1}
-          />
-          <div className="sticky bottom-0 bg-background space-y-2" data-tutorial-target="input-bar">
-            <div className="flex justify-center items-center gap-2 pb-2">
-              <ProgressTimelineButton />
-              <GenerateCardButton />
-            </div>
-            <InputBar />
-          </div>
+          {currentPhase !== 'VISION' && (
+            <>
+              <QuickReplies 
+                suggestions={quickReplies}
+                onSelect={sendMessage}
+                disabled={isLoading || energy < 1}
+              />
+              <div className="sticky bottom-0 bg-background space-y-2" data-tutorial-target="input-bar">
+                <div className="flex justify-center items-center gap-2 pb-2">
+                  <ProgressTimelineButton />
+                  <GenerateCardButton />
+                </div>
+                <InputBar />
+              </div>
+            </>
+          )}
         </div>
         
         {/* Right Sidebar - Conditional based on mode */}

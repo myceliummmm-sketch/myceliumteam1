@@ -292,6 +292,29 @@ export interface GameState {
   isLoadingHint: boolean;
   lastHintGeneratedAt: number | null;
   hintTriggerCount: number;
+
+  // Vision journey system
+  visionSubStages?: VisionSubStageProgress[];
+  currentVisionSubStage?: 1 | 2 | 3 | 4;
+
+  // Pro mode and stage tracking
+  proMode: boolean;
+  stageHistory: any[];
+  showStageCompletionModal: boolean;
+  completedStage: any;
+  stageRewards: any;
+  lastStageTransition: Date | null;
+  previousPhaseProgress: number;
+  currentStageEnteredAt: Date | null;
+}
+
+export interface VisionSubStageProgress {
+  subStageNumber: 1 | 2 | 3 | 4;
+  templateId: string | null;
+  filledValues: Record<string, string>;
+  cardId: string | null;
+  completed: boolean;
+  completedAt: Date | null;
   
   // Pro Mode toggle
   proMode: boolean;

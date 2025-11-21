@@ -1085,6 +1085,53 @@ export type Database = {
           },
         ]
       }
+      vision_progress: {
+        Row: {
+          card_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          filled_values: Json
+          id: string
+          player_id: string
+          session_id: string
+          sub_stage_number: number
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          card_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          filled_values?: Json
+          id?: string
+          player_id: string
+          session_id: string
+          sub_stage_number: number
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          card_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          filled_values?: Json
+          id?: string
+          player_id?: string
+          session_id?: string
+          sub_stage_number?: number
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vision_progress_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "dynamic_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

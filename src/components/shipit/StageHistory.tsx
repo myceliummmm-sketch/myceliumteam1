@@ -39,7 +39,7 @@ export function StageHistory() {
             <div key={phase}>
               <Badge variant="outline" className="mb-2">{phase}</Badge>
               <div className="space-y-2 ml-2">
-                {completions.map((completion) => (
+                {(completions as any[]).map((completion) => (
                   <div 
                     key={completion.id}
                     className="flex items-start gap-2 text-sm p-2 rounded bg-card/50"
