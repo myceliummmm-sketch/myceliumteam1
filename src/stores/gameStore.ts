@@ -51,6 +51,8 @@ interface GameActions {
   setCurrentStageEnteredAt: (date: Date | null) => void;
   setCurrentInputHint: (hint: string) => void;
   setIsLoadingHint: (loading: boolean) => void;
+  setUnlockedBadges: (badges: any[]) => void;
+  addBadge: (badge: any) => void;
 }
 
 const initialState: GameState = {
@@ -145,6 +147,7 @@ const initialState: GameState = {
   lastStageTransition: null,
   previousPhaseProgress: 0,
   currentStageEnteredAt: null,
+  unlockedBadges: [],
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -538,5 +541,11 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   setCurrentInputHint: (hint) => set({ currentInputHint: hint }),
   
   setIsLoadingHint: (loading) => set({ isLoadingHint: loading }),
+  
+  setUnlockedBadges: (badges) => set({ unlockedBadges: badges }),
+  
+  addBadge: (badge) => set((state) => ({ 
+    unlockedBadges: [...state.unlockedBadges, badge] 
+  })),
 }));
 

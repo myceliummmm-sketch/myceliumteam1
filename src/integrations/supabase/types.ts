@@ -622,6 +622,33 @@ export type Database = {
           },
         ]
       }
+      player_badges: {
+        Row: {
+          badge_id: string
+          created_at: string | null
+          id: string
+          milestone_value: number
+          player_id: string
+          unlocked_at: string | null
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string | null
+          id?: string
+          milestone_value: number
+          player_id: string
+          unlocked_at?: string | null
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string | null
+          id?: string
+          milestone_value?: number
+          player_id?: string
+          unlocked_at?: string | null
+        }
+        Relationships: []
+      }
       player_progress: {
         Row: {
           created_at: string | null
