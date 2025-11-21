@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { VisionStageProgressBar } from './VisionStageProgressBar';
-import { TemplateSelector } from './TemplateSelector';
 import { TemplateFillForm } from './TemplateFillForm';
 import { CardRevealModal } from './CardRevealModal';
 import { BadgeUnlockModal } from './BadgeUnlockModal';
@@ -37,25 +36,25 @@ export function VisionJourneyFlow() {
   const currentTips = EVER_GREEN_TIPS[currentSubStage as keyof typeof EVER_GREEN_TIPS];
   const randomTip = currentTips?.[Math.floor(Math.random() * currentTips.length)] || "Let's build something amazing together!";
 
+  // Auto-select first template on mount or when sub-stage changes
   useEffect(() => {
-    // Load saved template selection if exists
-    const currentProgress = subStages.find(s => s.subStageNumber === currentSubStage);
-    if (currentProgress?.templateId && !currentProgress.completed && currentTemplates) {
-      const template = currentTemplates.find(t => t.id === currentProgress.templateId);
-      if (template) {
-        setSelectedTemplate(template);
+    if (currentTemplates && currentTemplates.length > 0) {
+      // Check if there's saved progress
+      const currentProgress = subStages.find(s => s.subStageNumber === currentSubStage);
+      if (currentProgress?.templateId && !currentProgress.completed) {
+        const template = currentTemplates.find(t => t.id === currentProgress.templateId);
+        if (template) {
+          setSelectedTemplate(template);
+          return;
+        }
       }
-    } else {
-      setSelectedTemplate(null);
+      // Auto-select first template
+      setSelectedTemplate(currentTemplates[0]);
     }
-  }, [currentSubStage, subStages, currentTemplates]);
+  }, [currentSubStage, currentTemplates, subStages]);
 
-  const handleTemplateSelect = (template: VisionTemplate) => {
+  const handleTemplateChange = (template: VisionTemplate) => {
     setSelectedTemplate(template);
-  };
-
-  const handleBack = () => {
-    setSelectedTemplate(null);
   };
 
   const handleSubmit = async (values: Record<string, string>) => {
@@ -289,20 +288,15 @@ export function VisionJourneyFlow() {
 
       <Card className="flex-1 p-6">
         <h2 className="text-xl font-bold mb-4">
-          {currentSubStage}/4: {selectedTemplate ? selectedTemplate.label : 'Выберите шаблон'}
+          {currentSubStage}/4: {selectedTemplate ? selectedTemplate.label : 'Loading...'}
         </h2>
 
-        {!selectedTemplate ? (
-          <TemplateSelector
-            templates={currentTemplates}
-            selectedTemplateId={currentProgress?.templateId || null}
-            onSelect={handleTemplateSelect}
-          />
-        ) : (
+        {selectedTemplate && (
           <TemplateFillForm
             template={selectedTemplate}
+            availableTemplates={currentTemplates}
+            onTemplateChange={handleTemplateChange}
             initialValues={currentProgress?.filledValues || {}}
-            onBack={handleBack}
             onSubmit={handleSubmit}
             isSubmitting={isGenerating}
           />
