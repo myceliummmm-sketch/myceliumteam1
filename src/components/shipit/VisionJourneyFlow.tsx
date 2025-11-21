@@ -27,12 +27,12 @@ export function VisionJourneyFlow() {
 
   const currentTemplates = ALL_VISION_TEMPLATES[currentSubStage as keyof typeof ALL_VISION_TEMPLATES];
   const currentTips = EVER_GREEN_TIPS[currentSubStage as keyof typeof EVER_GREEN_TIPS];
-  const randomTip = currentTips[Math.floor(Math.random() * currentTips.length)];
+  const randomTip = currentTips?.[Math.floor(Math.random() * currentTips.length)] || "Let's build something amazing together!";
 
   useEffect(() => {
     // Load saved template selection if exists
     const currentProgress = subStages.find(s => s.subStageNumber === currentSubStage);
-    if (currentProgress?.templateId && !currentProgress.completed) {
+    if (currentProgress?.templateId && !currentProgress.completed && currentTemplates) {
       const template = currentTemplates.find(t => t.id === currentProgress.templateId);
       if (template) {
         setSelectedTemplate(template);
@@ -40,7 +40,7 @@ export function VisionJourneyFlow() {
     } else {
       setSelectedTemplate(null);
     }
-  }, [currentSubStage, subStages]);
+  }, [currentSubStage, subStages, currentTemplates]);
 
   const handleTemplateSelect = (template: VisionTemplate) => {
     setSelectedTemplate(template);
@@ -104,7 +104,7 @@ export function VisionJourneyFlow() {
     }
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     setShowCardReveal(false);
     setRevealedCard(null);
     setSelectedTemplate(null);
@@ -112,8 +112,50 @@ export function VisionJourneyFlow() {
     if (currentSubStage < 4) {
       setCurrentSubStage((currentSubStage + 1) as 1 | 2 | 3 | 4);
     } else {
-      // All VISION stages complete - could transition to RESEARCH
+      // All VISION stages complete - transition to RESEARCH
       toast.success('🎉 VISION Phase Complete! Moving to RESEARCH...');
+      
+      try {
+        // Update database phase
+        await supabase
+          .from('game_sessions')
+          .update({ current_phase: 'RESEARCH' })
+          .eq('id', sessionId);
+
+        // Update game state
+        await supabase
+          .from('game_states')
+          .insert({
+            session_id: sessionId,
+            xp: level * 100,
+            level: level,
+            spores: 0,
+            energy: 10,
+            streak: 0,
+            code_health: 100,
+            current_phase: 'RESEARCH',
+            current_stage_number: 1,
+            current_stage_progress: 0,
+            completed_tasks: [],
+            current_tasks: [],
+            blockers: [],
+            milestones: []
+          });
+
+        // Update game store
+        useGameStore.getState().updateStats({
+          currentPhase: 'RESEARCH',
+          phaseStage: {
+            phase: 'RESEARCH',
+            stageNumber: 1,
+            stageProgress: 0,
+            stageLabel: 'Market Research'
+          }
+        });
+      } catch (error) {
+        console.error('Failed to transition phase:', error);
+        toast.error('Failed to transition phase');
+      }
     }
   };
 
@@ -121,6 +163,14 @@ export function VisionJourneyFlow() {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!currentTemplates || currentTemplates.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">Loading templates...</p>
       </div>
     );
   }
