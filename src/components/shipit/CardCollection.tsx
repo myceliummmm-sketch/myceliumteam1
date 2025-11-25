@@ -405,7 +405,7 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
             />
           </div>
         ) : (
-          <div className="p-4 grid grid-cols-1 gap-4">
+          <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filteredCards.map((card) => (
               <CollectibleCard
                 key={card.id}
