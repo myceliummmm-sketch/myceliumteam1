@@ -5,3 +5,18 @@ verify_jwt = true
 
 [functions.generate-input-hint]
 verify_jwt = false
+
+[functions.generate-card-embedding]
+verify_jwt = true
+
+[functions.semantic-card-search]
+verify_jwt = true
+
+[functions.find-similar-cards]
+verify_jwt = true
+
+[functions.detect-duplicate-cards]
+verify_jwt = true
+
+[functions.suggest-relevant-cards]
+verify_jwt = true

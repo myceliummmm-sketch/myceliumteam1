@@ -8,6 +8,7 @@ import { Star, Archive, MessageSquare, Copy, Share } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { SimilarCardsPanel } from './SimilarCardsPanel';
 import everAvatar from '@/assets/advisor-ever-green.png';
 import prismaAvatar from '@/assets/advisor-prisma.png';
 import toxicAvatar from '@/assets/advisor-toxic.png';
@@ -20,6 +21,7 @@ interface CardDetailModalProps {
   card: any;
   open: boolean;
   onClose: () => void;
+  onCardClick?: (card: any) => void;
 }
 
 const characterAvatars: Record<string, string> = {
@@ -53,7 +55,7 @@ function getScoreColor(score: number): string {
   return 'hsl(var(--destructive))';
 }
 
-export function CardDetailModal({ card, open, onClose }: CardDetailModalProps) {
+export function CardDetailModal({ card, open, onClose, onCardClick }: CardDetailModalProps) {
   const [evaluation, setEvaluation] = useState<any>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [timesUsed, setTimesUsed] = useState(card.times_used || 0);
@@ -275,6 +277,17 @@ export function CardDetailModal({ card, open, onClose }: CardDetailModalProps) {
                 </div>
               </div>
             )}
+            
+            {/* Similar Cards Section */}
+            <div className="mt-6 pt-6 border-t border-primary/30">
+              <SimilarCardsPanel 
+                cardId={card.id} 
+                onCardClick={(similarCard) => {
+                  onClose();
+                  onCardClick?.(similarCard);
+                }}
+              />
+            </div>
           </div>
         </ScrollArea>
         

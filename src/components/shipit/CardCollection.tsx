@@ -17,6 +17,8 @@ import { useGameStore } from '@/stores/gameStore';
 import { ParticleEffect } from './ParticleEffect';
 import { VersionTogglePanel } from './VersionTogglePanel';
 import { motion } from 'framer-motion';
+import { SemanticSearchBar } from './SemanticSearchBar';
+import { DuplicateDetectionAlert } from './DuplicateDetectionAlert';
 
 interface DynamicCard {
   id: string;
@@ -47,6 +49,8 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
   const [cards, setCards] = useState<DynamicCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [semanticResults, setSemanticResults] = useState<DynamicCard[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [rarityFilter, setRarityFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<DynamicCard | null>(null);
@@ -124,8 +128,30 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
     }
   };
 
-  const filteredCards = cards.filter((card) => {
-    if (searchQuery && !card.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+  const handleSemanticSearch = async (query: string) => {
+    setIsSearching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('semantic-card-search', {
+        body: { query, limit: 20, minSimilarity: 0.6 }
+      });
+      
+      if (error) throw error;
+      setSemanticResults(data.results || []);
+      setSearchQuery(query);
+    } catch (error) {
+      console.error('Semantic search error:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleKeywordSearch = (query: string) => {
+    setSearchQuery(query);
+    setSemanticResults(null);
+  };
+
+  const filteredCards = (semanticResults || cards).filter((card) => {
+    if (!semanticResults && searchQuery && !card.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !card.content.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
@@ -264,15 +290,11 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
       {/* Search, Filters and Generate Prompt */}
       <div className="p-4 space-y-3 border-b border-border/30 bg-card/20">
         <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="SEARCH CARDS..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 font-mono text-sm bg-background/50 border-primary/20"
-            />
-          </div>
+          <SemanticSearchBar
+            onSearch={handleKeywordSearch}
+            onSemanticSearch={handleSemanticSearch}
+            isLoading={isSearching}
+          />
           <Button
             variant="outline"
             size="icon"
@@ -282,16 +304,20 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           >
             {viewAsGroups ? <List className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
           </Button>
+        </div>
+        
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowPromptModal(true)}
             disabled={filteredCards.length === 0}
-            className="gap-2 whitespace-nowrap"
+            className="gap-2 whitespace-nowrap flex-1"
           >
             <Sparkles className="w-4 h-4" />
             Generate Prompt
           </Button>
+          <DuplicateDetectionAlert />
         </div>
 
         {/* Rarity Filter */}
@@ -423,6 +449,10 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           onClose={() => {
             setShowDetailModal(false);
             setSelectedCard(null);
+          }}
+          onCardClick={(card) => {
+            setSelectedCard(card);
+            setShowDetailModal(true);
           }}
         />
       )}

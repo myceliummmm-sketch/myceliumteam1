@@ -100,6 +100,61 @@ export type Database = {
           },
         ]
       }
+      card_duplicates: {
+        Row: {
+          card_id_1: string | null
+          card_id_2: string | null
+          detected_at: string | null
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          similarity_score: number
+          status: string | null
+        }
+        Insert: {
+          card_id_1?: string | null
+          card_id_2?: string | null
+          detected_at?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          similarity_score: number
+          status?: string | null
+        }
+        Update: {
+          card_id_1?: string | null
+          card_id_2?: string | null
+          detected_at?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          similarity_score?: number
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_duplicates_card_id_1_fkey"
+            columns: ["card_id_1"]
+            isOneToOne: false
+            referencedRelation: "dynamic_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_duplicates_card_id_2_fkey"
+            columns: ["card_id_2"]
+            isOneToOne: false
+            referencedRelation: "dynamic_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_duplicates_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_evaluations: {
         Row: {
           card_id: string
@@ -209,6 +264,60 @@ export type Database = {
           },
           {
             foreignKeyName: "card_generation_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_search_history: {
+        Row: {
+          clicked_card_ids: string[] | null
+          context: Json | null
+          created_at: string | null
+          id: string
+          player_id: string | null
+          query: string
+          query_embedding: string | null
+          results_count: number | null
+          search_type: string | null
+          session_id: string | null
+        }
+        Insert: {
+          clicked_card_ids?: string[] | null
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          player_id?: string | null
+          query: string
+          query_embedding?: string | null
+          results_count?: number | null
+          search_type?: string | null
+          session_id?: string | null
+        }
+        Update: {
+          clicked_card_ids?: string[] | null
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          player_id?: string | null
+          query?: string
+          query_embedding?: string | null
+          results_count?: number | null
+          search_type?: string | null
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_search_history_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_search_history_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "game_sessions"
@@ -381,9 +490,12 @@ export type Database = {
           created_at: string | null
           created_by_character: string | null
           description: string | null
+          embedding: string | null
+          embedding_model: string | null
           event_data: Json | null
           id: string
           is_archived: boolean | null
+          last_embedding_update: string | null
           last_used_at: string | null
           level: number
           player_id: string
@@ -405,9 +517,12 @@ export type Database = {
           created_at?: string | null
           created_by_character?: string | null
           description?: string | null
+          embedding?: string | null
+          embedding_model?: string | null
           event_data?: Json | null
           id?: string
           is_archived?: boolean | null
+          last_embedding_update?: string | null
           last_used_at?: string | null
           level: number
           player_id: string
@@ -429,9 +544,12 @@ export type Database = {
           created_at?: string | null
           created_by_character?: string | null
           description?: string | null
+          embedding?: string | null
+          embedding_model?: string | null
           event_data?: Json | null
           id?: string
           is_archived?: boolean | null
+          last_embedding_update?: string | null
           last_used_at?: string | null
           level?: number
           player_id?: string
