@@ -53,6 +53,9 @@ interface GameActions {
   setIsLoadingHint: (loading: boolean) => void;
   setUnlockedBadges: (badges: any[]) => void;
   addBadge: (badge: any) => void;
+  setShowResearchModal: (show: boolean) => void;
+  setResearchPhase: (phase: 'idle' | 'raw' | 'scoring' | 'perspectives' | 'complete') => void;
+  setResearchCards: (raw?: any[], insights?: any[], perspectives?: any[]) => void;
 }
 
 const initialState: GameState = {
@@ -148,6 +151,13 @@ const initialState: GameState = {
   previousPhaseProgress: 0,
   currentStageEnteredAt: null,
   unlockedBadges: [],
+  
+  // Research stage
+  showResearchModal: false,
+  researchPhase: 'idle' as 'idle' | 'raw' | 'scoring' | 'perspectives' | 'complete',
+  researchRawCards: [],
+  researchInsightCards: [],
+  researchPerspectiveCards: [],
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -547,5 +557,15 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   addBadge: (badge) => set((state) => ({ 
     unlockedBadges: [...state.unlockedBadges, badge] 
   })),
+  
+  setShowResearchModal: (show) => set({ showResearchModal: show }),
+  
+  setResearchPhase: (phase) => set({ researchPhase: phase }),
+  
+  setResearchCards: (raw, insights, perspectives) => set({
+    researchRawCards: raw || [],
+    researchInsightCards: insights || [],
+    researchPerspectiveCards: perspectives || []
+  }),
 }));
 

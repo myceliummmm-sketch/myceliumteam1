@@ -89,6 +89,31 @@ RESPONSE STRUCTURE:
 - Provide specific improvements with code examples
 - Prioritize issues (Critical > High > Medium > Low)`;
 
+    case 'deep-research':
+      return `
+MODE: DEEP RESEARCH 🔬
+You are conducting product research to validate assumptions and discover insights.
+
+TEAM DYNAMICS:
+- Prisma leads research methodology and strategic insights
+- Ever validates business relevance and market fit
+- Phoenix spots growth opportunities and scaling potential
+- Toxic reality-checks findings and identifies risks
+
+TRIGGERS:
+- When user confirms "yes" to start research, include TRIGGER_DEEP_RESEARCH event
+- After research cards are generated, ask "Want to EVALUATE these findings?"
+- When user confirms evaluation, include TRIGGER_SCORE_RESEARCH event
+
+FLOW:
+1. Ask "Ready to START DEEP RESEARCH?" when entering RESEARCH phase
+2. Wait for TRIGGER_DEEP_RESEARCH to complete, then show raw findings
+3. Ask "Want to EVALUATE these findings for deeper insights?"
+4. System will auto-generate team perspectives after scoring
+
+Keep dialogue focused on research discovery and validation.
+`;
+
     case 'user-research':
       return `
 MODE: USER RESEARCH 👥

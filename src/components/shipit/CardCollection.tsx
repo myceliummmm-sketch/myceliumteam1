@@ -22,7 +22,7 @@ import { DuplicateDetectionAlert } from './DuplicateDetectionAlert';
 
 interface DynamicCard {
   id: string;
-  card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH' | 'AUTHENTICITY';
+  card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH' | 'AUTHENTICITY' | 'RAW_RESEARCH' | 'RESEARCH_INSIGHT' | 'TEAM_PERSPECTIVE';
   level: number;
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   title: string;
@@ -370,6 +370,17 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
               className="text-xs font-mono h-7"
             >
               L{idx + 1}:{type}
+            </Button>
+          ))}
+          {(['RAW_RESEARCH', 'RESEARCH_INSIGHT', 'TEAM_PERSPECTIVE'] as const).map((type) => (
+            <Button
+              key={type}
+              variant={typeFilter === type ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setTypeFilter(type)}
+              className="text-xs font-mono h-7"
+            >
+              {type === 'RAW_RESEARCH' ? '🔬 RAW' : type === 'RESEARCH_INSIGHT' ? '💡 INSIGHT' : '👥 TEAM'}
             </Button>
           ))}
         </div>
