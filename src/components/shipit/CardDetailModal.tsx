@@ -3,8 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { Star, Archive, MessageSquare, Copy, Share } from 'lucide-react';
+import { Star, Archive, MessageSquare, Copy, Share, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,6 +60,8 @@ export function CardDetailModal({ card, open, onClose, onCardClick }: CardDetail
   const [evaluation, setEvaluation] = useState<any>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [timesUsed, setTimesUsed] = useState(card.times_used || 0);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [artworkUrl, setArtworkUrl] = useState<string | null>(card.artwork_url || null);
 
   // Load evaluation data
   useState(() => {
@@ -120,6 +123,40 @@ export function CardDetailModal({ card, open, onClose, onCardClick }: CardDetail
     toast.success(newFavorite ? 'Added to favorites' : 'Removed from favorites');
   };
 
+  const handleRegenerateArtwork = async () => {
+    if (!card) return;
+    
+    setIsRegenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('regenerate-card-artwork', {
+        body: { card_id: card.id }
+      });
+
+      if (error) throw error;
+
+      if (data.artwork_url) {
+        setArtworkUrl(data.artwork_url);
+        toast.success('Artwork regenerated successfully!');
+      }
+    } catch (error) {
+      console.error('Error regenerating artwork:', error);
+      toast.error('Failed to regenerate artwork');
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  const cardTypeEmoji: Record<string, string> = {
+    AUTHENTICITY: '🎭',
+    IDEA: '💡',
+    INSIGHT: '🔍',
+    PROBLEM: '⚠️',
+    SOLUTION: '✨',
+    DECISION: '⚖️',
+    MILESTONE: '🏆',
+    BLOCKER: '🚧',
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl bg-background border-2 border-primary/50">
@@ -156,6 +193,46 @@ export function CardDetailModal({ card, open, onClose, onCardClick }: CardDetail
         
         <ScrollArea className="max-h-[70vh]">
           <div className="space-y-6 p-6">
+            {/* Artwork Section */}
+            <div className="relative">
+              <h3 className="text-sm font-mono text-primary mb-3 uppercase tracking-wider">
+                // ARTWORK
+              </h3>
+              <div className={`relative aspect-[3/4] max-w-[280px] mx-auto rounded-lg overflow-hidden border-2 ${rarityStyles[card.rarity]?.replace('bg-', 'border-')}`}>
+                {artworkUrl ? (
+                  <>
+                    <img 
+                      src={artworkUrl} 
+                      alt={card.title}
+                      className="w-full h-full object-cover animate-in fade-in duration-500"
+                    />
+                    {/* Scanline overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none opacity-30" 
+                         style={{ 
+                           backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, hsl(var(--primary) / 0.03) 2px, hsl(var(--primary) / 0.03) 4px)'
+                         }} 
+                    />
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted/50">
+                    <span className="text-6xl opacity-50">
+                      {cardTypeEmoji[card.card_type] || '🎴'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleRegenerateArtwork}
+                disabled={isRegenerating}
+                className="mt-3 w-full font-mono text-xs"
+              >
+                <Sparkles className="h-3 w-3 mr-2" />
+                {isRegenerating ? 'Generating...' : artworkUrl ? 'Regenerate Artwork' : 'Generate Artwork'}
+              </Button>
+            </div>
+
             <div>
               <h3 className="text-sm font-mono text-primary mb-2 uppercase tracking-wider">
                 // Description
