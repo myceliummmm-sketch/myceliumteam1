@@ -422,52 +422,46 @@ Return your analysis as a JSON object.`;
       body: { cardId: card.id, cardData: card }
     }).catch(err => console.error('Failed to generate embedding:', err));
 
-    // Generate artwork using Google AI
+    // Generate artwork using Lovable AI Gateway
     let artworkUrl = null;
     try {
       console.log('Generating artwork for card:', card.id);
       const artworkPrompt = buildArtworkPrompt(card, cardType, rarity, cardData.created_by_character);
       
-      const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
-      if (!googleApiKey) {
-        console.warn('GOOGLE_API_KEY not configured, skipping artwork generation');
-      } else {
-        const imageResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: artworkPrompt }] }],
-              generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
-            })
-          }
-        );
-
-        if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          const imagePart = imageData.candidates?.[0]?.content?.parts?.find(
-            (part: any) => part.inlineData?.mimeType?.startsWith('image/')
-          );
-          
-          if (imagePart) {
-            const base64Image = imagePart.inlineData.data;
-            const mimeType = imagePart.inlineData.mimeType;
-            artworkUrl = `data:${mimeType};base64,${base64Image}`;
-            
-            // Update card with artwork
-            await supabaseClient
-              .from('dynamic_cards')
-              .update({ artwork_url: artworkUrl })
-              .eq('id', card.id);
-            
-            console.log('Artwork generated and saved successfully');
-          } else {
-            console.warn('No image in Google AI response');
-          }
-        } else {
-          console.error('Google AI image generation failed:', await imageResponse.text());
+      const imageResponse = await fetch(
+        'https://ai.gateway.lovable.dev/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${lovableApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash-image-preview',
+            messages: [{ role: 'user', content: artworkPrompt }],
+            modalities: ['image', 'text']
+          })
         }
+      );
+
+      if (imageResponse.ok) {
+        const imageData = await imageResponse.json();
+        artworkUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+        
+        if (artworkUrl) {
+          // Update card with artwork
+          await supabaseClient
+            .from('dynamic_cards')
+            .update({ artwork_url: artworkUrl })
+            .eq('id', card.id);
+          
+          console.log('Artwork generated and saved successfully');
+        } else {
+          console.warn('No artwork URL in Lovable AI response');
+        }
+      } else {
+        const errorText = await imageResponse.text();
+        console.error('Lovable AI image generation failed:', errorText);
       }
     } catch (artworkError) {
       console.error('Error generating artwork:', artworkError);

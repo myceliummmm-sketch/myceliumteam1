@@ -80,10 +80,10 @@ serve(async (req) => {
 
     console.log("Generating artwork with prompt:", artworkPrompt);
 
-    // Call Google AI to generate image
-    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
-    if (!GOOGLE_API_KEY) {
-      console.log("GOOGLE_API_KEY not found, skipping artwork generation");
+    // Call Lovable AI Gateway to generate image
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      console.log("LOVABLE_API_KEY not found, cannot generate artwork");
       return new Response(
         JSON.stringify({ error: "Image generation not configured" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -91,20 +91,24 @@ serve(async (req) => {
     }
 
     const imageResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GOOGLE_API_KEY}`,
+      'https://ai.gateway.lovable.dev/v1/chat/completions',
       {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: artworkPrompt }] }],
-          generationConfig: { responseModalities: ["image"] }
+          model: 'google/gemini-2.5-flash-image-preview',
+          messages: [{ role: 'user', content: artworkPrompt }],
+          modalities: ['image', 'text']
         })
       }
     );
 
     if (!imageResponse.ok) {
       const errorText = await imageResponse.text();
-      console.error("Google AI error:", errorText);
+      console.error("Lovable AI image generation error:", errorText);
       return new Response(
         JSON.stringify({ error: "Failed to generate artwork" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -112,17 +116,15 @@ serve(async (req) => {
     }
 
     const imageData = await imageResponse.json();
-    const imageBase64 = imageData.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    const artworkUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
-    if (!imageBase64) {
-      console.error("No image data in response");
+    if (!artworkUrl) {
+      console.error("No image URL in response");
       return new Response(
         JSON.stringify({ error: "No image generated" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    const artworkUrl = `data:image/png;base64,${imageBase64}`;
 
     // Update the card with the new artwork
     const { error: updateError } = await supabase
