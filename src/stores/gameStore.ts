@@ -56,6 +56,8 @@ interface GameActions {
   setShowResearchModal: (show: boolean) => void;
   setResearchPhase: (phase: 'idle' | 'raw' | 'scoring' | 'perspectives' | 'complete') => void;
   setResearchCards: (raw?: any[], insights?: any[], perspectives?: any[]) => void;
+  triggerScoreResearch: (cardIds: string[], sessionId: string) => Promise<void>;
+  triggerTeamPerspectives: (insightIds: string[], sessionId: string) => Promise<void>;
 }
 
 const initialState: GameState = {
@@ -567,5 +569,67 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     researchInsightCards: insights || [],
     researchPerspectiveCards: perspectives || []
   }),
+  
+  triggerScoreResearch: async (cardIds: string[], sessionId: string) => {
+    try {
+      set({ researchPhase: 'scoring' });
+      
+      const { data, error } = await supabase.functions.invoke('score-research', {
+        body: { cardIds, sessionId }
+      });
+      
+      if (error) {
+        console.error('Score research error:', error);
+        const { toast } = await import('sonner');
+        toast.error('Failed to evaluate research');
+        set({ researchPhase: 'raw' });
+        return;
+      }
+      
+      if (data?.insightCards) {
+        set((state) => ({
+          researchInsightCards: data.insightCards
+        }));
+        
+        // Auto-trigger team perspectives
+        const insightIds = data.insightCards.map((c: any) => c.id);
+        await useGameStore.getState().triggerTeamPerspectives(insightIds, sessionId);
+      }
+    } catch (error) {
+      console.error('Score research failed:', error);
+      const { toast } = await import('sonner');
+      toast.error('Research evaluation failed');
+      set({ researchPhase: 'raw' });
+    }
+  },
+  
+  triggerTeamPerspectives: async (insightIds: string[], sessionId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-team-perspectives', {
+        body: { insightCardIds: insightIds, sessionId }
+      });
+      
+      if (error) {
+        console.error('Team perspectives error:', error);
+        const { toast } = await import('sonner');
+        toast.error('Failed to generate team perspectives');
+        return;
+      }
+      
+      if (data?.perspectiveCards) {
+        set({
+          researchPerspectiveCards: data.perspectiveCards,
+          researchPhase: 'perspectives'
+        });
+        
+        const { toast } = await import('sonner');
+        toast.success(`✨ Research complete! +${data.xpReward} XP`);
+      }
+    } catch (error) {
+      console.error('Team perspectives failed:', error);
+      const { toast } = await import('sonner');
+      toast.error('Team perspective generation failed');
+    }
+  },
 }));
 

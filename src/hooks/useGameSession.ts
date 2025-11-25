@@ -642,6 +642,43 @@ export function useGameSession() {
       // Process any game events
       if (data.gameEvents && data.gameEvents.length > 0) {
         useGameStore.getState().processGameEvents(data.gameEvents);
+        
+        // Handle research triggers
+        for (const event of data.gameEvents) {
+          if (event.type === 'TRIGGER_DEEP_RESEARCH') {
+            try {
+              const { data: researchData, error: researchError } = await supabase.functions.invoke('deep-research', {
+                body: { sessionId }
+              });
+              
+              if (researchError) {
+                console.error('Deep research error:', researchError);
+                toast.error('Failed to generate research');
+                continue;
+              }
+              
+              if (researchData?.cards) {
+                useGameStore.getState().setResearchCards(researchData.cards);
+                useGameStore.getState().setResearchPhase('raw');
+                useGameStore.getState().setShowResearchModal(true);
+                toast.success(`🔬 Generated ${researchData.cards.length} research findings!`);
+              }
+            } catch (error) {
+              console.error('Deep research failed:', error);
+              toast.error('Research generation failed');
+            }
+          } else if (event.type === 'TRIGGER_SCORE_RESEARCH') {
+            const cardIds = event.data?.cardIds || [];
+            if (cardIds.length > 0) {
+              await useGameStore.getState().triggerScoreResearch(cardIds, sessionId);
+            }
+          } else if (event.type === 'TRIGGER_TEAM_PERSPECTIVES') {
+            const insightIds = event.data?.insightIds || [];
+            if (insightIds.length > 0) {
+              await useGameStore.getState().triggerTeamPerspectives(insightIds, sessionId);
+            }
+          }
+        }
       }
 
       // Update stats if provided
