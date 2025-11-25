@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 interface CollectibleCardProps {
   card: {
     id: string;
-    card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH' | 'AUTHENTICITY';
+    card_type: 'IDEA' | 'INSIGHT' | 'DESIGN' | 'CODE' | 'GROWTH' | 'AUTHENTICITY' | 'RAW_RESEARCH' | 'RESEARCH_INSIGHT' | 'TEAM_PERSPECTIVE';
     level: number;
     rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
     title: string;
@@ -31,7 +31,10 @@ const cardTypeIcons = {
   DESIGN: Code,
   CODE: Code,
   GROWTH: Rocket,
-  AUTHENTICITY: Sparkles, // Will use emoji instead
+  AUTHENTICITY: Sparkles,
+  RAW_RESEARCH: Sparkles,
+  RESEARCH_INSIGHT: Lightbulb,
+  TEAM_PERSPECTIVE: Sparkles,
 };
 
 const cardTypeEmoji = {
@@ -41,6 +44,9 @@ const cardTypeEmoji = {
   CODE: '💻',
   GROWTH: '🚀',
   AUTHENTICITY: '🎭',
+  RAW_RESEARCH: '🔬',
+  RESEARCH_INSIGHT: '💡',
+  TEAM_PERSPECTIVE: '👥',
 };
 
 const rarityStyles = {

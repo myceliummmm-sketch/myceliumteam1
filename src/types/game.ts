@@ -316,6 +316,13 @@ export interface GameState {
   lastStageTransition: Date | null;
   previousPhaseProgress: number;
   currentStageEnteredAt: Date | null;
+  
+  // Research stage
+  showResearchModal: boolean;
+  researchPhase: 'idle' | 'raw' | 'scoring' | 'perspectives' | 'complete';
+  researchRawCards: any[];
+  researchInsightCards: any[];
+  researchPerspectiveCards: any[];
 }
 
 export interface VisionSubStageProgress {

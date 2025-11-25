@@ -3,6 +3,15 @@ project_id = "qkqvuaadhitmyklnqivd"
 [functions.game-turn]
 verify_jwt = true
 
+[functions.deep-research]
+verify_jwt = true
+
+[functions.score-research]
+verify_jwt = true
+
+[functions.generate-team-perspectives]
+verify_jwt = true
+
 [functions.generate-input-hint]
 verify_jwt = false
 
