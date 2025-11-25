@@ -373,6 +373,11 @@ Return your analysis as a JSON object.`;
         conversation_context: JSON.stringify(recentMessages.slice(-3))
       });
 
+    // Generate embedding asynchronously (fire and forget)
+    supabaseClient.functions.invoke('generate-card-embedding', {
+      body: { cardId: card.id, cardData: card }
+    }).catch(err => console.error('Failed to generate embedding:', err));
+
     return new Response(
       JSON.stringify({
         success: true,
