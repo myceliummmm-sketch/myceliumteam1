@@ -96,12 +96,27 @@ Deno.serve(async (req) => {
       throw error;
     }
 
+    // Parse embeddings if they're strings
+    const parseEmbedding = (embedding: any): number[] => {
+      if (Array.isArray(embedding)) return embedding;
+      if (typeof embedding === 'string') {
+        // Handle postgres vector format: "[1,2,3]"
+        return JSON.parse(embedding);
+      }
+      return [];
+    };
+
+    const sourceEmbedding = parseEmbedding(sourceCard.embedding);
+
     // Calculate similarity scores
     const similarCards = cards
       .map(card => {
         if (!card.embedding) return null;
         
-        const similarity = cosineSimilarity(sourceCard.embedding, card.embedding);
+        const cardEmbedding = parseEmbedding(card.embedding);
+        if (cardEmbedding.length === 0 || sourceEmbedding.length === 0) return null;
+        
+        const similarity = cosineSimilarity(sourceEmbedding, cardEmbedding);
         return {
           ...card,
           similarity
