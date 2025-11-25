@@ -280,7 +280,7 @@ Return your analysis as a JSON object.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro-preview',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Generate the card based on the conversation above.' }
@@ -437,7 +437,7 @@ Return your analysis as a JSON object.`;
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image-preview',
+            model: 'google/gemini-3-pro-image-preview',
             messages: [{ role: 'user', content: artworkPrompt }],
             modalities: ['image', 'text']
           })
