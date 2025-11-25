@@ -65,29 +65,35 @@ Deno.serve(async (req) => {
       Tags: ${(card.tags || []).join(', ')}
     `.trim();
 
-    // Generate embedding using Lovable AI
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    // Generate a simple text-based embedding using word frequency hashing
+    // This is a fallback since Lovable AI doesn't support dedicated embedding models
+    const words = textForEmbedding.toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2);
     
-    const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'text-embedding-3-small',
-        input: textForEmbedding
-      })
+    const wordFreq = new Map<string, number>();
+    words.forEach(word => {
+      wordFreq.set(word, (wordFreq.get(word) || 0) + 1);
     });
-
-    if (!embeddingResponse.ok) {
-      const errorText = await embeddingResponse.text();
-      console.error('Embedding API error:', errorText);
-      throw new Error('Failed to generate embedding');
+    
+    // Create a simple 384-dimensional embedding based on word hashes
+    const embedding = new Array(384).fill(0);
+    words.forEach((word) => {
+      const hash = word.split('').reduce((acc, char) => {
+        return ((acc << 5) - acc) + char.charCodeAt(0);
+      }, 0);
+      const position = Math.abs(hash) % 384;
+      embedding[position] += (wordFreq.get(word) || 0);
+    });
+    
+    // Normalize the vector
+    const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    if (magnitude > 0) {
+      for (let i = 0; i < embedding.length; i++) {
+        embedding[i] /= magnitude;
+      }
     }
-
-    const embeddingData = await embeddingResponse.json();
-    const embedding = embeddingData.data[0].embedding;
 
     // Update card with embedding
     const { error: updateError } = await supabaseClient
@@ -95,7 +101,7 @@ Deno.serve(async (req) => {
       .update({ 
         embedding,
         last_embedding_update: new Date().toISOString(),
-        embedding_model: 'text-embedding-3-small'
+        embedding_model: 'text-hash-384'
       })
       .eq('id', card.id);
 
@@ -105,7 +111,12 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, cardId: card.id }),
+      JSON.stringify({ 
+        success: true, 
+        cardId: card.id,
+        embeddingDimensions: embedding.length,
+        method: 'text-based-hashing'
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

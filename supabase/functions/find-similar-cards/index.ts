@@ -43,8 +43,39 @@ Deno.serve(async (req) => {
       throw new Error('Card not found');
     }
 
+    // If card has no embedding, generate one first
     if (!sourceCard.embedding) {
-      throw new Error('Card has no embedding');
+      console.log('Card has no embedding, generating one...');
+      
+      const embedResponse = await supabaseClient.functions.invoke('generate-card-embedding', {
+        body: { cardId }
+      });
+      
+      if (embedResponse.error) {
+        console.error('Failed to generate embedding:', embedResponse.error);
+        // Return empty results instead of throwing
+        return new Response(
+          JSON.stringify({ similarCards: [] }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Fetch the card again with the new embedding
+      const { data: updatedCard, error: refetchError } = await supabaseClient
+        .from('dynamic_cards')
+        .select('embedding, player_id')
+        .eq('id', cardId)
+        .single();
+      
+      if (refetchError || !updatedCard?.embedding) {
+        console.error('Card still has no embedding after generation');
+        return new Response(
+          JSON.stringify({ similarCards: [] }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      sourceCard.embedding = updatedCard.embedding;
     }
 
     // Get all other cards with embeddings
