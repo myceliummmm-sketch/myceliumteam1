@@ -20,6 +20,7 @@ interface CollectibleCardProps {
     average_score: number | null;
     times_used: number;
     visual_theme: string;
+    artwork_url?: string | null;
   };
   isNew?: boolean;
 }
@@ -76,10 +77,10 @@ const rarityStyles = {
 };
 
 export function CollectibleCard({ card, onClick, isNew = false }: CollectibleCardProps & { onClick?: () => void }) {
-  const Icon = cardTypeIcons[card.card_type];
   const style = rarityStyles[card.rarity];
   const emoji = cardTypeEmoji[card.card_type];
   const [showAnimation, setShowAnimation] = useState(isNew);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (isNew) {
@@ -100,78 +101,87 @@ export function CollectibleCard({ card, onClick, isNew = false }: CollectibleCar
       {...animationProps}
       onClick={onClick}
       className={`
-        relative overflow-hidden border-2 ${style.border} ${style.bg} ${style.glow}
-        hover:scale-[1.02] transition-all duration-300 cursor-pointer
-        before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity
+        relative overflow-hidden border-2 ${style.border} ${style.glow}
+        hover:scale-[1.02] transition-all duration-300 cursor-pointer group
+        aspect-[3/4] flex flex-col
       `}
     >
       {/* Scan line effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent animate-scan-line pointer-events-none" />
       
-      <div className="relative p-4 space-y-3">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div className="text-2xl">{emoji}</div>
-            <div>
-              <Badge variant="outline" className={`text-xs font-mono ${style.text}`}>
-                L{card.level}:{card.card_type}
-              </Badge>
-            </div>
-          </div>
-          <Badge variant="outline" className={`font-mono text-xs ${style.text}`}>
-            {card.rarity.toUpperCase()}
+      {/* Top Bar - Type & Rarity */}
+      <div className="relative z-10 bg-gradient-to-b from-background/90 to-background/60 backdrop-blur-sm px-3 py-2 flex items-center justify-between border-b border-border/30">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{emoji}</span>
+          <Badge variant="outline" className={`text-xs font-mono ${style.text} border-current`}>
+            L{card.level}:{card.card_type}
           </Badge>
         </div>
+        <Badge variant="outline" className={`font-mono text-xs ${style.text} border-current`}>
+          {card.rarity.toUpperCase()}
+        </Badge>
+      </div>
 
-        {/* Title */}
-        <h3 className="font-mono font-bold text-foreground leading-tight">
-          {card.title}
-        </h3>
-
-        {/* Content Preview */}
-        <p className="text-sm text-muted-foreground font-mono leading-relaxed line-clamp-3">
-          {card.content}
-        </p>
-
-        {/* Stats Bar */}
-        {card.average_score && (
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs font-mono">
-              <span className="text-muted-foreground">SCORE</span>
-              <span className={style.text}>{card.average_score.toFixed(1)}/10</span>
-            </div>
-            <div className="h-1.5 bg-background/50 rounded-full overflow-hidden">
-              <div
-                className={`h-full ${style.bg} ${style.border} border-l-2 transition-all`}
-                style={{ width: `${(card.average_score / 10) * 100}%` }}
-              />
+      {/* Central Artwork */}
+      <div className="relative flex-1 bg-gradient-to-br from-background/20 to-background/40">
+        {card.artwork_url ? (
+          <>
+            <img
+              src={card.artwork_url}
+              alt={card.title}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageLoaded(false)}
+            />
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className={`text-6xl opacity-30 animate-pulse`}>{emoji}</div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted/20">
+            <div className="text-center space-y-2 px-4">
+              <div className={`text-6xl opacity-30`}>{emoji}</div>
+              <p className="text-xs font-mono text-muted-foreground/50">GENERATING ARTWORK...</p>
             </div>
           </div>
         )}
+        
+        {/* Corner glow accent */}
+        <div className={`absolute top-0 right-0 w-24 h-24 ${style.bg} opacity-30 blur-3xl pointer-events-none`} />
+      </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/30">
+      {/* Bottom Bar - Stats */}
+      <div className="relative z-10 bg-gradient-to-t from-background/90 to-background/60 backdrop-blur-sm px-3 py-2 border-t border-border/30">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            {card.average_score && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">SCORE</span>
+                <div className="flex-1 h-1 bg-background/50 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${style.bg} transition-all`}
+                    style={{ width: `${(card.average_score / 10) * 100}%` }}
+                  />
+                </div>
+                <span className={`text-xs font-mono font-bold ${style.text} whitespace-nowrap`}>
+                  {card.average_score.toFixed(1)}
+                </span>
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
             {card.created_by_character && (
-              <Badge variant="secondary" className="text-xs">
-                {card.created_by_character}
-              </Badge>
+              <span className={`${style.text}`}>🔥</span>
             )}
-            <span>USED: {card.times_used}x</span>
+            <span className="whitespace-nowrap">{card.times_used}x</span>
           </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            className={`text-xs font-mono ${style.text} hover:${style.bg}`}
-          >
-            VIEW
-          </Button>
         </div>
       </div>
 
-      {/* Corner accent */}
-      <div className={`absolute top-0 right-0 w-16 h-16 ${style.bg} opacity-50 blur-2xl pointer-events-none`} />
+      {/* Hover glow */}
+      <div className={`absolute inset-0 ${style.bg} opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none`} />
     </CardComponent>
   );
 }

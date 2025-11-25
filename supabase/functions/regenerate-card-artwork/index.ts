@@ -7,34 +7,95 @@ const corsHeaders = {
 };
 
 function buildArtworkPrompt(card: any, cardType: string, rarity: string, character: string): string {
-  const rarityStyles = {
-    common: "simple, clean illustration",
-    uncommon: "detailed illustration with subtle effects",
-    rare: "vibrant, detailed artwork with special effects",
-    epic: "dramatic, highly detailed artwork with dynamic lighting",
-    legendary: "masterpiece quality, cinematic composition, stunning details"
+  // Card type symbols and visual concepts
+  const cardTypeConcepts: Record<string, { symbol: string; scene: string }> = {
+    'AUTHENTICITY': { symbol: '🎭', scene: 'a glowing mirror with light reflecting truth and self-awareness' },
+    'IDEA': { symbol: '💡', scene: 'a luminous lightbulb radiating creative energy and innovation' },
+    'INSIGHT': { symbol: '🔍', scene: 'an opening eye with rays of understanding and clarity' },
+    'DESIGN': { symbol: '🎨', scene: 'geometric shapes forming elegant patterns and visual harmony' },
+    'CODE': { symbol: '💻', scene: 'flowing data streams forming digital architecture' },
+    'GROWTH': { symbol: '🚀', scene: 'an ascending graph with explosive momentum and success' }
   };
 
-  const characterThemes = {
-    "tech-priest": "cyberpunk, neon, digital circuits",
-    "phoenix": "flames, rebirth, rising energy",
-    "toxic": "edgy, punk rock, rebellious",
-    "prisma": "geometric, crystalline, prisms",
-    "virgil": "classic, wise, philosophical",
-    "zen": "minimalist, calm, meditative",
-    "advisor": "professional, strategic, modern",
-    "evergreen": "nature, growth, sustainable"
+  // Rarity-specific text styling and effects
+  const rarityTextEffects: Record<string, string> = {
+    'common': 'simple embossed text with subtle shadow',
+    'uncommon': 'glowing green outline with soft shimmer',
+    'rare': 'vibrant cyan glow with electric energy',
+    'epic': 'intense magenta aura with swirling cosmic particles',
+    'legendary': 'brilliant golden radiance with explosive light bursts'
   };
 
-  const style = rarityStyles[rarity.toLowerCase() as keyof typeof rarityStyles] || rarityStyles.common;
-  const theme = characterThemes[character as keyof typeof characterThemes] || "modern tech";
+  // Rarity visual atmospheres
+  const rarityAtmospheres: Record<string, string> = {
+    'common': 'clean minimalist background, subtle gray tones',
+    'uncommon': 'soft gradient background with gentle light particles, green accents',
+    'rare': 'dynamic energy waves, dimensional depth, cyan particles',
+    'epic': 'rich cosmic layers, swirling nebula effects, magenta intensity',
+    'legendary': 'epic celestial panorama, explosive light rays, golden magnificence'
+  };
 
-  return `Create a trading card artwork in ${style} style. Theme: ${theme}. 
-Card represents: ${card.title}. 
-Content context: ${card.content.substring(0, 200)}...
-Art style: ${theme}, ${rarity} rarity level
-Format: Vertical portrait orientation, suitable for a collectible card game
-Quality: Ultra high resolution, professional game card artwork`;
+  // Character color palettes
+  const characterPalettes: Record<string, string> = {
+    'tech-priest': 'neon blue with digital circuitry',
+    'techpriest': 'neon blue with digital circuitry',
+    'phoenix': 'burning orange with fiery transformation',
+    'toxic': 'electric purple with rebellious edge',
+    'prisma': 'rainbow spectrum with crystalline effects',
+    'virgil': 'deep indigo with mystical wisdom',
+    'zen': 'serene teal with minimalist calm',
+    'advisor': 'professional silver with strategic precision',
+    'ever': 'forest green and natural earth tones',
+    'evergreen': 'forest green and natural earth tones'
+  };
+
+  const typeInfo = cardTypeConcepts[cardType] || { symbol: '✨', scene: 'abstract glowing energy' };
+  const rarityTextStyle = rarityTextEffects[rarity.toLowerCase()] || rarityTextEffects['common'];
+  const rarityAtmosphere = rarityAtmospheres[rarity.toLowerCase()] || rarityAtmospheres['common'];
+  const characterPalette = characterPalettes[character] || 'balanced neutral tones';
+  const powerScore = card.average_score?.toFixed(1) || '7.0';
+
+  return `Create a premium collectible trading card artwork with EMBEDDED TEXT ELEMENTS:
+
+⚠️ CRITICAL TEXT REQUIREMENTS:
+1. CARD TITLE (MUST APPEAR): "${card.title}"
+   - Position: Bottom third of card or stylized banner across middle
+   - Style: Dramatic fantasy/sci-fi game font, ${rarityTextStyle}
+   - Treatment: Integrated into artwork as if etched, carved, or glowing
+   - Legibility: High contrast against background, readable at card size
+
+2. POWER INDICATOR: ${powerScore}/10
+   - Position: Top-right or bottom-right corner
+   - Style: Circular emblem, energy orb, or ornate badge
+   - Design: ${typeInfo.symbol} integrated into power display
+   - Treatment: Glowing numeric readout with ${rarityTextStyle}
+
+CENTRAL ARTWORK THEME:
+- Core concept: ${typeInfo.scene}
+- Visual symbol: ${typeInfo.symbol} prominently featured
+- Atmosphere: ${rarityAtmosphere}
+- Color palette: ${characterPalette} with ${rarity} rarity intensity
+
+COMPOSITION RULES:
+- Portrait orientation 3:4 aspect ratio
+- Title text takes 15-20% of vertical space
+- Central artwork 60-70% focal area
+- Power badge visible but not distracting
+- All text must be PART OF THE ARTWORK style (not UI overlay)
+
+ARTISTIC STYLE:
+- Genre: Modern fantasy/sci-fi collectible card game aesthetic
+- Quality: Ultra high resolution, professional game asset
+- Text integration: Make text feel like magical inscriptions, holographic displays, or carved runes
+- Ensure readability while maintaining artistic cohesion
+
+FORBIDDEN:
+- Do NOT use plain text overlays
+- Do NOT create UI-style buttons or frames
+- Do NOT use realistic photos or clip art
+- Text must blend naturally with the art style
+
+The goal is a trading card where the title and power are beautifully integrated into the artwork itself, not separate UI elements.`;
 }
 
 serve(async (req) => {
