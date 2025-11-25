@@ -32,27 +32,34 @@ Deno.serve(async (req) => {
       throw new Error('Query is required');
     }
 
-    // Generate embedding for search query
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    // Generate a simple text-based embedding for the query
+    const words = query.toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2);
     
-    const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'text-embedding-3-small',
-        input: query
-      })
+    const wordFreq = new Map<string, number>();
+    words.forEach(word => {
+      wordFreq.set(word, (wordFreq.get(word) || 0) + 1);
     });
-
-    if (!embeddingResponse.ok) {
-      throw new Error('Failed to generate query embedding');
+    
+    // Create a simple 384-dimensional embedding based on word hashes
+    const queryEmbedding = new Array(384).fill(0);
+    words.forEach((word) => {
+      const hash = word.split('').reduce((acc, char) => {
+        return ((acc << 5) - acc) + char.charCodeAt(0);
+      }, 0);
+      const position = Math.abs(hash) % 384;
+      queryEmbedding[position] += (wordFreq.get(word) || 0);
+    });
+    
+    // Normalize the vector
+    const magnitude = Math.sqrt(queryEmbedding.reduce((sum, val) => sum + val * val, 0));
+    if (magnitude > 0) {
+      for (let i = 0; i < queryEmbedding.length; i++) {
+        queryEmbedding[i] /= magnitude;
+      }
     }
-
-    const embeddingData = await embeddingResponse.json();
-    const queryEmbedding = embeddingData.data[0].embedding;
 
     // Build query with filters
     let queryBuilder = supabaseClient
