@@ -89,6 +89,50 @@ function getVisualTheme(rarity: string): string {
   return themes[rarity] || 'cyan';
 }
 
+function buildArtworkPrompt(card: any, cardType: string, rarity: string, character: string): string {
+  // Card type symbols and concepts
+  const cardTypeConcepts: Record<string, string> = {
+    'AUTHENTICITY': 'a glowing mirror reflecting light',
+    'IDEA': 'a luminous lightbulb with energy radiating',
+    'INSIGHT': 'an eye opening with rays of understanding',
+    'DESIGN': 'geometric shapes forming a perfect pattern',
+    'CODE': 'flowing data streams forming architecture',
+    'GROWTH': 'an ascending graph with dynamic energy'
+  };
+
+  // Rarity visual effects
+  const rarityEffects: Record<string, string> = {
+    'common': 'subtle gray glow, minimal particle effects, clean simple background',
+    'uncommon': 'soft green shimmer, gentle light particles, gradient background',
+    'rare': 'vibrant cyan energy waves, glowing particles, dimensional depth',
+    'epic': 'intense magenta aura, swirling cosmic particles, rich layered background',
+    'legendary': 'brilliant golden radiance, explosive light bursts, epic celestial background'
+  };
+
+  // Character accent colors (subtle influence)
+  const characterAccents: Record<string, string> = {
+    'ever': 'hints of forest green',
+    'prisma': 'hints of rainbow spectrum',
+    'toxic': 'hints of electric purple',
+    'phoenix': 'hints of burning orange',
+    'techpriest': 'hints of neon blue',
+    'virgil': 'hints of deep indigo',
+    'zen': 'hints of serene teal'
+  };
+
+  const concept = cardTypeConcepts[cardType] || 'abstract glowing symbol';
+  const rarityEffect = rarityEffects[rarity] || rarityEffects['common'];
+  const characterAccent = characterAccents[character] || 'neutral tones';
+
+  return `Create an abstract, symbolic digital collectible card artwork featuring ${concept}.
+Style: Modern, clean, appealing digital art with a unified "collectible card game" aesthetic.
+Visual elements: ${rarityEffect}, ${characterAccent}
+Mood: Metaphorical and symbolic, representing "${card.title}" concept without literal text.
+Composition: Centered focal point, clean negative space, suitable for card artwork.
+Aspect ratio: Portrait 3:4, suitable for collectible card display.
+Quality: High detail, vibrant colors, professional game asset quality.`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -378,10 +422,62 @@ Return your analysis as a JSON object.`;
       body: { cardId: card.id, cardData: card }
     }).catch(err => console.error('Failed to generate embedding:', err));
 
+    // Generate artwork using Google AI
+    let artworkUrl = null;
+    try {
+      console.log('Generating artwork for card:', card.id);
+      const artworkPrompt = buildArtworkPrompt(card, cardType, rarity, cardData.created_by_character);
+      
+      const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
+      if (!googleApiKey) {
+        console.warn('GOOGLE_API_KEY not configured, skipping artwork generation');
+      } else {
+        const imageResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: artworkPrompt }] }],
+              generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+            })
+          }
+        );
+
+        if (imageResponse.ok) {
+          const imageData = await imageResponse.json();
+          const imagePart = imageData.candidates?.[0]?.content?.parts?.find(
+            (part: any) => part.inlineData?.mimeType?.startsWith('image/')
+          );
+          
+          if (imagePart) {
+            const base64Image = imagePart.inlineData.data;
+            const mimeType = imagePart.inlineData.mimeType;
+            artworkUrl = `data:${mimeType};base64,${base64Image}`;
+            
+            // Update card with artwork
+            await supabaseClient
+              .from('dynamic_cards')
+              .update({ artwork_url: artworkUrl })
+              .eq('id', card.id);
+            
+            console.log('Artwork generated and saved successfully');
+          } else {
+            console.warn('No image in Google AI response');
+          }
+        } else {
+          console.error('Google AI image generation failed:', await imageResponse.text());
+        }
+      }
+    } catch (artworkError) {
+      console.error('Error generating artwork:', artworkError);
+      // Don't fail the whole card generation if artwork fails
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        card: card
+        card: { ...card, artwork_url: artworkUrl }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

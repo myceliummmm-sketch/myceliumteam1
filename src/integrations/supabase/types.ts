@@ -482,6 +482,7 @@ export type Database = {
       }
       dynamic_cards: {
         Row: {
+          artwork_url: string | null
           auto_generated: boolean | null
           average_score: number | null
           card_type: string
@@ -509,6 +510,7 @@ export type Database = {
           visual_theme: string | null
         }
         Insert: {
+          artwork_url?: string | null
           auto_generated?: boolean | null
           average_score?: number | null
           card_type: string
@@ -536,6 +538,7 @@ export type Database = {
           visual_theme?: string | null
         }
         Update: {
+          artwork_url?: string | null
           auto_generated?: boolean | null
           average_score?: number | null
           card_type?: string
