@@ -12,7 +12,7 @@ import { ParticleEffect } from './ParticleEffect';
 interface ResearchFlowModalProps {
   open: boolean;
   onClose: () => void;
-  phase: 'raw' | 'scoring' | 'perspectives' | 'complete';
+  phase: 'idle' | 'raw' | 'scoring' | 'perspectives' | 'complete';
   rawCards?: any[];
   insightCards?: any[];
   perspectiveCards?: any[];

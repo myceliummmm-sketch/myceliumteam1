@@ -42,6 +42,7 @@ import { MobileGate } from '@/components/shipit/MobileGate';
 import { WelcomeScreen } from '@/components/shipit/WelcomeScreen';
 import { TeamIntroductionModal } from '@/components/shipit/TeamIntroductionModal';
 import { VisionJourneyFlow } from '@/components/shipit/VisionJourneyFlow';
+import { ResearchFlowModal } from '@/components/shipit/ResearchFlowModal';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -75,6 +76,13 @@ export default function ShipIt() {
   const showTeamIntroModal = useGameStore((state) => state.showTeamIntroModal);
   const setShowTeamIntroModal = useGameStore((state) => state.setShowTeamIntroModal);
   const setHasMetTeam = useGameStore((state) => state.setHasMetTeam);
+  const showResearchModal = useGameStore((state) => state.showResearchModal);
+  const setShowResearchModal = useGameStore((state) => state.setShowResearchModal);
+  const researchPhase = useGameStore((state) => state.researchPhase);
+  const researchRawCards = useGameStore((state) => state.researchRawCards);
+  const researchInsightCards = useGameStore((state) => state.researchInsightCards);
+  const researchPerspectiveCards = useGameStore((state) => state.researchPerspectiveCards);
+  const triggerScoreResearch = useGameStore((state) => state.triggerScoreResearch);
   const promptCount = 0;
 
   // Real-time presence tracking
@@ -193,6 +201,21 @@ export default function ShipIt() {
       <PersonalityAssessment
         open={showPersonalityAssessment}
         onClose={() => setShowPersonalityAssessment(false)}
+      />
+
+      <ResearchFlowModal
+        open={showResearchModal}
+        onClose={() => setShowResearchModal(false)}
+        phase={researchPhase}
+        rawCards={researchRawCards}
+        insightCards={researchInsightCards}
+        perspectiveCards={researchPerspectiveCards}
+        onStartScoring={() => {
+          if (sessionId && researchRawCards.length > 0) {
+            const cardIds = researchRawCards.map(c => c.id);
+            triggerScoreResearch(cardIds, sessionId);
+          }
+        }}
       />
       
       {/* Header - Conditional based on mode */}
