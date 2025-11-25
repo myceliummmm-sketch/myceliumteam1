@@ -714,6 +714,67 @@ export function useGameSession() {
           oldPhase: phaseEvent.data?.oldPhase || phaseEvent.oldPhase,
           timestamp: new Date().toISOString()
         }, state.messages);
+        
+        // If entering RESEARCH phase, auto-send welcome message
+        if (phaseEvent.data?.newPhase === 'RESEARCH' || phaseEvent.newPhase === 'RESEARCH') {
+          // Only send greeting if this is truly a new phase entry (not a reload)
+          const hasRecentMessages = state.messages.filter(m => 
+            new Date(m.createdAt).getTime() > Date.now() - 5000
+          ).length > 1; // More than just the current message
+          
+          if (!hasRecentMessages) {
+            setTimeout(async () => {
+              try {
+                // Send automatic greeting from the AI team
+                const { data: greetingData, error: greetingError } = await supabase.functions.invoke('game-turn', {
+                  body: {
+                    sessionId,
+                    message: '[AUTO] User just entered RESEARCH phase - greet them and ask if they want to start deep research',
+                    selectedSpeakers: [],
+                    conversationMode: 'deep-research',
+                    responseDepth: 'normal',
+                    isAutoGreeting: true
+                  },
+                });
+
+                if (!greetingError && greetingData?.response) {
+                  const greetingMessage = {
+                    id: crypto.randomUUID(),
+                    role: 'assistant' as const,
+                    content: greetingData.response,
+                    timestamp: new Date(),
+                    createdAt: new Date(),
+                    segments: greetingData.segments || [],
+                    gameEvents: greetingData.gameEvents || [],
+                    suggestedActions: greetingData.suggestedActions,
+                  };
+                  addMessage(greetingMessage);
+                  
+                  // Set quick replies for easy research triggering
+                  setQuickReplies([
+                    {
+                      text: '🔬 Start Deep Research',
+                      category: 'ai-suggested' as const,
+                      icon: '🎯'
+                    },
+                    {
+                      text: 'How does research work?',
+                      category: 'general' as const,
+                      icon: '💡'
+                    },
+                    {
+                      text: 'Skip for now',
+                      category: 'general' as const,
+                      icon: '⏭️'
+                    }
+                  ]);
+                }
+              } catch (error) {
+                console.error('Failed to send research phase greeting:', error);
+              }
+            }, 1500); // Delay slightly so toast doesn't overlap
+          }
+        }
       }
 
       // Handle task completion and auto-generate for high-value tasks
