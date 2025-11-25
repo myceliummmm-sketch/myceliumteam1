@@ -701,7 +701,7 @@ If the user's question requires expertise from unavailable members, have the ava
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro-preview',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'system', content: gameContext },
