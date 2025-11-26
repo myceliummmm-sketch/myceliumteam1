@@ -61,6 +61,9 @@ interface GameActions {
   setShowChatOnboarding: (show: boolean) => void;
   setHasSeenChatOnboarding: (seen: boolean) => void;
   setShowResearchJourney: (show: boolean) => void;
+  addLikedCard: (card: any) => void;
+  removeLikedCard: (cardId: string) => void;
+  clearLikedCards: () => void;
 }
 
 const initialState: GameState = {
@@ -170,6 +173,9 @@ const initialState: GameState = {
     ? localStorage.getItem('hasSeenChatOnboarding') === 'true' 
     : false,
   showResearchJourney: false,
+  
+  // Liked cards from swipe game
+  likedCards: [],
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -652,5 +658,16 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   },
   
   setShowResearchJourney: (show: boolean) => set({ showResearchJourney: show }),
+  
+  // Liked cards management
+  addLikedCard: (card: any) => set((state) => ({
+    likedCards: [...state.likedCards, { ...card, likedAt: new Date() }]
+  })),
+  
+  removeLikedCard: (cardId: string) => set((state) => ({
+    likedCards: state.likedCards.filter(c => c.id !== cardId)
+  })),
+  
+  clearLikedCards: () => set({ likedCards: [] }),
 }));
 

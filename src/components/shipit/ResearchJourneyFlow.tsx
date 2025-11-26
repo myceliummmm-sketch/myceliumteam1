@@ -12,6 +12,8 @@ import { ResearchTemplate, getTemplatesByStep, fillTemplate } from "@/lib/resear
 import { useGameStore } from "@/stores/gameStore";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { CardSwipeGame } from "./CardSwipeGame";
+import { ResearchProgressTimeline } from "./ResearchProgressTimeline";
 
 interface ResearchJourneyFlowProps {
   open: boolean;
@@ -188,24 +190,47 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
 
       case 2:
         return (
-          <div className="space-y-4 text-center py-8">
-            <Sparkles className="w-16 h-16 mx-auto text-primary animate-pulse" />
-            <h3 className="font-bold text-xl">Generating Research Findings...</h3>
-            <p className="text-muted-foreground">
-              AI team is conducting deep research based on your focus
-            </p>
-            <div className="max-w-md mx-auto">
-              <Progress value={66} className="h-2" />
+          <div className="space-y-6">
+            {/* Progress Timeline */}
+            <ResearchProgressTimeline 
+              currentStage={1}
+              onStageChange={(stage) => {
+                if (stage === 4 && researchRawCards.length > 0) {
+                  // Research complete
+                }
+              }}
+            />
+
+            {/* Card Swipe Game */}
+            <div className="border-t pt-4">
+              <div className="text-center mb-4">
+                <h3 className="font-bold text-lg mb-1">While You Wait...</h3>
+                <p className="text-sm text-muted-foreground">
+                  Swipe through marketplace cards • Like ones you want to buy later
+                </p>
+              </div>
+              
+              <CardSwipeGame 
+                onCardLiked={(card) => {
+                  console.log("Liked card:", card.title);
+                }}
+                onCardSkipped={(card) => {
+                  console.log("Skipped card:", card.title);
+                }}
+              />
             </div>
+
+            {/* Continue Button (appears when research is done) */}
             {researchRawCards.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center pt-4 border-t"
               >
-                <Badge className="text-lg px-4 py-2">
+                <Badge className="text-lg px-4 py-2 mb-4">
                   {researchRawCards.length} findings generated!
                 </Badge>
-                <Button onClick={() => setCurrentStep(3)} className="mt-4">
+                <Button onClick={() => setCurrentStep(3)} size="lg" className="w-full">
                   Continue to Evaluation <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </motion.div>
