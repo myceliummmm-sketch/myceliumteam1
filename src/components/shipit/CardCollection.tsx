@@ -6,13 +6,14 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, SortAsc, ChevronLeft, Sparkles, LogOut, LayoutGrid, List } from 'lucide-react';
+import { toast } from 'sonner';
+import { Search, Filter, SortAsc, ChevronLeft, Sparkles, LogOut, LayoutGrid, List, Package } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CollectibleCard } from './CollectibleCard';
+import { FlippableCard } from './FlippableCard';
+import { CardDeck } from './CardDeck';
 import { CardDetailModal } from './CardDetailModal';
 import { PromptGenerationModal } from './PromptGenerationModal';
-import { GroupedCardView } from './GroupedCardView';
-import { groupCardsByPhase } from '@/lib/cardGrouping';
+import { groupCardsByPhase, groupCardsByCharacter, groupCardsByType } from '@/lib/cardDeckSystem';
 import { useGameStore } from '@/stores/gameStore';
 import { ParticleEffect } from './ParticleEffect';
 import { VersionTogglePanel } from './VersionTogglePanel';
@@ -56,7 +57,8 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
   const [selectedCard, setSelectedCard] = useState<DynamicCard | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
-  const [viewAsGroups, setViewAsGroups] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'decks'>('grid');
+  const [deckGrouping, setDeckGrouping] = useState<'phase' | 'character' | 'type'>('phase');
   
   // Animation states
   const [showConfetti, setShowConfetti] = useState(false);
@@ -298,11 +300,11 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setViewAsGroups(!viewAsGroups)}
+            onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
             className="h-9 w-9"
-            title={viewAsGroups ? "Switch to List View" : "Switch to Group View"}
+            title="Switch View Mode"
           >
-            {viewAsGroups ? <List className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+            {viewMode === 'list' ? <LayoutGrid className="h-4 w-4" /> : <List className="h-4 w-4" />}
           </Button>
         </div>
         
@@ -405,20 +407,37 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
               </div>
             </div>
           </div>
-        ) : viewAsGroups ? (
-          <div className="p-4">
-            <GroupedCardView
-              groups={groupCardsByPhase(filteredCards)}
-              onCardClick={(card) => {
-                setSelectedCard(card);
-                setShowDetailModal(true);
-              }}
-            />
+        ) : viewMode === 'list' ? (
+          <div className="p-4 space-y-2">
+            {filteredCards.map((card) => (
+              <div 
+                key={card.id} 
+                className="p-4 bg-card rounded-lg border border-border hover:border-primary/50 cursor-pointer transition-colors"
+                onClick={() => {
+                  setSelectedCard(card);
+                  setShowDetailModal(true);
+                }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-md bg-primary/10 flex items-center justify-center text-2xl">
+                    {card.rarity === 'legendary' ? '👑' : card.rarity === 'epic' ? '💎' : card.rarity === 'rare' ? '⭐' : '📄'}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{card.title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{card.description}</p>
+                    <div className="flex gap-2 mt-1">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20">{card.card_type}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20">{card.rarity}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
           <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filteredCards.map((card) => (
-              <CollectibleCard
+              <FlippableCard
                 key={card.id}
                 card={card}
                 isNew={card.id === newCardId}
@@ -426,8 +445,53 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
                   setSelectedCard(card);
                   setShowDetailModal(true);
                 }}
+                onUseInChat={() => {
+                  window.dispatchEvent(new CustomEvent('useCardInChat', { detail: { card } }));
+                  toast.success(`"${card.title}" added to chat context`);
+                }}
+                onArchive={async () => {
+                  try {
+                    const { error } = await supabase
+                      .from('dynamic_cards')
+                      .update({ is_archived: true })
+                      .eq('id', card.id);
+                    
+                    if (error) throw error;
+                    
+                    toast.success('Card archived');
+                    await loadCards();
+                  } catch (error) {
+                    console.error('Error archiving card:', error);
+                    toast.error('Failed to archive card');
+                  }
+                }}
               />
             ))}
+          </div>
+        ) : (
+          <div className="p-4">
+            {(() => {
+              const decks = deckGrouping === 'phase' 
+                ? groupCardsByPhase(filteredCards)
+                : deckGrouping === 'character'
+                ? groupCardsByCharacter(filteredCards)
+                : groupCardsByType(filteredCards);
+              
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {decks.map((deck) => (
+                    <CardDeck
+                      key={deck.id}
+                      deck={deck}
+                      onCardClick={(card) => {
+                        setSelectedCard(card);
+                        setShowDetailModal(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
       </ScrollArea>
