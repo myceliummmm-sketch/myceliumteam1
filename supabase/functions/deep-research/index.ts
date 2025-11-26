@@ -155,7 +155,7 @@ No text, no people, just abstract visual metaphor.`;
         .insert({
           player_id: user.id,
           session_id: sessionId,
-          card_type: 'RAW_RESEARCH',
+          card_type: 'INSIGHT',
           level: session.game_states?.[0]?.level || 1,
           rarity: 'common',
           title: finding.title,
@@ -177,7 +177,7 @@ No text, no people, just abstract visual metaphor.`;
 
       if (cardError) {
         console.error('Error creating card:', cardError);
-        continue;
+        throw cardError;
       }
 
       cards.push(card);

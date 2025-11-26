@@ -72,13 +72,11 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
 
       if (error) throw error;
 
-      toast.success('Research started! Generating findings...');
+      toast.success(`Generated ${data.cards?.length || 0} research findings!`);
       setResearchPhase('raw');
-      setCurrentStep(2);
     } catch (error) {
       console.error('Research error:', error);
-      toast.error('Failed to start research');
-    } finally {
+      toast.error('Failed to generate research. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -97,11 +95,12 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
   };
 
   useEffect(() => {
-    // Auto-advance to step 3 when we have raw cards
-    if (currentStep === 2 && researchRawCards.length > 0 && !isProcessing) {
+    // Auto-advance to step 2 when we have raw cards
+    if (currentStep === 1 && researchRawCards.length > 0 && isProcessing) {
+      setIsProcessing(false);
       setTimeout(() => {
-        toast.success(`Generated ${researchRawCards.length} research findings!`);
-      }, 500);
+        setCurrentStep(2);
+      }, 1000);
     }
   }, [researchRawCards, currentStep, isProcessing]);
 
@@ -118,6 +117,43 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
     switch (currentStep) {
       case 1:
         const templates = getTemplatesByStep(1);
+        
+        // If research is processing, show the game immediately
+        if (isProcessing) {
+          return (
+            <div className="space-y-6">
+              {/* Progress Timeline */}
+              <ResearchProgressTimeline 
+                currentStage={1}
+                onStageChange={(stage) => {
+                  if (stage === 4 && researchRawCards.length > 0) {
+                    // Research complete
+                  }
+                }}
+              />
+
+              {/* Card Swipe Game */}
+              <div className="border-t pt-4">
+                <div className="text-center mb-4">
+                  <h3 className="font-bold text-lg mb-1">While You Wait...</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Swipe through marketplace cards • Like ones you want to buy later
+                  </p>
+                </div>
+                
+                <CardSwipeGame 
+                  onCardLiked={(card) => {
+                    console.log("Liked card:", card.title);
+                  }}
+                  onCardSkipped={(card) => {
+                    console.log("Skipped card:", card.title);
+                  }}
+                />
+              </div>
+            </div>
+          );
+        }
+        
         return (
           <div className="space-y-4">
             <div>
