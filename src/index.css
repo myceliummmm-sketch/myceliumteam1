@@ -118,6 +118,16 @@ All colors MUST be HSL.
     border: 1px solid var(--glass-border);
   }
 
+  /* 3D Card Flip Utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
   .holographic {
     background: var(--gradient-holographic);
     background-size: 200% 200%;
