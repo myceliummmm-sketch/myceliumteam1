@@ -40,7 +40,8 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
     researchInsightCards, 
     researchPerspectiveCards,
     triggerScoreResearch,
-    setResearchPhase
+    setResearchPhase,
+    setResearchCards
   } = useGameStore();
 
   const currentStepData = STEPS[currentStep - 1];
@@ -65,14 +66,16 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
       const { data, error } = await supabase.functions.invoke('deep-research', {
         body: {
           sessionId,
-          researchQuery: filledPrompt,
+          researchFocus: filledPrompt,
           context: formValues
         }
       });
 
       if (error) throw error;
 
-      // Success - cards are automatically added to the store via realtime
+      // Save the generated cards to the store
+      setResearchCards(data.cards || [], [], []);
+      
       toast.success(`Generated ${data.cards?.length || 0} research findings!`);
       setResearchPhase('raw');
       setIsProcessing(false);
