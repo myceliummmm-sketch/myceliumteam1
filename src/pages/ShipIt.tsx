@@ -43,6 +43,8 @@ import { WelcomeScreen } from '@/components/shipit/WelcomeScreen';
 import { TeamIntroductionModal } from '@/components/shipit/TeamIntroductionModal';
 import { VisionJourneyFlow } from '@/components/shipit/VisionJourneyFlow';
 import { ResearchFlowModal } from '@/components/shipit/ResearchFlowModal';
+import { ResearchJourneyFlow } from '@/components/shipit/ResearchJourneyFlow';
+import { ChatOnboarding } from '@/components/shipit/ChatOnboarding';
 
 export default function ShipIt() {
   const navigate = useNavigate();
@@ -83,6 +85,10 @@ export default function ShipIt() {
   const researchInsightCards = useGameStore((state) => state.researchInsightCards);
   const researchPerspectiveCards = useGameStore((state) => state.researchPerspectiveCards);
   const triggerScoreResearch = useGameStore((state) => state.triggerScoreResearch);
+  const showChatOnboarding = useGameStore((state) => state.showChatOnboarding);
+  const setShowChatOnboarding = useGameStore((state) => state.setShowChatOnboarding);
+  const showResearchJourney = useGameStore((state) => state.showResearchJourney);
+  const setShowResearchJourney = useGameStore((state) => state.setShowResearchJourney);
   const promptCount = 0;
 
   // Real-time presence tracking
@@ -366,6 +372,26 @@ export default function ShipIt() {
               </div>
             )}
       </div>
+      
+      <ResearchJourneyFlow
+        open={showResearchJourney}
+        onClose={() => setShowResearchJourney(false)}
+        sessionId={sessionId || ''}
+      />
+
+      <ChatOnboarding
+        open={showChatOnboarding}
+        onClose={() => setShowChatOnboarding(false)}
+        onStartResearch={() => {
+          setShowChatOnboarding(false);
+          setShowResearchJourney(true);
+        }}
+        onViewCollection={() => {
+          setShowChatOnboarding(false);
+          toggleCardCollection();
+        }}
+      />
+      
       <TutorialOverlay />
       {proMode && <DevModePanel />}
     </div>
