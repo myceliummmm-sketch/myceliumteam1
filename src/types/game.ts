@@ -323,6 +323,11 @@ export interface GameState {
   researchRawCards: any[];
   researchInsightCards: any[];
   researchPerspectiveCards: any[];
+  
+  // Chat onboarding
+  showChatOnboarding: boolean;
+  hasSeenChatOnboarding: boolean;
+  showResearchJourney: boolean;
 }
 
 export interface VisionSubStageProgress {

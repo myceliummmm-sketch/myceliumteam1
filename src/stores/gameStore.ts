@@ -58,6 +58,9 @@ interface GameActions {
   setResearchCards: (raw?: any[], insights?: any[], perspectives?: any[]) => void;
   triggerScoreResearch: (cardIds: string[], sessionId: string) => Promise<void>;
   triggerTeamPerspectives: (insightIds: string[], sessionId: string) => Promise<void>;
+  setShowChatOnboarding: (show: boolean) => void;
+  setHasSeenChatOnboarding: (seen: boolean) => void;
+  setShowResearchJourney: (show: boolean) => void;
 }
 
 const initialState: GameState = {
@@ -160,6 +163,13 @@ const initialState: GameState = {
   researchRawCards: [],
   researchInsightCards: [],
   researchPerspectiveCards: [],
+  
+  // Chat onboarding
+  showChatOnboarding: false,
+  hasSeenChatOnboarding: typeof window !== 'undefined' 
+    ? localStorage.getItem('hasSeenChatOnboarding') === 'true' 
+    : false,
+  showResearchJourney: false,
 };
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
@@ -631,5 +641,16 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
       toast.error('Team perspective generation failed');
     }
   },
+  
+  setShowChatOnboarding: (show: boolean) => set({ showChatOnboarding: show }),
+  
+  setHasSeenChatOnboarding: (seen: boolean) => {
+    set({ hasSeenChatOnboarding: seen });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hasSeenChatOnboarding', String(seen));
+    }
+  },
+  
+  setShowResearchJourney: (show: boolean) => set({ showResearchJourney: show }),
 }));
 

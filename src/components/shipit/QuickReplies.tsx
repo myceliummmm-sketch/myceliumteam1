@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { Sparkles, Zap, AlertCircle, Target, Lightbulb } from 'lucide-react';
+import { Sparkles, Zap, AlertCircle, Target, Lightbulb, Search } from 'lucide-react';
+import { useGameStore } from '@/stores/gameStore';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { QuickReplyButton } from '@/types/game';
@@ -41,8 +42,10 @@ function getButtonStyles(category: QuickReplyButton['category'], urgency?: Quick
 export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesProps) {
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   const [openHintIndex, setOpenHintIndex] = useState<number | null>(null);
+  const currentPhase = useGameStore((state) => state.currentPhase);
+  const setShowResearchJourney = useGameStore((state) => state.setShowResearchJourney);
   
-  if (suggestions.length === 0) return null;
+  const showResearchButton = currentPhase === 'RESEARCH';
   
   const handleClick = (suggestion: QuickReplyButton, idx: number) => {
     // Hint buttons don't send messages, just open popover
@@ -59,6 +62,15 @@ export function QuickReplies({ suggestions, onSelect, disabled }: QuickRepliesPr
   
   return (
     <div className="flex flex-wrap gap-3 px-3 pb-3 pt-3 border-t border-border/40 bg-background/50">
+      {showResearchButton && (
+        <Button
+          onClick={() => setShowResearchJourney(true)}
+          className="h-auto min-h-[36px] px-4 py-2 border-2 border-blue-500/70 bg-gradient-to-br from-blue-500/15 to-blue-500/5"
+        >
+          <Search className="w-4 h-4 mr-2" />
+          🔬 Research Stage
+        </Button>
+      )}
       {suggestions.map((suggestion, idx) => {
         const buttonContent = (
           <Button
