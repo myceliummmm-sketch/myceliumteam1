@@ -78,6 +78,9 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
       
       toast.success(`Generated ${data.cards?.length || 0} research findings!`);
       setResearchPhase('raw');
+      
+      // Advance to Step 2 immediately after success
+      setCurrentStep(2);
       setIsProcessing(false);
     } catch (error) {
       console.error('Research error:', error);
@@ -99,15 +102,7 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
     setCurrentStep(4);
   };
 
-  useEffect(() => {
-    // Auto-advance to step 2 when we have raw cards
-    if (currentStep === 1 && researchRawCards.length > 0 && isProcessing) {
-      setIsProcessing(false);
-      setTimeout(() => {
-        setCurrentStep(2);
-      }, 1000);
-    }
-  }, [researchRawCards, currentStep, isProcessing]);
+  // Removed broken auto-advance useEffect - now advancing directly in handleStartResearch
 
   useEffect(() => {
     // Auto-advance to step 5 when we have perspective cards
