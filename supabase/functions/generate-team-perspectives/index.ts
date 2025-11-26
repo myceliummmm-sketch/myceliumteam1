@@ -37,6 +37,20 @@ const TEAM_MEMBERS = [
   }
 ];
 
+// Clean markdown code blocks from AI response
+const cleanJsonResponse = (text: string): string => {
+  let cleaned = text.trim();
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.slice(7);
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.slice(3);
+  }
+  if (cleaned.endsWith('```')) {
+    cleaned = cleaned.slice(0, -3);
+  }
+  return cleaned.trim();
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -129,7 +143,7 @@ Return ONLY a JSON object:
       }
 
       const aiData = await aiResponse.json();
-      const perspectiveText = aiData.choices[0].message.content;
+      const perspectiveText = cleanJsonResponse(aiData.choices[0].message.content);
       
       let perspectiveData;
       try {

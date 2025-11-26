@@ -14,6 +14,20 @@ const SCORING_FACTORS = [
   { name: 'Uniqueness', description: 'Novel or common knowledge?' }
 ];
 
+// Clean markdown code blocks from AI response
+const cleanJsonResponse = (text: string): string => {
+  let cleaned = text.trim();
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.slice(7);
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.slice(3);
+  }
+  if (cleaned.endsWith('```')) {
+    cleaned = cleaned.slice(0, -3);
+  }
+  return cleaned.trim();
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -131,7 +145,7 @@ Return ONLY a JSON object with this structure:
       }
 
       const aiData = await aiResponse.json();
-      const scoreText = aiData.choices[0].message.content;
+      const scoreText = cleanJsonResponse(aiData.choices[0].message.content);
       
       let scoreData;
       try {
@@ -250,7 +264,7 @@ No text, abstract metaphor only.`;
     return new Response(
       JSON.stringify({
         success: true,
-        insights: insightCards,
+        insightCards: insightCards,
         message: `Evaluated ${insightCards.length} research insights`,
         xp_reward: xpRewards
       }),
