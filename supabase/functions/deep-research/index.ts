@@ -125,7 +125,7 @@ Return ONLY a JSON array of 6-8 research findings. No other text.`;
         .insert({
           player_id: user.id,
           session_id: sessionId,
-          card_type: 'INSIGHT',
+          card_type: 'RAW_RESEARCH',
           level: session.game_states?.[0]?.level || 1,
           rarity: 'common',
           title: finding.title,
