@@ -496,15 +496,18 @@ export type Database = {
           event_data: Json | null
           id: string
           is_archived: boolean | null
+          is_tradable: boolean | null
           last_embedding_update: string | null
           last_used_at: string | null
           level: number
+          ownership_history: Json | null
           player_id: string
           rarity: string
           session_id: string | null
           tags: string[] | null
           times_used: number | null
           title: string
+          trade_value: number | null
           triggered_by_event: string | null
           updated_at: string | null
           visual_theme: string | null
@@ -524,15 +527,18 @@ export type Database = {
           event_data?: Json | null
           id?: string
           is_archived?: boolean | null
+          is_tradable?: boolean | null
           last_embedding_update?: string | null
           last_used_at?: string | null
           level: number
+          ownership_history?: Json | null
           player_id: string
           rarity: string
           session_id?: string | null
           tags?: string[] | null
           times_used?: number | null
           title: string
+          trade_value?: number | null
           triggered_by_event?: string | null
           updated_at?: string | null
           visual_theme?: string | null
@@ -552,15 +558,18 @@ export type Database = {
           event_data?: Json | null
           id?: string
           is_archived?: boolean | null
+          is_tradable?: boolean | null
           last_embedding_update?: string | null
           last_used_at?: string | null
           level?: number
+          ownership_history?: Json | null
           player_id?: string
           rarity?: string
           session_id?: string | null
           tags?: string[] | null
           times_used?: number | null
           title?: string
+          trade_value?: number | null
           triggered_by_event?: string | null
           updated_at?: string | null
           visual_theme?: string | null

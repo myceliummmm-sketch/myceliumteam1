@@ -242,6 +242,14 @@ export function VisionJourneyFlow() {
             stageLabel: 'Market Research'
           }
         });
+
+        // Show ChatOnboarding if user hasn't seen it yet
+        const { hasSeenChatOnboarding } = useGameStore.getState();
+        if (!hasSeenChatOnboarding) {
+          setTimeout(() => {
+            useGameStore.getState().setShowChatOnboarding(true);
+          }, 1000);
+        }
       } catch (error) {
         console.error('Failed to transition phase:', error);
         toast.error('Failed to transition phase');

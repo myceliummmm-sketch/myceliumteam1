@@ -13,6 +13,7 @@ import ShipIt from "./pages/ShipIt";
 import Projects from "./pages/Projects";
 import Analytics from "./pages/Analytics";
 import AcceptInvite from "./pages/AcceptInvite";
+import Marketplace from "./pages/Marketplace";
 import { Inventory } from "./components/shipit/Inventory";
 import RedirectToV2 from "./pages/RedirectToV2";
 import RedirectToV3 from "./pages/RedirectToV3";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/shipit3" element={<RedirectToV3 />} />
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+            <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

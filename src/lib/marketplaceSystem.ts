@@ -55,39 +55,46 @@ export const calculateTradeValue = (card: any): number => {
 };
 
 /**
- * Mark a card as tradable and calculate its value
+ * List a card for trade on the marketplace
  */
-export const markCardTradable = async (cardId: string): Promise<{ success: boolean; tradeValue?: number; error?: string }> => {
+export const listCardForTrade = async (cardId: string, price: number): Promise<{ success: boolean; error?: string }> => {
   try {
-    const { data: card, error: fetchError } = await supabase
+    const { error } = await supabase
       .from('dynamic_cards')
-      .select('*')
-      .eq('id', cardId)
-      .single();
+      .update({ 
+        is_tradable: true, 
+        trade_value: price 
+      })
+      .eq('id', cardId);
     
-    if (fetchError || !card) {
-      return { success: false, error: 'Card not found' };
-    }
+    if (error) throw error;
     
-    const tradeValue = calculateTradeValue(card);
-    
-    // Note: Marketplace fields (is_tradable, trade_value) will be added via migration
-    // For now, we calculate the value but don't store it
-    console.log(`Card ${cardId} marked tradable with value ${tradeValue}`);
-    
-    return { success: true, tradeValue };
-  } catch (error) {
-    return { success: false, error: 'Failed to mark card as tradable' };
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error listing card:', error);
+    return { success: false, error: error.message || 'Failed to list card' };
   }
 };
 
 /**
  * Remove a card from the marketplace
  */
-export const unmarkCardTradable = async (cardId: string): Promise<{ success: boolean; error?: string }> => {
-  // Note: Marketplace fields will be added via migration
-  console.log(`Card ${cardId} unmarked as tradable`);
-  return { success: true };
+export const unlistCard = async (cardId: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const { error } = await supabase
+      .from('dynamic_cards')
+      .update({ 
+        is_tradable: false, 
+        trade_value: 0 
+      })
+      .eq('id', cardId);
+    
+    if (error) throw error;
+    
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Failed to unlist card' };
+  }
 };
 
 /**
@@ -123,24 +130,66 @@ export const canAffordCard = (playerSpores: number, cardPrice: number): boolean 
 };
 
 /**
- * Simulate a trade transaction (placeholder for future implementation)
+ * Purchase a card from the marketplace
  */
-export const simulateTrade = (
-  card: any,
-  seller: { id: string; spores: number },
-  buyer: { id: string; spores: number }
-): { success: boolean; message: string } => {
-  const tradeValue = card.trade_value || calculateTradeValue(card);
-  
-  if (!canAffordCard(buyer.spores, tradeValue)) {
-    return {
-      success: false,
-      message: `Insufficient spores. Need ${tradeValue}, have ${buyer.spores}`
-    };
+export const purchaseCard = async (cardId: string, buyerId: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    // Get card details
+    const { data: card, error: cardError } = await supabase
+      .from('dynamic_cards')
+      .select('*')
+      .eq('id', cardId)
+      .single();
+    
+    if (cardError || !card) {
+      return { success: false, error: 'Card not found' };
+    }
+
+    // Get buyer's current spores (from game_states or game store)
+    const { data: buyerState } = await supabase
+      .from('game_states')
+      .select('spores')
+      .eq('session_id', buyerId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    const buyerSpores = buyerState?.spores || 0;
+
+    if (buyerSpores < card.trade_value) {
+      return { success: false, error: 'Not enough spores' };
+    }
+
+    // Update ownership history
+    const newHistory: any[] = Array.isArray(card.ownership_history) 
+      ? [...card.ownership_history]
+      : [];
+    
+    newHistory.push({
+      fromPlayer: card.player_id,
+      toPlayer: buyerId,
+      price: card.trade_value,
+      date: new Date().toISOString()
+    });
+
+    // Transfer card ownership and unlist
+    const { error: updateError } = await supabase
+      .from('dynamic_cards')
+      .update({
+        player_id: buyerId,
+        is_tradable: false,
+        ownership_history: newHistory
+      })
+      .eq('id', cardId);
+
+    if (updateError) throw updateError;
+
+    // Deduct spores from buyer (game store will handle this via processGameEvents)
+    // This is a simplified version - in production, use a database transaction
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error('Purchase error:', error);
+    return { success: false, error: error.message || 'Failed to purchase card' };
   }
-  
-  return {
-    success: true,
-    message: `Trade successful! ${card.title} transferred for ${tradeValue} spores`
-  };
 };
