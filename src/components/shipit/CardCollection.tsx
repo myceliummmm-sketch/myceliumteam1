@@ -297,16 +297,69 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
             onSemanticSearch={handleSemanticSearch}
             isLoading={isSearching}
           />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-            className="h-9 w-9"
-            title="Switch View Mode"
-          >
-            {viewMode === 'list' ? <LayoutGrid className="h-4 w-4" /> : <List className="h-4 w-4" />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('list')}
+              className="h-9 w-9"
+              title="List View"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('grid')}
+              className="h-9 w-9"
+              title="Grid View"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'decks' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('decks')}
+              className="h-9 w-9"
+              title="Deck View"
+            >
+              <Package className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+        
+        {/* Deck Grouping Selector - Only visible in decks view */}
+        {viewMode === 'decks' && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-mono">GROUP BY:</span>
+            <div className="flex gap-1">
+              <Button
+                variant={deckGrouping === 'phase' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDeckGrouping('phase')}
+                className="text-xs font-mono h-7"
+              >
+                PHASE
+              </Button>
+              <Button
+                variant={deckGrouping === 'character' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDeckGrouping('character')}
+                className="text-xs font-mono h-7"
+              >
+                CHARACTER
+              </Button>
+              <Button
+                variant={deckGrouping === 'type' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDeckGrouping('type')}
+                className="text-xs font-mono h-7"
+              >
+                TYPE
+              </Button>
+            </div>
+          </div>
+        )}
         
         <div className="flex items-center gap-2">
           <Button

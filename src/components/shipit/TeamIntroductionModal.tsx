@@ -125,7 +125,14 @@ export function TeamIntroductionModal({ open, onComplete }: TeamIntroductionModa
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-end pt-6">
+              <div className="flex justify-between pt-6">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => handleChoice(false)}
+                  className="text-muted-foreground"
+                >
+                  Skip Introduction
+                </Button>
                 <Button onClick={handleNext} size="lg" className="gap-2">
                   Next
                   <ChevronRight className="h-4 w-4" />
