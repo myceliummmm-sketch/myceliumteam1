@@ -5,6 +5,7 @@ import { useGameStore } from '@/stores/gameStore';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 export function GenerateCardButton() {
   const { user } = useAuth();
@@ -78,15 +79,57 @@ export function GenerateCardButton() {
   const canGenerate = messages.length >= 3 && !isGenerating;
 
   return (
-    <Button
-      onClick={handleGenerateCard}
-      disabled={!canGenerate}
-      className="gap-2 bg-cyan-500/90 hover:bg-cyan-500 text-black font-semibold shadow-lg hover:shadow-cyan-500/50 transition-all disabled:opacity-50"
-      size="lg"
-      title={!canGenerate ? 'Need at least 3 messages to generate a card' : 'Generate a card from recent conversation'}
+    <motion.div
+      className="relative"
+      animate={canGenerate ? {
+        scale: [1, 1.02, 1],
+      } : {}}
+      transition={{
+        duration: 2,
+        repeat: canGenerate ? Infinity : 0,
+        ease: "easeInOut"
+      }}
     >
-      <Sparkles className="h-5 w-5" />
-      {isGenerating ? 'Generating...' : 'Generate Card'}
-    </Button>
+      {/* Ping ring effect */}
+      {canGenerate && (
+        <span className="absolute inset-0 rounded-md bg-cyan-500 animate-ping-cyan opacity-75"></span>
+      )}
+      
+      {/* Shimmer overlay */}
+      {canGenerate && (
+        <div 
+          className="absolute inset-0 rounded-md overflow-hidden pointer-events-none"
+          style={{
+            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 3s linear infinite'
+          }}
+        />
+      )}
+      
+      <Button
+        onClick={handleGenerateCard}
+        disabled={!canGenerate}
+        className={`relative gap-2 bg-cyan-500/90 hover:bg-cyan-500 text-black font-semibold shadow-lg hover:shadow-cyan-500/50 transition-all disabled:opacity-50 ${
+          canGenerate ? 'animate-glow-pulse' : ''
+        }`}
+        size="lg"
+        title={!canGenerate ? 'Need at least 3 messages to generate a card' : 'Generate a card from recent conversation'}
+      >
+        <motion.div
+          animate={canGenerate ? {
+            rotate: [0, -10, 10, -10, 0],
+          } : {}}
+          transition={{
+            duration: 1,
+            repeat: canGenerate ? Infinity : 0,
+            ease: "easeInOut"
+          }}
+        >
+          <Sparkles className="h-5 w-5" />
+        </motion.div>
+        {isGenerating ? 'Generating...' : 'Generate Card'}
+      </Button>
+    </motion.div>
   );
 }
