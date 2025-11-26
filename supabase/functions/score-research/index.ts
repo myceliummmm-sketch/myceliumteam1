@@ -24,15 +24,21 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) throw new Error('No authorization header');
 
-    // Use service role key since JWT is already verified by edge runtime
+    // Extract JWT token
+    const token = authHeader.replace('Bearer ', '');
+
+    // Use service role key for database operations (JWT already validated by edge runtime)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
+    // Get user from JWT token
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      throw new Error('Not authenticated');
+    }
 
     // Get session context
     const { data: session } = await supabase
