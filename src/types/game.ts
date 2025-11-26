@@ -328,6 +328,9 @@ export interface GameState {
   showChatOnboarding: boolean;
   hasSeenChatOnboarding: boolean;
   showResearchJourney: boolean;
+  
+  // Liked cards from swipe game
+  likedCards: any[];
 }
 
 export interface VisionSubStageProgress {

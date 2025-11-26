@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ShoppingCart, TrendingUp, Filter } from 'lucide-react';
+import { Loader2, ShoppingCart, TrendingUp, Filter, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -16,6 +16,8 @@ import { useGameStore } from '@/stores/gameStore';
 export default function Marketplace() {
   const { user } = useAuth();
   const spores = useGameStore(state => state.spores);
+  const likedCards = useGameStore(state => state.likedCards);
+  const removeLikedCard = useGameStore(state => state.removeLikedCard);
   const [loading, setLoading] = useState(true);
   const [marketplaceCards, setMarketplaceCards] = useState<any[]>([]);
   const [myListings, setMyListings] = useState<any[]>([]);
@@ -129,10 +131,14 @@ export default function Marketplace() {
       </div>
 
       <Tabs defaultValue="browse" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="browse">
             <TrendingUp className="h-4 w-4 mr-2" />
             Browse ({filteredMarketplace.length})
+          </TabsTrigger>
+          <TabsTrigger value="wishlist">
+            <Heart className="h-4 w-4 mr-2" />
+            Wishlist ({likedCards.length})
           </TabsTrigger>
           <TabsTrigger value="listings">
             My Listings ({myListings.length})
@@ -204,6 +210,75 @@ export default function Marketplace() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="wishlist">
+          <ScrollArea className="h-[calc(100vh-300px)]">
+            {likedCards.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Heart className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground mb-4">Your wishlist is empty</p>
+                <p className="text-sm text-muted-foreground">
+                  Like cards during research loading screens to save them here!
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-muted-foreground">
+                    Cards you liked during research • Check marketplace for availability
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const store = useGameStore.getState();
+                      store.clearLikedCards();
+                      toast.success('Wishlist cleared');
+                    }}
+                  >
+                    Clear All
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {likedCards.map((card: any) => (
+                    <div key={card.id} className="relative">
+                      <Card className={`p-4 border-2 ${
+                        card.rarity === 'legendary' ? 'border-amber-500/50 bg-amber-500/5' :
+                        card.rarity === 'epic' ? 'border-purple-500/50 bg-purple-500/5' :
+                        card.rarity === 'rare' ? 'border-blue-500/50 bg-blue-500/5' :
+                        'border-slate-500/50 bg-slate-500/5'
+                      }`}>
+                        <Badge variant="outline" className="mb-2">
+                          {card.rarity?.toUpperCase()}
+                        </Badge>
+                        <h3 className="font-bold mb-2">{card.title}</h3>
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {card.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold text-primary">
+                            💰 ~{card.estimatedPrice} spores
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              removeLikedCard(card.id);
+                              toast.success('Removed from wishlist');
+                            }}
+                          >
+                            <Heart className="w-4 h-4 fill-pink-500 text-pink-500" />
+                          </Button>
+                        </div>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </ScrollArea>
