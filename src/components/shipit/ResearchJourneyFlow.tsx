@@ -72,8 +72,10 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
 
       if (error) throw error;
 
+      // Success - cards are automatically added to the store via realtime
       toast.success(`Generated ${data.cards?.length || 0} research findings!`);
       setResearchPhase('raw');
+      setIsProcessing(false);
     } catch (error) {
       console.error('Research error:', error);
       toast.error('Failed to generate research. Please try again.');
@@ -125,6 +127,7 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
               {/* Progress Timeline */}
               <ResearchProgressTimeline 
                 currentStage={1}
+                isComplete={!isProcessing && researchRawCards.length > 0}
                 onStageChange={(stage) => {
                   if (stage === 4 && researchRawCards.length > 0) {
                     // Research complete

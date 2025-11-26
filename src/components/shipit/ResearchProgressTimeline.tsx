@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 interface ResearchProgressTimelineProps {
   currentStage: number;
   onStageChange?: (stage: number) => void;
+  isComplete?: boolean;
 }
 
 const STAGES = [
@@ -44,11 +45,18 @@ const STAGES = [
   }
 ];
 
-export const ResearchProgressTimeline = ({ currentStage, onStageChange }: ResearchProgressTimelineProps) => {
+export const ResearchProgressTimeline = ({ currentStage, onStageChange, isComplete = false }: ResearchProgressTimelineProps) => {
   const [localStage, setLocalStage] = useState(currentStage);
   const [stageProgress, setStageProgress] = useState(0);
 
   useEffect(() => {
+    // If complete, jump to end
+    if (isComplete) {
+      setLocalStage(STAGES.length);
+      setStageProgress(100);
+      return;
+    }
+
     // Simulate stage progression with estimated times
     const currentStageData = STAGES[localStage - 1];
     if (!currentStageData) return;
@@ -73,7 +81,7 @@ export const ResearchProgressTimeline = ({ currentStage, onStageChange }: Resear
     }, interval);
 
     return () => clearInterval(timer);
-  }, [localStage, onStageChange]);
+  }, [localStage, onStageChange, isComplete]);
 
   const overallProgress = ((localStage - 1) / STAGES.length) * 100 + (stageProgress / STAGES.length);
 

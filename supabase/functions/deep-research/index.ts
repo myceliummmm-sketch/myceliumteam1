@@ -116,39 +116,9 @@ Return ONLY a JSON array of 6-8 research findings. No other text.`;
       throw new Error('Invalid JSON response from AI');
     }
 
-    // Create RAW_RESEARCH cards
+    // Create INSIGHT cards (without artwork for speed)
     const cards = [];
     for (const finding of findings) {
-      // Generate artwork for each card
-      const artworkPrompt = `Create a modern, abstract illustration representing this research finding: "${finding.title}". 
-Style: Clean, professional, data-driven aesthetic with subtle geometric patterns. 
-Color scheme: Cool blues and teals with white accents. 
-Mood: Analytical, insightful, discovering hidden patterns.
-No text, no people, just abstract visual metaphor.`;
-
-      let artworkUrl = null;
-      try {
-        const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image',
-            messages: [{ role: 'user', content: artworkPrompt }],
-            modalities: ['image', 'text']
-          })
-        });
-
-        if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          artworkUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
-        }
-      } catch (error) {
-        console.error('Error generating artwork:', error);
-      }
-
       // Insert card into database
       const { data: card, error: cardError } = await supabase
         .from('dynamic_cards')
@@ -163,7 +133,7 @@ No text, no people, just abstract visual metaphor.`;
           description: `Category: ${finding.research_category} | Confidence: ${finding.confidence_level}`,
           tags: [finding.research_category, finding.confidence_level, 'research', 'unscored'],
           visual_theme: 'cyan',
-          artwork_url: artworkUrl,
+          artwork_url: null,
           auto_generated: true,
           event_data: {
             research_category: finding.research_category,
