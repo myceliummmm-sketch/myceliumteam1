@@ -4,7 +4,7 @@ import { getStageTip } from './stageTips';
 
 // Calculate phase progress based on tasks and milestones
 export function calculatePhaseProgress(state: GameState): number {
-  const phaseTasks = state.currentTasks.filter(t => t.phase === state.currentPhase);
+  const phaseTasks = (state.currentTasks || []).filter(t => t.phase === state.currentPhase);
   if (phaseTasks.length === 0) return 0;
   const completed = phaseTasks.filter(t => t.completed).length;
   return Math.round((completed / phaseTasks.length) * 100);
