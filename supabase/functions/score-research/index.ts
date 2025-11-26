@@ -47,23 +47,43 @@ serve(async (req) => {
       .eq('id', sessionId)
       .single();
 
-    // Get raw research cards
-    const { data: rawCards } = await supabase
+    // Get raw research cards - log for debugging
+    console.log('Fetching cards with IDs:', cardIds);
+    
+    const { data: rawCards, error: fetchError } = await supabase
       .from('dynamic_cards')
       .select('*')
-      .in('id', cardIds)
-      .eq('card_type', 'RAW_RESEARCH');
+      .in('id', cardIds);
+
+    console.log('Fetched cards:', rawCards?.length || 0, 'Error:', fetchError);
+    
+    if (rawCards && rawCards.length > 0) {
+      console.log('Card types found:', rawCards.map(c => c.card_type));
+    }
 
     if (!rawCards || rawCards.length === 0) {
-      throw new Error('No raw research cards found');
+      throw new Error(`No cards found with provided IDs. Received ${cardIds.length} IDs.`);
     }
+    
+    // Filter for research cards (could be RAW_RESEARCH or RESEARCH_RAW)
+    const researchCards = rawCards.filter(card => 
+      card.card_type === 'RAW_RESEARCH' || 
+      card.card_type === 'RESEARCH_RAW' ||
+      card.card_type?.includes('RESEARCH')
+    );
+    
+    if (researchCards.length === 0) {
+      throw new Error(`Found ${rawCards.length} cards but none are research cards. Types: ${rawCards.map(c => c.card_type).join(', ')}`);
+    }
+    
+    console.log(`Processing ${researchCards.length} research cards`);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
     const insightCards = [];
 
-    for (const rawCard of rawCards) {
+    for (const rawCard of researchCards) {
       // Score each research finding
       const scoringPrompt = `Evaluate this research finding for a product startup:
 
