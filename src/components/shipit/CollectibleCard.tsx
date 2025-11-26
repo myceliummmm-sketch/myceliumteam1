@@ -23,6 +23,7 @@ interface CollectibleCardProps {
     artwork_url?: string | null;
   };
   isNew?: boolean;
+  size?: 'default' | 'compact' | 'thumbnail';
 }
 
 const cardTypeIcons = {
@@ -82,8 +83,39 @@ const rarityStyles = {
   },
 };
 
-export function CollectibleCard({ card, onClick, isNew = false }: CollectibleCardProps & { onClick?: () => void }) {
+const sizeStyles = {
+  default: {
+    aspect: 'aspect-[3/4]',
+    padding: 'px-3 py-2',
+    badgeText: 'text-xs',
+    emoji: 'text-xl',
+    artworkEmoji: 'text-6xl',
+    statsText: 'text-xs',
+    artworkPlaceholder: 'text-xs',
+  },
+  compact: {
+    aspect: 'aspect-[3/4]',
+    padding: 'px-2 py-1.5',
+    badgeText: 'text-[10px]',
+    emoji: 'text-base',
+    artworkEmoji: 'text-4xl',
+    statsText: 'text-[10px]',
+    artworkPlaceholder: 'text-[10px]',
+  },
+  thumbnail: {
+    aspect: 'aspect-[3/4]',
+    padding: 'px-1.5 py-1',
+    badgeText: 'text-[8px]',
+    emoji: 'text-sm',
+    artworkEmoji: 'text-2xl',
+    statsText: 'text-[8px]',
+    artworkPlaceholder: 'text-[8px]',
+  },
+};
+
+export function CollectibleCard({ card, onClick, isNew = false, size = 'default' }: CollectibleCardProps & { onClick?: () => void }) {
   const style = rarityStyles[card.rarity];
+  const sizeStyle = sizeStyles[size];
   const emoji = cardTypeEmoji[card.card_type];
   const [showAnimation, setShowAnimation] = useState(isNew);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -109,22 +141,24 @@ export function CollectibleCard({ card, onClick, isNew = false }: CollectibleCar
       className={`
         relative overflow-hidden border-2 ${style.border} ${style.glow}
         hover:scale-[1.02] transition-all duration-300 cursor-pointer group
-        aspect-[3/4] flex flex-col
+        ${sizeStyle.aspect} flex flex-col
       `}
     >
       {/* Scan line effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent animate-scan-line pointer-events-none" />
       
       {/* Top Bar - Type & Rarity */}
-      <div className="relative z-10 bg-gradient-to-b from-background/90 to-background/60 backdrop-blur-sm px-3 py-2 flex items-center justify-between border-b border-border/30">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{emoji}</span>
-          <Badge variant="outline" className={`text-xs font-mono ${style.text} border-current`}>
-            L{card.level}:{card.card_type}
-          </Badge>
+      <div className={`relative z-10 bg-gradient-to-b from-background/90 to-background/60 backdrop-blur-sm ${sizeStyle.padding} flex items-center justify-between border-b border-border/30`}>
+        <div className="flex items-center gap-1">
+          <span className={sizeStyle.emoji}>{emoji}</span>
+          {size !== 'thumbnail' && (
+            <Badge variant="outline" className={`${sizeStyle.badgeText} font-mono ${style.text} border-current`}>
+              L{card.level}:{card.card_type}
+            </Badge>
+          )}
         </div>
-        <Badge variant="outline" className={`font-mono text-xs ${style.text} border-current`}>
-          {card.rarity.toUpperCase()}
+        <Badge variant="outline" className={`font-mono ${sizeStyle.badgeText} ${style.text} border-current`}>
+          {size === 'thumbnail' ? card.rarity[0].toUpperCase() : card.rarity.toUpperCase()}
         </Badge>
       </div>
 
@@ -141,15 +175,17 @@ export function CollectibleCard({ card, onClick, isNew = false }: CollectibleCar
             />
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className={`text-6xl opacity-30 animate-pulse`}>{emoji}</div>
+                <div className={`${sizeStyle.artworkEmoji} opacity-30 animate-pulse`}>{emoji}</div>
               </div>
             )}
           </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted/20">
-            <div className="text-center space-y-2 px-4">
-              <div className={`text-6xl opacity-30`}>{emoji}</div>
-              <p className="text-xs font-mono text-muted-foreground/50">GENERATING ARTWORK...</p>
+            <div className="text-center space-y-1 px-2">
+              <div className={`${sizeStyle.artworkEmoji} opacity-30`}>{emoji}</div>
+              {size !== 'thumbnail' && (
+                <p className={`${sizeStyle.artworkPlaceholder} font-mono text-muted-foreground/50`}>GENERATING ARTWORK...</p>
+              )}
             </div>
           </div>
         )}
@@ -159,30 +195,43 @@ export function CollectibleCard({ card, onClick, isNew = false }: CollectibleCar
       </div>
 
       {/* Bottom Bar - Stats */}
-      <div className="relative z-10 bg-gradient-to-t from-background/90 to-background/60 backdrop-blur-sm px-3 py-2 border-t border-border/30">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            {card.average_score && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">SCORE</span>
-                <div className="flex-1 h-1 bg-background/50 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${style.bg} transition-all`}
-                    style={{ width: `${(card.average_score / 10) * 100}%` }}
-                  />
-                </div>
-                <span className={`text-xs font-mono font-bold ${style.text} whitespace-nowrap`}>
+      <div className={`relative z-10 bg-gradient-to-t from-background/90 to-background/60 backdrop-blur-sm ${sizeStyle.padding} border-t border-border/30`}>
+        <div className="flex items-center justify-between gap-1">
+          {size !== 'thumbnail' ? (
+            <>
+              <div className="flex-1 min-w-0">
+                {card.average_score && (
+                  <div className="flex items-center gap-2">
+                    <span className={`${sizeStyle.statsText} font-mono text-muted-foreground whitespace-nowrap`}>SCORE</span>
+                    <div className="flex-1 h-1 bg-background/50 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${style.bg} transition-all`}
+                        style={{ width: `${(card.average_score / 10) * 100}%` }}
+                      />
+                    </div>
+                    <span className={`${sizeStyle.statsText} font-mono font-bold ${style.text} whitespace-nowrap`}>
+                      {card.average_score.toFixed(1)}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className={`flex items-center gap-2 ${sizeStyle.statsText} font-mono text-muted-foreground`}>
+                {card.created_by_character && (
+                  <span className={`${style.text}`}>🔥</span>
+                )}
+                <span className="whitespace-nowrap">{card.times_used}x</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-between w-full">
+              {card.average_score && (
+                <span className={`${sizeStyle.statsText} font-mono font-bold ${style.text}`}>
                   {card.average_score.toFixed(1)}
                 </span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
-            {card.created_by_character && (
-              <span className={`${style.text}`}>🔥</span>
-            )}
-            <span className="whitespace-nowrap">{card.times_used}x</span>
-          </div>
+              )}
+              <span className={`${sizeStyle.statsText} font-mono text-muted-foreground`}>{card.times_used}x</span>
+            </div>
+          )}
         </div>
       </div>
 

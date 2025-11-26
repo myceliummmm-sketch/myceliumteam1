@@ -67,16 +67,17 @@ export function SimilarCardsPanel({ cardId, onCardClick }: SimilarCardsPanelProp
         <Link2 className="h-4 w-4" />
         SIMILAR CARDS
       </h3>
-      <div className="grid gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-2">
         {similarCards.map(card => (
-          <div key={card.id} className="relative">
+          <div key={card.id} className="relative flex-shrink-0 w-[120px]">
             <CollectibleCard 
               card={card}
+              size="thumbnail"
               onClick={() => onCardClick?.(card)}
             />
-            <div className="absolute top-2 right-2">
-              <span className="text-[10px] font-mono bg-background/80 backdrop-blur-sm px-1.5 py-0.5 rounded border border-border">
-                {(card.similarity * 100).toFixed(0)}% match
+            <div className="absolute top-1 right-1">
+              <span className="text-[8px] font-mono bg-background/90 backdrop-blur-sm px-1 py-0.5 rounded border border-border">
+                {(card.similarity * 100).toFixed(0)}%
               </span>
             </div>
           </div>
