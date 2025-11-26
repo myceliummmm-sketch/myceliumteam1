@@ -102,7 +102,10 @@ Return ONLY a JSON array of 6-8 research findings. No other text.`;
     }
 
     const aiData = await aiResponse.json();
-    const researchText = aiData.choices[0].message.content;
+    let researchText = aiData.choices[0].message.content;
+    
+    // Strip markdown code blocks if present
+    researchText = researchText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
     
     // Parse JSON response
     let findings;
