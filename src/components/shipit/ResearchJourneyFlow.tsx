@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { CardSwipeGame } from "./CardSwipeGame";
 import { ResearchProgressTimeline } from "./ResearchProgressTimeline";
+import { DYNAMIC_CARD_COLUMNS } from "@/lib/cardColumns";
 
 interface ResearchJourneyFlowProps {
   open: boolean;
@@ -111,7 +112,7 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
       while (attempts < maxAttempts) {
         const { data: insightCards } = await supabase
           .from('dynamic_cards')
-          .select('*')
+          .select(DYNAMIC_CARD_COLUMNS)
           .eq('session_id', sessionId)
           .eq('card_type', 'RESEARCH_INSIGHT')
           .order('created_at', { ascending: false });
@@ -163,7 +164,7 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
     const pollForPerspectives = async () => {
       const { data } = await supabase
         .from('dynamic_cards')
-        .select('*')
+        .select(DYNAMIC_CARD_COLUMNS)
         .eq('session_id', sessionId)
         .eq('card_type', 'TEAM_PERSPECTIVE')
         .order('created_at', { ascending: false });
