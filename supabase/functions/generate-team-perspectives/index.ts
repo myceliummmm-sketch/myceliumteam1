@@ -86,7 +86,7 @@ serve(async (req) => {
 
     const { data: insightCards } = await supabase
       .from('dynamic_cards')
-      .select('*')
+      .select('id, title, content, description, card_type, level, rarity, average_score, event_data, session_id')
       .in('id', insightCardIds)
       .eq('card_type', 'RESEARCH_INSIGHT');
 

@@ -8,6 +8,7 @@ import { Loader2, ShoppingCart, TrendingUp, Filter, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { DYNAMIC_CARD_COLUMNS } from '@/lib/cardColumns';
 import { FlippableCard } from '@/components/shipit/FlippableCard';
 import { ListCardModal } from '@/components/shipit/ListCardModal';
 import { purchaseCard, unlistCard } from '@/lib/marketplaceSystem';
@@ -46,7 +47,7 @@ export default function Marketplace() {
       // Load all tradable cards (marketplace browse)
       const { data: allTradable, error: tradableError } = await supabase
         .from('dynamic_cards')
-        .select('*')
+        .select(DYNAMIC_CARD_COLUMNS)
         .eq('is_tradable', true)
         .neq('player_id', user.id); // Exclude own cards from browse
 
@@ -55,7 +56,7 @@ export default function Marketplace() {
       // Load user's listings
       const { data: myCards, error: myError } = await supabase
         .from('dynamic_cards')
-        .select('*')
+        .select(DYNAMIC_CARD_COLUMNS)
         .eq('player_id', user.id)
         .eq('is_tradable', true);
 
