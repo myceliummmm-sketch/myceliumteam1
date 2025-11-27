@@ -66,7 +66,7 @@ serve(async (req) => {
     
     const { data: rawCards, error: fetchError } = await supabase
       .from('dynamic_cards')
-      .select('*')
+      .select('id, title, content, description, card_type, tags, level, rarity, event_data, session_id, player_id')
       .in('id', cardIds);
 
     console.log('Fetched cards:', rawCards?.length || 0, 'Error:', fetchError);

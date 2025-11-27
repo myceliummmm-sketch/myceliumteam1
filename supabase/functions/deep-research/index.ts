@@ -37,7 +37,7 @@ serve(async (req) => {
     // Get VISION cards for context
     const { data: visionCards } = await supabase
       .from('dynamic_cards')
-      .select('*')
+      .select('id, title, content, description, card_type, tags, level, rarity')
       .eq('player_id', user.id)
       .eq('session_id', sessionId)
       .eq('card_type', 'IDEA')
