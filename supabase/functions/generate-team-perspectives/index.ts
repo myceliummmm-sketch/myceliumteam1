@@ -60,15 +60,22 @@ serve(async (req) => {
     const { insightCardIds, sessionId } = await req.json();
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) throw new Error('No authorization header');
-
+    
+    // Extract JWT token
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Use service role key for database operations
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
+    // Get user from JWT token
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      throw new Error('Not authenticated');
+    }
 
     // Get session and insight cards
     const { data: session } = await supabase
@@ -236,7 +243,7 @@ No text, stylized character portrait.`;
     return new Response(
       JSON.stringify({
         success: true,
-        perspectives: perspectiveCards,
+        perspectiveCards: perspectiveCards,
         message: `Generated ${perspectiveCards.length} team perspective cards`,
         xp_reward: xpReward
       }),
