@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Sparkles, BarChart3, Users, Trophy, ArrowRight, ArrowLeft } from "lucide-react";
+import { Search, Sparkles, BarChart3, Users, Trophy, ArrowRight, ArrowLeft, RefreshCw } from "lucide-react";
 import { ResearchTemplate, getTemplatesByStep, fillTemplate } from "@/lib/researchTemplates";
 import { useGameStore } from "@/stores/gameStore";
 import { toast } from "sonner";
@@ -34,12 +34,14 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
   const [selectedTemplate, setSelectedTemplate] = useState<ResearchTemplate | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isStuckAtStep4, setIsStuckAtStep4] = useState(false);
   
   const { 
     researchRawCards, 
     researchInsightCards, 
     researchPerspectiveCards,
     triggerScoreResearch,
+    triggerTeamPerspectives,
     setResearchPhase,
     setResearchCards
   } = useGameStore();
@@ -115,9 +117,13 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
           .order('created_at', { ascending: false });
         
         if (insightCards && insightCards.length > 0) {
-          // Update store with insight cards
-          setResearchCards(researchRawCards, insightCards, []);
+          // Update store with insight cards - preserve existing perspective cards
+          setResearchCards(researchRawCards, insightCards, researchPerspectiveCards);
           toast.success(`${insightCards.length} insights evaluated!`);
+          
+          // Trigger team perspectives generation
+          const insightIds = insightCards.map(c => c.id);
+          triggerTeamPerspectives(insightIds, sessionId);
           break;
         }
         
@@ -137,14 +143,76 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
 
   // Removed broken auto-advance useEffect - now advancing directly in handleStartResearch
 
+  // Auto-advance to step 5 when we have perspective cards
   useEffect(() => {
-    // Auto-advance to step 5 when we have perspective cards
     if (currentStep === 4 && researchPerspectiveCards.length > 0) {
+      setIsStuckAtStep4(false);
       setTimeout(() => {
         setCurrentStep(5);
       }, 1000);
     }
   }, [researchPerspectiveCards, currentStep]);
+
+  // Fallback polling for team perspective cards at Step 4
+  useEffect(() => {
+    if (currentStep !== 4 || researchPerspectiveCards.length > 0) return;
+    
+    let pollCount = 0;
+    const maxPolls = 20; // 60 seconds max
+    
+    const pollForPerspectives = async () => {
+      const { data } = await supabase
+        .from('dynamic_cards')
+        .select('*')
+        .eq('session_id', sessionId)
+        .eq('card_type', 'TEAM_PERSPECTIVE')
+        .order('created_at', { ascending: false });
+      
+      if (data && data.length > 0) {
+        setResearchCards(researchRawCards, researchInsightCards, data);
+        clearInterval(pollInterval);
+        clearTimeout(stuckTimeout);
+      }
+      
+      pollCount++;
+      if (pollCount >= maxPolls) {
+        clearInterval(pollInterval);
+      }
+    };
+    
+    const pollInterval = setInterval(pollForPerspectives, 3000);
+    
+    // Mark as stuck after 30 seconds
+    const stuckTimeout = setTimeout(() => {
+      setIsStuckAtStep4(true);
+    }, 30000);
+    
+    return () => {
+      clearInterval(pollInterval);
+      clearTimeout(stuckTimeout);
+    };
+  }, [currentStep, researchPerspectiveCards.length, sessionId, researchRawCards, researchInsightCards]);
+
+  const handleRetryPerspectives = async () => {
+    if (researchInsightCards.length === 0) {
+      toast.error("No insight cards to generate perspectives from");
+      return;
+    }
+    
+    setIsStuckAtStep4(false);
+    setIsProcessing(true);
+    
+    try {
+      const insightIds = researchInsightCards.map(c => c.id);
+      await triggerTeamPerspectives(insightIds, sessionId);
+      toast.success("Retrying team perspectives generation...");
+    } catch (error) {
+      console.error('Retry error:', error);
+      toast.error('Failed to retry. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -354,6 +422,26 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
               Your advisory team is analyzing the insights
             </p>
             <Progress value={researchPerspectiveCards.length > 0 ? 100 : 50} className="h-2 max-w-md mx-auto" />
+            
+            {isStuckAtStep4 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 space-y-3"
+              >
+                <p className="text-sm text-muted-foreground">
+                  Taking longer than expected...
+                </p>
+                <Button 
+                  onClick={handleRetryPerspectives}
+                  disabled={isProcessing}
+                  variant="outline"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  {isProcessing ? 'Retrying...' : 'Retry Generation'}
+                </Button>
+              </motion.div>
+            )}
           </div>
         );
 
