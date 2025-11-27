@@ -20,6 +20,7 @@ import { VersionTogglePanel } from './VersionTogglePanel';
 import { motion } from 'framer-motion';
 import { SemanticSearchBar } from './SemanticSearchBar';
 import { DuplicateDetectionAlert } from './DuplicateDetectionAlert';
+import { DYNAMIC_CARD_COLUMNS } from '@/lib/cardColumns';
 
 interface DynamicCard {
   id: string;
@@ -116,7 +117,7 @@ export function CardCollection({ collapsed = false, onToggle }: CardCollectionPr
       setLoading(true);
       const { data, error } = await supabase
         .from('dynamic_cards')
-        .select('*')
+        .select(DYNAMIC_CARD_COLUMNS)
         .eq('player_id', user?.id)
         .eq('is_archived', false)
         .order('created_at', { ascending: false });

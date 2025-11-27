@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { DYNAMIC_CARD_COLUMNS } from "./cardColumns";
 
 export interface MarketplaceListing {
   id: string;
@@ -137,7 +138,7 @@ export const purchaseCard = async (cardId: string, buyerId: string): Promise<{ s
     // Get card details
     const { data: card, error: cardError } = await supabase
       .from('dynamic_cards')
-      .select('*')
+      .select(DYNAMIC_CARD_COLUMNS)
       .eq('id', cardId)
       .single();
     

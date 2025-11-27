@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { DuplicateReviewModal } from './DuplicateReviewModal';
+import { DYNAMIC_CARD_COLUMNS } from '@/lib/cardColumns';
 
 export function DuplicateDetectionAlert() {
   const { user } = useAuth();
@@ -24,8 +25,8 @@ export function DuplicateDetectionAlert() {
         .from('card_duplicates')
         .select(`
           *,
-          card_1:dynamic_cards!card_duplicates_card_id_1_fkey(*),
-          card_2:dynamic_cards!card_duplicates_card_id_2_fkey(*)
+          card_1:dynamic_cards!card_duplicates_card_id_1_fkey(${DYNAMIC_CARD_COLUMNS}),
+          card_2:dynamic_cards!card_duplicates_card_id_2_fkey(${DYNAMIC_CARD_COLUMNS})
         `)
         .eq('status', 'pending');
 

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { CollectibleCard } from './CollectibleCard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { DYNAMIC_CARD_COLUMNS } from '@/lib/cardColumns';
 
 interface DuplicateReviewModalProps {
   open: boolean;
@@ -30,8 +31,8 @@ export function DuplicateReviewModal({ open, onClose, onUpdate }: DuplicateRevie
         .from('card_duplicates')
         .select(`
           *,
-          card_1:dynamic_cards!card_duplicates_card_id_1_fkey(*),
-          card_2:dynamic_cards!card_duplicates_card_id_2_fkey(*)
+          card_1:dynamic_cards!card_duplicates_card_id_1_fkey(${DYNAMIC_CARD_COLUMNS}),
+          card_2:dynamic_cards!card_duplicates_card_id_2_fkey(${DYNAMIC_CARD_COLUMNS})
         `)
         .eq('status', 'pending')
         .order('similarity_score', { ascending: false });
