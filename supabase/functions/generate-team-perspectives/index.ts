@@ -102,11 +102,13 @@ serve(async (req) => {
       `• ${card.title} (Score: ${card.average_score?.toFixed(1)}/10)\n  ${card.content}`
     ).join('\n\n');
 
-    const perspectiveCards = [];
+    console.log(`Generating ${TEAM_MEMBERS.length} team perspectives in parallel`);
 
-    for (const member of TEAM_MEMBERS) {
-      // Generate perspective for this team member
-      const perspectivePrompt = `You are ${member.name}, the team's ${member.role} expert.
+    // Process all team members in parallel for speed
+    const perspectivePromises = TEAM_MEMBERS.map(async (member) => {
+      try {
+        // Generate perspective for this team member
+        const perspectivePrompt = `You are ${member.name}, the team's ${member.role} expert.
 
 PROJECT: ${session.project_name || 'Untitled'}
 DESCRIPTION: ${session.project_description || 'No description'}
@@ -129,113 +131,92 @@ Return ONLY a JSON object:
   "concern_or_opportunity": "Specific point to watch"
 }`;
 
-      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            { role: 'system', content: `You are ${member.name}, speaking from your expertise in ${member.role}. Always respond with valid JSON only.` },
-            { role: 'user', content: perspectivePrompt }
-          ],
-        }),
-      });
-
-      if (!aiResponse.ok) {
-        console.error('AI API Error for', member.name, ':', aiResponse.status);
-        continue;
-      }
-
-      const aiData = await aiResponse.json();
-      const perspectiveText = cleanJsonResponse(aiData.choices[0].message.content);
-      
-      let perspectiveData;
-      try {
-        perspectiveData = JSON.parse(perspectiveText);
-      } catch (e) {
-        console.error('Failed to parse perspective for', member.name, ':', perspectiveText);
-        continue;
-      }
-
-      // Format full content
-      const fullContent = `${perspectiveData.takeaway}\n\n${perspectiveData.recommendation}\n\n💡 ${perspectiveData.concern_or_opportunity}`;
-
-      // Generate character-themed artwork
-      const artworkPrompt = `Create an artistic portrait representing ${member.name}, the ${member.role} expert.
-Style: Bold, confident character portrait with abstract elements representing their expertise.
-Color scheme: ${member.color} tones with complementary accents.
-Mood: Professional, insightful, ${member.role.toLowerCase()}-focused.
-Include subtle visual metaphors for ${member.role}.
-No text, stylized character portrait.`;
-
-      let artworkUrl = null;
-      try {
-        const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${LOVABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image',
-            messages: [{ role: 'user', content: artworkPrompt }],
-            modalities: ['image', 'text']
-          })
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: `You are ${member.name}, speaking from your expertise in ${member.role}. Always respond with valid JSON only.` },
+              { role: 'user', content: perspectivePrompt }
+            ],
+          }),
         });
 
-        if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          artworkUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
+        if (!aiResponse.ok) {
+          console.error('AI API Error for', member.name, ':', aiResponse.status);
+          return null;
         }
+
+        const aiData = await aiResponse.json();
+        const perspectiveText = cleanJsonResponse(aiData.choices[0].message.content);
+        
+        let perspectiveData;
+        try {
+          perspectiveData = JSON.parse(perspectiveText);
+        } catch (e) {
+          console.error('Failed to parse perspective for', member.name, ':', perspectiveText);
+          return null;
+        }
+
+        // Format full content
+        const fullContent = `${perspectiveData.takeaway}\n\n${perspectiveData.recommendation}\n\n💡 ${perspectiveData.concern_or_opportunity}`;
+
+        // Score the perspective (simplified scoring)
+        const perspectiveScore = 7 + Math.random() * 2; // 7-9 range for team perspectives
+        const rarity = perspectiveScore >= 8.5 ? 'epic' : perspectiveScore >= 8 ? 'rare' : 'uncommon';
+
+        // Create TEAM_PERSPECTIVE card WITHOUT artwork (for speed)
+        const { data: perspectiveCard, error: cardError } = await supabase
+          .from('dynamic_cards')
+          .insert({
+            player_id: user.id,
+            session_id: sessionId,
+            card_type: 'TEAM_PERSPECTIVE',
+            level: insightCards[0].level,
+            rarity: rarity,
+            title: perspectiveData.title,
+            content: fullContent,
+            description: `${member.role} Perspective by ${member.name}`,
+            created_by_character: member.id,
+            tags: ['team_perspective', member.role.toLowerCase().replace(' ', '_'), 'research'],
+            visual_theme: member.color,
+            average_score: perspectiveScore,
+            artwork_url: null, // Skip artwork for speed
+            auto_generated: true,
+            event_data: {
+              team_member: member.id,
+              team_member_name: member.name,
+              role: member.role,
+              insight_card_ids: insightCardIds,
+              takeaway: perspectiveData.takeaway,
+              recommendation: perspectiveData.recommendation,
+              concern_or_opportunity: perspectiveData.concern_or_opportunity
+            }
+          })
+          .select()
+          .single();
+
+        if (cardError) {
+          console.error('Error creating perspective card:', cardError);
+          return null;
+        }
+
+        return perspectiveCard;
       } catch (error) {
-        console.error('Error generating artwork:', error);
+        console.error('Error generating perspective for', member.name, ':', error);
+        return null;
       }
+    });
 
-      // Score the perspective (simplified scoring)
-      const perspectiveScore = 7 + Math.random() * 2; // 7-9 range for team perspectives
-      const rarity = perspectiveScore >= 8.5 ? 'epic' : perspectiveScore >= 8 ? 'rare' : 'uncommon';
+    // Wait for all perspectives to complete
+    const perspectiveResults = await Promise.all(perspectivePromises);
+    const perspectiveCards = perspectiveResults.filter(card => card !== null);
 
-      // Create TEAM_PERSPECTIVE card
-      const { data: perspectiveCard, error: cardError } = await supabase
-        .from('dynamic_cards')
-        .insert({
-          player_id: user.id,
-          session_id: sessionId,
-          card_type: 'TEAM_PERSPECTIVE',
-          level: insightCards[0].level,
-          rarity: rarity,
-          title: perspectiveData.title,
-          content: fullContent,
-          description: `${member.role} Perspective by ${member.name}`,
-          created_by_character: member.id,
-          tags: ['team_perspective', member.role.toLowerCase().replace(' ', '_'), 'research'],
-          visual_theme: member.color,
-          average_score: perspectiveScore,
-          artwork_url: artworkUrl,
-          auto_generated: true,
-          event_data: {
-            team_member: member.id,
-            team_member_name: member.name,
-            role: member.role,
-            insight_card_ids: insightCardIds,
-            takeaway: perspectiveData.takeaway,
-            recommendation: perspectiveData.recommendation,
-            concern_or_opportunity: perspectiveData.concern_or_opportunity
-          }
-        })
-        .select()
-        .single();
-
-      if (cardError) {
-        console.error('Error creating perspective card:', cardError);
-        continue;
-      }
-
-      perspectiveCards.push(perspectiveCard);
-    }
+    console.log(`Successfully created ${perspectiveCards.length} perspective cards`);
 
     // Calculate XP rewards (30 XP per perspective)
     const xpReward = perspectiveCards.length * 30;

@@ -95,11 +95,44 @@ export const ResearchJourneyFlow = ({ open, onClose, sessionId }: ResearchJourne
     setIsProcessing(true);
     setCurrentStep(3);
     
-    const cardIds = researchRawCards.map(c => c.id);
-    await triggerScoreResearch(cardIds, sessionId);
-    
-    setIsProcessing(false);
-    setCurrentStep(4);
+    try {
+      const cardIds = researchRawCards.map(c => c.id);
+      await triggerScoreResearch(cardIds, sessionId);
+      
+      // Wait a bit for cards to be created, then poll database
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Poll for RESEARCH_INSIGHT cards (fallback if function times out)
+      let attempts = 0;
+      const maxAttempts = 15; // 30 seconds max
+      
+      while (attempts < maxAttempts) {
+        const { data: insightCards } = await supabase
+          .from('dynamic_cards')
+          .select('*')
+          .eq('session_id', sessionId)
+          .eq('card_type', 'RESEARCH_INSIGHT')
+          .order('created_at', { ascending: false });
+        
+        if (insightCards && insightCards.length > 0) {
+          // Update store with insight cards
+          setResearchCards(researchRawCards, insightCards, []);
+          toast.success(`${insightCards.length} insights evaluated!`);
+          break;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        attempts++;
+      }
+      
+      setIsProcessing(false);
+      setCurrentStep(4);
+    } catch (error) {
+      console.error('Evaluation error:', error);
+      toast.error('Evaluation failed. Please try again.');
+      setIsProcessing(false);
+      // Stay at step 3 so user can retry
+    }
   };
 
   // Removed broken auto-advance useEffect - now advancing directly in handleStartResearch
