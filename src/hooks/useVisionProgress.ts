@@ -104,11 +104,6 @@ export function useVisionProgress() {
             }
           : s
       ));
-
-      // Move to next stage if completed
-      if (cardId && subStageNumber < 4) {
-        setCurrentSubStage((subStageNumber + 1) as 1 | 2 | 3 | 4);
-      }
     }
   };
 
