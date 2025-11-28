@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     // Get all other cards with embeddings
     let queryBuilder = supabaseClient
       .from('dynamic_cards')
-      .select('*')
+      .select('id, title, content, description, card_type, rarity, level, artwork_url, session_id, player_id, times_used, is_tradable, is_archived, created_by_character, tags, visual_theme, embedding')
       .eq('player_id', sourceCard.player_id)
       .eq('is_archived', false)
       .not('embedding', 'is', null);
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
           similarity
         };
       })
-      .filter(card => card !== null)
+      .filter((card): card is NonNullable<typeof card> => card !== null)
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, limit);
 

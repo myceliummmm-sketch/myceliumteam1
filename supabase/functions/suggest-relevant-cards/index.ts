@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
     // Get all cards with embeddings
     const { data: cards, error } = await supabaseClient
       .from('dynamic_cards')
-      .select('*')
+      .select('id, title, content, description, card_type, rarity, level, artwork_url, session_id, player_id, times_used, is_tradable, is_archived, created_by_character, tags, visual_theme, embedding')
       .eq('player_id', user.id)
       .eq('is_archived', false)
       .not('embedding', 'is', null);
@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
           relevance_score: relevanceScore
         };
       })
-      .filter(card => card !== null && card.relevance_score >= 0.6)
+      .filter((card): card is NonNullable<typeof card> => card !== null && card.relevance_score >= 0.6)
       .sort((a, b) => {
         // Sort by relevance first, then prefer underutilized cards
         if (Math.abs(b.relevance_score - a.relevance_score) > 0.05) {

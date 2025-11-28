@@ -623,13 +623,13 @@ serve(async (req) => {
     // Fetch game context
     const { data: session } = await supabase
       .from('game_sessions')
-      .select('*')
+      .select('id, player_id, project_name, project_description, current_phase, is_active')
       .eq('id', sessionId)
       .single();
 
     const { data: gameState } = await supabase
       .from('game_states')
-      .select('*')
+      .select('id, session_id, current_phase, level, xp, energy, code_health, current_tasks, completed_tasks, blockers, boss_blockers_defeated, team_mood, current_stage_number, current_stage_progress, spores, streak')
       .eq('session_id', sessionId)
       .order('created_at', { ascending: false })
       .limit(1)
