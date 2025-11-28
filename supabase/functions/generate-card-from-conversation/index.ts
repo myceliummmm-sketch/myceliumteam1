@@ -5,6 +5,27 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Retry helper with exponential backoff for rate limiting
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const response = await fetch(url, options);
+    
+    if (response.ok) return response;
+    
+    if (response.status === 429 && attempt < maxRetries - 1) {
+      // Rate limited - wait with exponential backoff
+      const waitTime = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+      console.log(`Rate limited (attempt ${attempt + 1}/${maxRetries}), waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      continue;
+    }
+    
+    // Return response for other errors to handle downstream
+    return response;
+  }
+  throw new Error('Max retries exceeded');
+}
+
 interface Message {
   role: string;
   content: string;
@@ -318,14 +339,14 @@ Identify which team character would have created this card based on the content:
 Return your analysis as a JSON object.`;
     }
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetchWithRetry('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-flash-lite',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Generate the card based on the conversation above.' }
@@ -372,7 +393,13 @@ Return your analysis as a JSON object.`;
     });
 
     if (!aiResponse.ok) {
-      throw new Error(`AI API error: ${aiResponse.status}`);
+      const errorMsg = aiResponse.status === 429 
+        ? 'AI service is temporarily busy. Please try again in a moment.'
+        : aiResponse.status === 402
+        ? 'AI service requires additional credits. Please contact support.'
+        : `AI generation failed (${aiResponse.status})`;
+      console.error('AI API error:', aiResponse.status, await aiResponse.text());
+      throw new Error(errorMsg);
     }
 
     const aiData = await aiResponse.json();
@@ -473,7 +500,7 @@ Return your analysis as a JSON object.`;
       console.log('Generating artwork for card:', card.id);
       const artworkPrompt = buildArtworkPrompt(card, cardType, rarity, cardData.created_by_character);
       
-      const imageResponse = await fetch(
+      const imageResponse = await fetchWithRetry(
         'https://ai.gateway.lovable.dev/v1/chat/completions',
         {
           method: 'POST',
@@ -482,7 +509,7 @@ Return your analysis as a JSON object.`;
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image',
+            model: 'google/gemini-3-pro-image-preview',
             messages: [{ role: 'user', content: artworkPrompt }],
             modalities: ['image', 'text']
           })
