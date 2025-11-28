@@ -6,6 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Retry helper with exponential backoff for rate limiting
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const response = await fetch(url, options);
+    
+    if (response.ok) return response;
+    
+    if (response.status === 429 && attempt < maxRetries - 1) {
+      const waitTime = Math.pow(2, attempt) * 1000;
+      console.log(`Rate limited (attempt ${attempt + 1}/${maxRetries}), waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      continue;
+    }
+    
+    return response;
+  }
+  throw new Error('Max retries exceeded');
+}
+
 const SCORING_FACTORS = [
   { name: 'Relevance', description: 'How aligned to product problem?' },
   { name: 'Credibility', description: 'How trustworthy?' },
@@ -124,14 +143,14 @@ Return ONLY a JSON object with this structure:
   ]
 }`;
 
-        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const aiResponse = await fetchWithRetry('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${LOVABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'google/gemini-3-pro-preview',
             messages: [
               { role: 'system', content: 'You are a research evaluator. Always respond with valid JSON only.' },
               { role: 'user', content: scoringPrompt }

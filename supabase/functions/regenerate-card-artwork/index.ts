@@ -6,6 +6,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Retry helper with exponential backoff for rate limiting
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const response = await fetch(url, options);
+    
+    if (response.ok) return response;
+    
+    if (response.status === 429 && attempt < maxRetries - 1) {
+      const waitTime = Math.pow(2, attempt) * 1000;
+      console.log(`Rate limited (attempt ${attempt + 1}/${maxRetries}), waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      continue;
+    }
+    
+    return response;
+  }
+  throw new Error('Max retries exceeded');
+}
+
 function buildArtworkPrompt(card: any, cardType: string, rarity: string, character: string): string {
   // Card type symbols and visual concepts
   const cardTypeConcepts: Record<string, { symbol: string; scene: string }> = {
@@ -151,7 +170,7 @@ serve(async (req) => {
       );
     }
 
-    const imageResponse = await fetch(
+    const imageResponse = await fetchWithRetry(
       'https://ai.gateway.lovable.dev/v1/chat/completions',
       {
         method: 'POST',
@@ -160,7 +179,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash-image',
+          model: 'google/gemini-2.5-flash-image-preview',
           messages: [{ role: 'user', content: artworkPrompt }],
           modalities: ['image', 'text']
         })
