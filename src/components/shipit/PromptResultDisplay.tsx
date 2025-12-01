@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Download, RefreshCw } from 'lucide-react';
+import { Copy, Check, Download, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { LovableLaunchButton } from './LovableLaunchButton';
 
 interface PromptResultDisplayProps {
   prompt: string;
   cardCount: number;
   tokenCount: number | null;
+  images?: string[];
   onRegenerate: () => void;
   onClose: () => void;
 }
@@ -15,11 +18,13 @@ export function PromptResultDisplay({
   prompt,
   cardCount,
   tokenCount,
+  images = [],
   onRegenerate,
   onClose,
 }: PromptResultDisplayProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -58,19 +63,16 @@ export function PromptResultDisplay({
 
   return (
     <div className="space-y-4">
+      {/* Status Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold">Generated Prompt</h3>
+          <h3 className="font-semibold">Prompt Ready</h3>
           <p className="text-sm text-muted-foreground">
-            Synthesized from {cardCount} cards
+            {prompt.length.toLocaleString()} characters • {cardCount} cards
             {tokenCount && ` • ${tokenCount.toLocaleString()} tokens`}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleCopy}>
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Copied!' : 'Copy'}
-          </Button>
           <Button variant="outline" size="sm" onClick={handleDownload}>
             <Download className="w-4 h-4" />
             Download
@@ -82,17 +84,38 @@ export function PromptResultDisplay({
         </div>
       </div>
 
-      <div className="relative">
-        <pre className="bg-muted p-4 rounded-lg text-xs overflow-auto max-h-[400px] whitespace-pre-wrap font-mono">
-          {prompt}
-        </pre>
-      </div>
+      {/* Collapsible Preview */}
+      <Collapsible open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full justify-between">
+            <span className="text-sm">
+              {isPreviewOpen ? 'Hide prompt preview' : 'Show prompt preview'}
+            </span>
+            {isPreviewOpen ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="relative mt-2">
+            <pre className="bg-muted p-4 rounded-lg text-xs overflow-auto max-h-[400px] whitespace-pre-wrap font-mono">
+              {prompt}
+            </pre>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
-      <div className="flex justify-end gap-2">
+      {/* Lovable Launch Button */}
+      <LovableLaunchButton prompt={prompt} images={images} />
+
+      {/* Action Buttons */}
+      <div className="flex justify-between gap-2 pt-2">
         <Button variant="outline" onClick={onClose}>Close</Button>
-        <Button onClick={handleCopy}>
+        <Button variant="outline" onClick={handleCopy}>
           {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-          {copied ? 'Copied!' : 'Copy & Close'}
+          {copied ? 'Copied!' : 'Copy to Clipboard'}
         </Button>
       </div>
     </div>

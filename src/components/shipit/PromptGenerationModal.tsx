@@ -373,6 +373,10 @@ export const PromptGenerationModal = ({ open, onClose, allCards, preselectedCard
                 prompt={generatedPrompt}
                 tokenCount={tokenCount}
                 cardCount={selectedCardIds.length}
+                images={allCards
+                  .filter(card => selectedCardIds.includes(card.id))
+                  .map(card => card.artwork_url)
+                  .filter((url): url is string => !!url)}
                 onRegenerate={() => setCurrentStep(2)}
                 onClose={onClose}
               />
