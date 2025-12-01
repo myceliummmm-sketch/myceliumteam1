@@ -43,12 +43,13 @@ export function LovableLaunchButton({
     try {
       // Encode prompt and images
       const encodedPrompt = encodeURIComponent(prompt);
-      let lovableUrl = `https://lovable.dev/new?prompt=${encodedPrompt}&autosubmit=true`;
+      let lovableUrl = `https://lovable.dev/?autosubmit=true#prompt=${encodedPrompt}`;
 
-      // Add images if available
+      // Add images as repeated parameters
       if (validImages.length > 0) {
-        const encodedImages = encodeURIComponent(validImages.join(','));
-        lovableUrl += `&images=${encodedImages}`;
+        validImages.forEach(imgUrl => {
+          lovableUrl += `&images=${encodeURIComponent(imgUrl)}`;
+        });
       }
 
       // Open in new tab
