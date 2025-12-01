@@ -8,14 +8,15 @@ const corsHeaders = {
 };
 
 // Retry helper with exponential backoff for rate limiting
-async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 5): Promise<Response> {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const response = await fetch(url, options);
     
     if (response.ok) return response;
     
     if (response.status === 429 && attempt < maxRetries - 1) {
-      const waitTime = Math.pow(2, attempt) * 1000;
+      // More aggressive backoff: 3s, 6s, 12s, 24s
+      const waitTime = Math.pow(2, attempt + 1) * 1500;
       console.log(`Rate limited (attempt ${attempt + 1}/${maxRetries}), waiting ${waitTime}ms`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
       continue;
