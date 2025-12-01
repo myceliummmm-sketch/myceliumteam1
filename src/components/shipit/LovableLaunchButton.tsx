@@ -43,7 +43,7 @@ export function LovableLaunchButton({
     try {
       // Encode prompt and images
       const encodedPrompt = encodeURIComponent(prompt);
-      let lovableUrl = `https://lovable.dev/projects/create?autosubmit=true&prompt=${encodedPrompt}`;
+      let lovableUrl = `https://lovable.dev/new?prompt=${encodedPrompt}&autosubmit=true`;
 
       // Add images if available
       if (validImages.length > 0) {
